@@ -40,8 +40,16 @@ html, body {
   touch-action: manipulation;     /* çift dokunuş zoom'u kapalı */
 }
 
-/* iOS standalone: dvh/% tutarsızlığına karşı JS'in ölçtüğü gerçek pencere yüksekliği (--app-h) */
-#app { max-width: 480px; margin: 0 auto; height: var(--app-h, 100%); position: relative; }
+/* App kabuğu doğrudan viewport'a SABİTLENİR: yüzde yükseklik html/body zincirine değil
+   pencerenin kendisine çözülür — iOS standalone alt bant sorununun kökten çözümü.
+   (--app-h yalnız Safari sekmesinde JS'çe ölçülür; standalone'da %100 = tam pencere) */
+#app {
+  max-width: 480px;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  margin: 0 auto;
+  height: var(--app-h, 100%);
+}
 
 .screen {
   display: none;
@@ -1852,7 +1860,7 @@ html, body {
   letter-spacing: 0.35em;
   text-transform: uppercase;
 }
-.soon-badge.beta { background: var(--lime); color: var(--ink); }
+.soon-badge.beta { background: var(--pink); color: #fff; }
 
 .lobby-col { padding-top: 60px; gap: 14px; }
 .code-card {
@@ -1956,6 +1964,44 @@ html, body {
   55% { transform: translateX(6px); }
   80% { transform: translateX(-3px); }
 }
+/* Her ekranın üstünde yüzen bildirim */
+#toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 86%;
+  background: var(--ink);
+  color: var(--cream);
+  border: 3px solid var(--cream);
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-weight: 800;
+  font-size: 14.5px;
+  text-align: center;
+  z-index: 999;
+  pointer-events: none;
+  animation: popIn 0.25s ease;
+  box-shadow: 0 5px 0 rgba(7, 21, 58, 0.4);
+}
+
+/* Ev sahibi: oyuncu atma butonu */
+.kick-btn {
+  width: 26px; height: 26px;
+  flex-shrink: 0;
+  margin-left: 8px;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  background: var(--pink);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.score-row .kick-btn { margin-left: 6px; }
+
 .lobby-row .ready-chip {
   margin-left: auto;
   width: 24px; height: 24px;
@@ -2046,6 +2092,8 @@ html, body {
 
   <div id="app">
 
+    <div id="toast" class="hidden" role="status"></div>
+
     <button id="btn-exit" class="btn-exit hidden" aria-label="Odadan ayrıl">🚪</button>
 
     <!-- ONAY MODALI -->
@@ -2064,7 +2112,7 @@ html, body {
       <div class="modal-card tip-card">
         <span id="tip-moly" aria-hidden="true"></span>
         <span class="doodle" style="left:18px; top:26px; color:var(--sun); font-size:30px; transform:rotate(-15deg)">★</span>
-        <span class="doodle" style="right:16px; top:30px; color:var(--pink); font-size:22px; transform:rotate(55deg)">〰</span>
+        <span class="doodle" style="right:16px; top:30px; color:var(--pink); font-size:22px; transform:rotate(55deg)">〰︎</span>
         <span class="tip-pill" data-i18n="tipPill">MOLY'DEN TÜYO</span>
         <h3 data-i18n="tipSmallTitle">Az kişi, çok ipucu!</h3>
         <p data-i18n="tipSmallBody">Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir.</p>
@@ -2080,7 +2128,7 @@ html, body {
           <span class="doodle" style="right:4%; top:6%; color:var(--lime); font-size:19px; transform:rotate(-25deg)">✦</span>
           <span class="doodle" style="right:3%; top:24%; color:var(--sun); font-size:22px; transform:rotate(14deg)">★</span>
           <span class="doodle" style="left:3%; top:44%; color:var(--pink); font-size:15px; transform:rotate(-40deg)">✦</span>
-          <span class="doodle" style="left:4%; top:83%; color:var(--pink); font-size:21px; transform:rotate(58deg)">〰</span>
+          <span class="doodle" style="left:4%; top:83%; color:var(--pink); font-size:21px; transform:rotate(58deg)">〰︎</span>
           <span class="doodle" style="right:6%; top:70%; color:var(--sun); font-size:18px; transform:rotate(-30deg)">★</span>
           <span class="doodle" style="right:10%; top:88%; color:var(--lime); font-size:12px">●</span>
         </div>
@@ -2104,7 +2152,7 @@ html, body {
 
         <div class="doodle-band">
           <span class="doodle" style="left:3%; top:-10px; color:var(--sun); font-size:27px; transform:rotate(-18deg)">★</span>
-          <span class="doodle" style="left:17%; top:26px; color:var(--pink); font-size:23px; letter-spacing:-2px; transform:rotate(-36deg)">〰</span>
+          <span class="doodle" style="left:17%; top:26px; color:var(--pink); font-size:23px; letter-spacing:-2px; transform:rotate(-36deg)">〰︎</span>
           <span class="dash" style="right:9%; top:2px; transform:rotate(-62deg)"></span>
         </div>
 
@@ -2313,7 +2361,7 @@ html, body {
       <div class="content center-col author-col">
         <div class="title-wrap">
           <span class="doodle" style="left:-30px; top:2px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
-          <span class="doodle" style="left:-18px; top:44px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰</span>
+          <span class="doodle" style="left:-18px; top:44px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰︎</span>
           <span class="dash" style="right:-24px; top:4px; transform:rotate(-62deg)"></span>
           <span class="dash" style="right:-32px; top:20px; width:10px; transform:rotate(-24deg)"></span>
           <h2 class="page-title pt-sm" data-i18n="authorPageTitle">Bizden Kelimeler ✍️</h2>
@@ -2337,11 +2385,11 @@ html, body {
       <div class="center-wrap">
         <p class="pass-note" id="reveal-turn"></p>
         <span class="doodle" style="top:calc(env(safe-area-inset-top, 0px) + 6.5%); left:5%; color:var(--sun); font-size:26px; transform:rotate(-18deg)">★</span>
-        <span class="doodle" style="top:calc(env(safe-area-inset-top, 0px) + 9.5%); left:9%; color:var(--pink); font-size:20px">〰</span>
+        <span class="doodle" style="top:calc(env(safe-area-inset-top, 0px) + 9.5%); left:9%; color:var(--pink); font-size:20px">〰︎</span>
         <span class="dash" style="right:10%; top:calc(env(safe-area-inset-top, 0px) + 11%); transform:rotate(-62deg)"></span>
         <span class="dash" style="right:5%; top:calc(env(safe-area-inset-top, 0px) + 12.5%); transform:rotate(-62deg)"></span>
         <span class="dash" style="left:6%; bottom:5%; transform:rotate(-30deg)"></span>
-        <span class="doodle" style="bottom:5.5%; right:16%; color:var(--pink); font-size:19px">〰</span>
+        <span class="doodle" style="bottom:5.5%; right:16%; color:var(--pink); font-size:19px">〰︎</span>
         <span class="doodle" style="bottom:4.5%; right:6%; color:var(--sun); font-size:22px; transform:rotate(18deg)">★</span>
         <div id="pick-stage">
           <h2 class="vote-title pick-headline" data-i18n="pickHint">Bir yuva seç, kartını kaz! ⛏️</h2>
@@ -2460,7 +2508,7 @@ html, body {
       <div class="content">
         <div class="title-wrap">
           <span class="doodle" style="left:-26px; top:6px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
-          <span class="doodle" style="left:-16px; top:44px; color:var(--pink); font-size:19px; transform:rotate(-28deg)">〰</span>
+          <span class="doodle" style="left:-16px; top:44px; color:var(--pink); font-size:19px; transform:rotate(-28deg)">〰︎</span>
           <span class="dash" style="right:-24px; top:4px; transform:rotate(-62deg)"></span>
           <span class="dash" style="right:-32px; top:20px; width:10px; transform:rotate(-24deg)"></span>
           <h2 class="page-title" data-i18n="roundTitle">İpucu Sırası</h2>
@@ -2538,7 +2586,7 @@ html, body {
       <div class="content center-col">
         <div class="title-wrap">
           <span class="doodle" style="left:-36px; top:-4px; color:var(--sun); font-size:30px; font-family:'Baloo 2',sans-serif; font-weight:800; transform:rotate(-14deg)">?</span>
-          <span class="doodle" style="left:-22px; top:46px; color:var(--pink); font-size:19px; transform:rotate(-28deg)">〰</span>
+          <span class="doodle" style="left:-22px; top:46px; color:var(--pink); font-size:19px; transform:rotate(-28deg)">〰︎</span>
           <span class="dash" style="right:-26px; top:4px; transform:rotate(-62deg)"></span>
           <span class="dash" style="right:-34px; top:20px; width:10px; transform:rotate(-24deg)"></span>
           <h2 class="page-title pt-sm" id="vote-title"></h2>
@@ -2555,7 +2603,7 @@ html, body {
       <div class="center-wrap announce-wrap">
         <div class="title-wrap">
           <span class="doodle" style="left:-30px; top:8px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
-          <span class="doodle" style="left:-20px; top:48px; color:var(--pink); font-size:19px; transform:rotate(-28deg)">〰</span>
+          <span class="doodle" style="left:-20px; top:48px; color:var(--pink); font-size:19px; transform:rotate(-28deg)">〰︎</span>
           <span class="dash" style="right:-26px; top:2px; transform:rotate(-62deg)"></span>
           <span class="dash" style="right:-34px; top:18px; width:10px; transform:rotate(-24deg)"></span>
           <h2 class="page-title" data-i18n="announceTitle">Oy verildi!</h2>
@@ -5223,6 +5271,8 @@ const I18N = {
     writeProg: (d, tot) => `${d}/${tot} çiftini yazdı ✍️`,
     bizdenEmpty: "Kimse çift yazmadı — Genel paketiyle devam! 📦",
     resumeRoom: "Oyuna Devam Et ↻",
+    kickLabel: "Oyuncuyu çıkar",
+    kickedMsg: "Ev sahibi seni odadan çıkardı 🚪",
     needPlayers: "En az 3 oyuncu gerek",
     leaveRoom: "Odadan Ayrıl 🚪",
     badCode: "Kod 4 harf olmalı 🤨",
@@ -5487,6 +5537,8 @@ const I18N = {
     writeProg: (d, tot) => `${d}/${tot} wrote their pair ✍️`,
     bizdenEmpty: "Nobody wrote a pair — continuing with the General pack! 📦",
     resumeRoom: "Resume Game ↻",
+    kickLabel: "Remove player",
+    kickedMsg: "The host removed you from the room 🚪",
     needPlayers: "Need at least 3 players",
     leaveRoom: "Leave Room 🚪",
     badCode: "Code must be 4 letters 🤨",
@@ -6255,6 +6307,18 @@ $("btn-score").addEventListener("click", () => {
       const row = document.createElement("div");
       row.className = "score-row";
       row.innerHTML = `<span class="s-rank">${rank + 1}</span><img src="${avatarSrc(p.avatar)}" alt=""><span>${escapeHtml(p.name)}</span><span class="s-pts">${p.score}</span>`;
+      // online + ev sahibi: buradan da oyuncu atılabilir (sıradaki elde kadrodan düşer)
+      if (typeof game !== "undefined" && game.on && net.isHost) {
+        const pid = game.roster[p.i]?.id;
+        if (pid && pid !== netSelfId() && !game.h.kicked.has(pid)) {
+          const kb = document.createElement("button");
+          kb.className = "kick-btn";
+          kb.textContent = "✕";
+          kb.setAttribute("aria-label", t("kickLabel"));
+          kb.addEventListener("click", () => { hostKickPlayer(pid); $("score-modal").classList.add("hidden"); });
+          row.appendChild(kb);
+        }
+      }
       list.appendChild(row);
     });
   $("score-modal").classList.remove("hidden");
@@ -6932,7 +6996,7 @@ function showElResult() {
 
   let html = `<div class="title-wrap">
       <span class="doodle" style="left:-28px; top:8px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
-      <span class="doodle" style="left:-38px; top:-8px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰</span>
+      <span class="doodle" style="left:-38px; top:-8px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰︎</span>
       <span class="dash" style="right:-24px; top:6px; transform:rotate(-62deg)"></span>
       <span class="dash" style="right:-32px; top:22px; width:10px; transform:rotate(-24deg)"></span>
       <h2 class="page-title pt-sm title-bounce">${(el.topSet || []).some((k) => el.roles[k] === "kostebek") ? t("bigRevealCaught") : t("bigRevealEscaped")}</h2>
@@ -7046,7 +7110,7 @@ const TROPHY_SVG = `<svg class="trophy-svg" viewBox="0 0 150 132" aria-hidden="t
 
 const FINAL_TITLE_DOODLES = `
   <span class="doodle" style="left:-28px; top:6px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
-  <span class="doodle" style="left:-38px; top:-10px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰</span>
+  <span class="doodle" style="left:-38px; top:-10px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰︎</span>
   <span class="dash" style="right:-24px; top:4px; transform:rotate(-62deg)"></span>
   <span class="dash" style="right:-32px; top:20px; width:10px; transform:rotate(-24deg)"></span>`;
 
@@ -7103,7 +7167,7 @@ function renderChampionPage() {
       <span class="doodle" style="left:-4px; top:34px; font-size:30px; transform:rotate(-16deg)">🎉</span>
       <span class="doodle" style="right:-2px; top:56px; font-size:28px; transform:rotate(14deg)">🎊</span>
       <span class="doodle" style="left:6px; bottom:-14px; color:var(--sun); font-size:22px; transform:rotate(18deg)">★</span>
-      <span class="doodle" style="right:10px; bottom:-20px; color:var(--pink); font-size:18px; transform:rotate(-30deg)">〰</span>
+      <span class="doodle" style="right:10px; bottom:-20px; color:var(--pink); font-size:18px; transform:rotate(-30deg)">〰︎</span>
       ${TROPHY_SVG}
       <div class="award-card2">
         <span class="award-pill">${escapeHtml(champ.label)}</span>
@@ -7413,6 +7477,14 @@ async function joinRoomOnce(code, asHost) {
   ch.on("broadcast", { event: "hb" }, ({ payload }) => {
     if (net.isHost && game.on && game.h && payload && payload.pid) game.h.seen[payload.pid] = Date.now();
   });
+  ch.on("broadcast", { event: "kick" }, ({ payload }) => {
+    if (payload && payload.pid === netSelfId() && !net.isHost) {
+      game.on = false;
+      leaveRoom(true);
+      showScreen("screen-online-entry");
+      showToastError(t("kickedMsg"));
+    }
+  });
 
   await new Promise((resolve, reject) => {
     // İlk websocket bağlantısı ~5 sn sürebilir ve supabase-js ara durumlarda kendi kendine
@@ -7546,10 +7618,12 @@ function setLobbyBusy(b) {
 }
 
 function showToastError(msg) {
-  const el = $("online-err");
+  // her ekranın üstünde yüzen bildirim — hangi ekran açık olursa olsun görünür
+  const el = $("toast");
   el.textContent = msg;
   el.classList.remove("hidden");
-  setTimeout(() => el.classList.add("hidden"), 3000);
+  clearTimeout(showToastError._t);
+  showToastError._t = setTimeout(() => el.classList.add("hidden"), 3200);
 }
 
 function enterLobby() {
@@ -7583,8 +7657,14 @@ function renderLobby() {
         <span class="lp-name">${escapeHtml(p.name || t("unnamed"))}${me ? ` <em>(${t("you")})</em>` : ""}</span>
         ${p.ready ? `<span class="ready-chip">✓</span>` : ""}
         ${p.host ? `<span class="host-badge">${t("hostBadge")}</span>` : ""}
+        ${net.isHost && !me && !p.host ? `<button class="kick-btn" data-kick="${p.id}" aria-label="${t("kickLabel")}">✕</button>` : ""}
       </div>`;
     }).join("");
+    if (net.isHost) {
+      wrap.querySelectorAll("[data-kick]").forEach((b) =>
+        b.addEventListener("click", () => hostKickPlayer(b.dataset.kick))
+      );
+    }
   }
   $("lobby-count").textContent = list.length;
   // avatar ızgarası: başkasının aldığı kilitli
@@ -7724,7 +7804,48 @@ function onGameStarting(rosterList) {
 }
 
 function newHostState() {
-  return { ready: new Set(), votes: new Map(), written: new Set(), stepIdx: 0, seen: {}, phaseAt: Date.now(), lastExtra: null };
+  return { ready: new Set(), votes: new Map(), written: new Set(), kicked: new Set(), stepIdx: 0, seen: {}, phaseAt: Date.now(), lastExtra: null };
+}
+
+// ---------- Ev sahibi: oyuncu atma ----------
+function hostKickPlayer(pid) {
+  if (!net.isHost || !pid || pid === netSelfId()) return;
+  if (game.on && game.h && game.roster.some((r) => r.id === pid)) {
+    const active = game.roster.filter((r) => !game.h.kicked.has(r.id)).length;
+    if (active <= 3) { showToastError(t("needPlayers")); return; }
+    game.h.kicked.add(pid);
+  }
+  delete net.lobbyRoster[pid];
+  pub("kick", { pid });
+  pubRoster();
+  if (game.on && game.h) {
+    hostPassKicked(pid); // mevcut fazda beklenen adımı anında düşür
+    hostSaveSnap();
+  }
+}
+
+// Atılan oyuncunun bu fazda beklenen katkısı otomatik tamamlanır (oyun kilitlenmez)
+function hostPassKicked(pid) {
+  if (game.phase === "deal" && !game.h.ready.has(pid)) {
+    game.h.ready.add(pid);
+    hostCheckReadyDone(true);
+  } else if (game.phase === "write" && !game.h.written.has(pid)) {
+    game.h.written.add(pid);
+    pub("prog", { kind: "write", done: game.h.written.size, total: game.roster.length });
+    if (game.h.written.size >= game.roster.length) hostFinishWrite();
+  } else if (game.phase === "vote" && !game.h.votes.has(pid)) {
+    game.h.votes.set(pid, -1); // boş oy
+    pub("prog", { kind: "vote", done: game.h.votes.size, total: game.roster.length });
+    if (game.h.votes.size >= game.roster.length) hostFinishVoting();
+  } else if (game.phase === "tie" && game.h.lastExtra && game.roster[game.h.lastExtra.muhtarIdx]?.id === pid) {
+    const c = game.h.lastExtra.cands;
+    state.el.muhtarUsed = true;
+    hostResolveTopSet([c[Math.floor(Math.random() * c.length)]]);
+  } else if (game.phase === "guess" && game.h.lastExtra && game.roster[game.h.lastExtra.numIdx]?.id === pid) {
+    state.el.guess = "";
+    state.el.guessCorrect = false;
+    hostElResult();
+  }
 }
 
 function onlineHideSetupBits(hide) {
@@ -7766,6 +7887,14 @@ function hostFinishWrite() {
 }
 
 function hostNextEl() {
+  // atılanlar bir SONRAKİ elde kadrodan düşer (el ortasında dizi indeksleri bozulmasın)
+  if (game.h.kicked.size) {
+    state.players = state.players.filter((_, i) => !game.h.kicked.has(game.roster[i].id));
+    game.roster = game.roster.filter((r) => !game.h.kicked.has(r.id));
+    game.h.kicked.clear();
+    state.playerCount = game.roster.length;
+    game.myIdx = pidToIdx(netSelfId());
+  }
   state.elNo++;
   state.el = buildElCore();
   game.h.ready = new Set();
@@ -8315,6 +8444,8 @@ function hostSendSync(pid) {
 
 function hostStartVote() {
   game.h.votes = new Map();
+  // atılmış (bu el kadroda kalan) oyuncular baştan boş oy sayılır — kimse onları beklemez
+  game.h.kicked.forEach((pid) => { if (game.roster.some((r) => r.id === pid)) game.h.votes.set(pid, -1); });
   game.deadline = Date.now() + VOTE_SECONDS * 1000;
   pub("st", { phase: "vote", seq: ++game.seq, deadline: game.deadline });
   game.h.voteTimeout = setTimeout(() => {
