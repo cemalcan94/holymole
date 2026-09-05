@@ -40,11 +40,12 @@ html, body {
   touch-action: manipulation;     /* çift dokunuş zoom'u kapalı */
 }
 
-#app { max-width: 480px; margin: 0 auto; height: 100dvh; position: relative; }
+/* iOS standalone: 100dvh alt güvenli alanı dışlıyor → % zinciri tam pencereyi verir */
+#app { max-width: 480px; margin: 0 auto; height: 100%; position: relative; }
 
 .screen {
   display: none;
-  height: 100dvh;
+  height: 100%;
   flex-direction: column;
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
 }
@@ -240,19 +241,27 @@ html, body {
   transform: rotate(6deg);
 }
 
-.lang-switch { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-.lang-btn {
-  background: transparent;
-  border: 3px solid rgba(245, 239, 223, 0.5);
-  color: rgba(245, 239, 223, 0.85);
-  padding: 9px 18px;
-  border-radius: 100px;
-  font-size: 14px;
+/* Klasik mod: birincil buton büyük, bitir küçük kalır */
+#btn-next-el { font-size: 22px; padding: 18px 24px; }
+#btn-end-classic { font-size: 15px; padding: 11px 20px; box-shadow: 0 4px 0 var(--ink); }
+
+/* Ayarlar modalı satırları */
+.set-gear { width: 46px; height: 46px; }
+.set-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 2px;
   font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  text-align: left;
 }
-.lang-btn.active { border-color: var(--lime); color: var(--cream); background: rgba(19, 26, 60, 0.35); }
+.set-label { display: flex; align-items: center; gap: 9px; }
+.lang-seg { display: flex; }
+.lang-seg .seg-btn { padding: 8px 14px; font-size: 14px; white-space: nowrap; }
 
 /* ---------- Butonlar ---------- */
 .btn {
@@ -1939,13 +1948,14 @@ html, body {
               <g fill="#f5efdf">
                 <circle cx="94" cy="60" r="16.5"/><circle cx="84" cy="84" r="16.5"/><circle cx="60" cy="94" r="16.5"/><circle cx="36" cy="84" r="16.5"/><circle cx="26" cy="60" r="16.5"/><circle cx="36" cy="36" r="16.5"/><circle cx="60" cy="26" r="16.5"/><circle cx="84" cy="36" r="16.5"/><circle cx="60" cy="60" r="42"/>
               </g>
-              <path d="M38 51 h11 l15 -13 v44 l-15 -13 h-11 z" fill="#07153a"/>
+              <path d="M42 51 h11 l15 -13 v44 l-15 -13 h-11 z" fill="#07153a"/>
               <g id="snd-waves" stroke="#07153a" stroke-width="6" fill="none" stroke-linecap="round">
-                <path d="M72 50 q9 10 0 20"/>
-                <path d="M80 43 q16 17 0 34"/>
+                <path d="M76 50 q9 10 0 20"/>
+                <path d="M84 43 q16 17 0 34"/>
               </g>
-              <g id="snd-mute" class="hidden" stroke="#07153a" stroke-width="7" stroke-linecap="round">
-                <path d="M72 48 l20 24 M92 48 l-20 24"/>
+              <g id="snd-mute" class="hidden" stroke-linecap="round">
+                <path d="M38 36 L86 84" stroke="#f5efdf" stroke-width="13"/>
+                <path d="M38 36 L86 84" stroke="#07153a" stroke-width="6.5"/>
               </g>
             </svg>
           </button>
@@ -1978,11 +1988,22 @@ html, body {
     <!-- AYARLAR MODALI -->
     <div id="settings-modal" class="modal-backdrop hidden">
       <div class="modal-card">
-        <span class="modal-emoji">⚙️</span>
+        <svg class="set-gear" viewBox="0 0 48 48" aria-hidden="true"><g fill="#07153a"><rect x="21" y="6" width="6" height="8" rx="3"/><rect x="21" y="34" width="6" height="8" rx="3"/><rect x="6" y="21" width="8" height="6" rx="3"/><rect x="34" y="21" width="8" height="6" rx="3"/><rect x="10.5" y="10.5" width="7" height="7" rx="3" transform="rotate(45 14 14)"/><rect x="30.5" y="10.5" width="7" height="7" rx="3" transform="rotate(45 34 14)"/><rect x="10.5" y="30.5" width="7" height="7" rx="3" transform="rotate(45 14 34)"/><rect x="30.5" y="30.5" width="7" height="7" rx="3" transform="rotate(45 34 34)"/><circle cx="24" cy="24" r="11"/></g><circle cx="24" cy="24" r="4.5" fill="#f5efdf"/></svg>
         <h3 data-i18n="settingsTitle">Ayarlar</h3>
-        <div class="lang-switch">
-          <button class="lang-btn active" data-lang="tr">🇹🇷 Türkçe</button>
-          <button class="lang-btn" data-lang="en">🇬🇧 English</button>
+        <div class="set-row">
+          <span class="set-label">🔊 <span data-i18n="setSfx">Ses Efektleri</span></span>
+          <button class="toggle on" id="toggle-sfx" aria-label="Ses efektleri"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="set-row">
+          <span class="set-label">🎵 <span data-i18n="setMusic">Müzik</span></span>
+          <button class="toggle on" id="toggle-music" aria-label="Müzik"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="set-row">
+          <span class="set-label">🌐 <span data-i18n="setLang">Dil</span></span>
+          <div class="segment small lang-seg">
+            <button class="seg-btn lang-btn active" data-lang="tr">🇹🇷 TR</button>
+            <button class="seg-btn lang-btn" data-lang="en">🇬🇧 EN</button>
+          </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
       </div>
@@ -2581,6 +2602,9 @@ const I18N = {
     localGame: "YEREL OYUN",
     howToPlayHome: "NASIL OYNANIR?",
     settingsTitle: "Ayarlar",
+    setSfx: "Ses Efektleri",
+    setMusic: "Müzik",
+    setLang: "Dil",
     closeBtn: "Kapat",
     newGame: "Oyna",
     howToPlay: "Nasıl Oynanır?",
@@ -2798,6 +2822,9 @@ const I18N = {
     localGame: "LOCAL GAME",
     howToPlayHome: "HOW TO PLAY?",
     settingsTitle: "Settings",
+    setSfx: "Sound Effects",
+    setMusic: "Music",
+    setLang: "Language",
     closeBtn: "Close",
     newGame: "Play",
     howToPlay: "How to Play",
@@ -3029,7 +3056,9 @@ const state = {
   customPairs: [],
   authorIndex: 0,
   players: [],       // { name, score, stats }
-  muted: false,      // ses/müzik açık başlar (ana ekrandaki düğmeyle kapanır)
+  muted: false,      // ana ses anahtarı (ana ekran düğmesi — her şeyi susturur)
+  sfxOn: true,       // ayarlar: ses efektleri
+  musicOn: true,     // ayarlar: müzik
   el: null,          // aktif el verisi
   elNo: 0,
   usedPairs: [],
@@ -3228,6 +3257,11 @@ const SFX = {
   },
   story: () => tone(700, 0.08, { gain: 0.08, slide: 220 }),
 };
+// Ayarlardaki "Ses Efektleri" anahtarı tüm SFX'leri kapsar
+Object.keys(SFX).forEach((k) => {
+  const f = SFX[k];
+  SFX[k] = () => { if (state.sfxOn === false) return; f(); };
+});
 
 // Lobi/kutlama müziği: yumuşak pentatonik arpej döngüsü
 const MUSIC_SCREENS = ["screen-home", "screen-setup", "screen-how", "screen-final"];
@@ -3246,7 +3280,7 @@ function scheduleMusicBar() {
   musicBar++;
 }
 function startMusic() {
-  if (musicTimer || state.muted) return;
+  if (musicTimer || state.muted || state.musicOn === false) return;
   scheduleMusicBar();
   musicTimer = setInterval(scheduleMusicBar, MUSIC_MELODY.length * MUSIC_STEP * 1000);
 }
@@ -3256,9 +3290,21 @@ function stopMusic() {
 }
 function syncMusic() {
   const active = document.querySelector(".screen.active");
-  if (active && MUSIC_SCREENS.includes(active.id) && !state.muted) startMusic();
+  if (active && MUSIC_SCREENS.includes(active.id) && !state.muted && state.musicOn !== false) startMusic();
   else stopMusic();
 }
+
+// Ayarlar: efekt/müzik anahtarları
+$("toggle-sfx").addEventListener("click", () => {
+  state.sfxOn = !state.sfxOn;
+  setToggle("toggle-sfx", state.sfxOn);
+  if (state.sfxOn) SFX.tap();
+});
+$("toggle-music").addEventListener("click", () => {
+  state.musicOn = !state.musicOn;
+  setToggle("toggle-music", state.musicOn);
+  syncMusic();
+});
 // Tarayıcı sesi ilk dokunuşta açar — kilidini o anda çöz
 document.addEventListener("pointerdown", () => { if (!state.muted) { ac(); syncMusic(); } }, { once: true });
 // Genel buton tıkı (özel sesi olanlar hariç)
@@ -4221,7 +4267,7 @@ function showElResult() {
   if (isLast) {
     html += `<button class="btn btn-primary btn-big" id="btn-final">${t("seeFinal")}</button>`;
   } else if (state.mode === "classic") {
-    html += `<button class="btn btn-primary btn-big" id="btn-next-el">${t("oneMoreEl")}</button>
+    html += `<button class="btn btn-primary btn-big" id="btn-next-el">${t("nextEl")}</button>
              <button class="btn btn-ghost btn-big" id="btn-end-classic">${t("endGame")}</button>`;
   } else {
     html += `<button class="btn btn-primary btn-big" id="btn-next-el">${t("nextEl")}</button>`;
