@@ -1939,6 +1939,10 @@ html, body {
 .lob-av.sel { border-color: var(--ink); box-shadow: 0 0 0 3.5px var(--lime); }
 .lob-av.taken { opacity: 0.3; }
 
+/* Online oylama: kilitli kartlar */
+.vote-card.locked { opacity: 0.45; pointer-events: none; }
+.vote-card.locked.leading { opacity: 1; }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2340,6 +2344,15 @@ html, body {
       </div>
     </section>
 
+    <!-- ONLINE: BEKLEME -->
+    <section id="screen-online-wait" class="screen">
+      <div class="content center-col online-col" style="justify-content:center">
+        <span class="guess-mask" id="wait-emoji">⏳</span>
+        <p class="pass-note" id="wait-text"></p>
+        <p class="pass-note hidden" id="wait-prog"></p>
+      </div>
+    </section>
+
     <!-- ONLINE: YAPIM AŞAMASI -->
     <section id="screen-online-wip" class="screen">
       <div class="content center-col online-col">
@@ -2441,6 +2454,7 @@ html, body {
           <span class="dash" style="right:-34px; top:20px; width:10px; transform:rotate(-24deg)"></span>
           <h2 class="page-title pt-sm" id="vote-title"></h2>
         </div>
+        <div class="timer-pill hidden" id="vote-cd" style="align-self:center"></div>
         <div class="vote-grid" id="vote-grid"></div>
         <button class="btn btn-ghost hidden" id="btn-oral-tie" data-i18n="oralTieBtn">Oylar eşit çıktı 🤯</button>
         <div class="live-bar" id="vote-pass-note"></div>
@@ -5120,6 +5134,17 @@ const I18N = {
     wipTitle: "El akışı yolda!",
     wipBody: "Oda kurma çalışıyor — eller bir sonraki güncellemede bu odada oynanacak. 🚧",
     backLobby: "Lobiye Dön",
+    onlineWaitConfig: "Ev sahibi oyunu kuruyor ⚙️",
+    digYours: "Yuvanı seç, kartını kaz! ⛏️",
+    imReady: "Gördüm, Hazırım ✔",
+    sawCards: (a, b) => `${a}/${b} kartını gördü 👀`,
+    votedProg: (a, b) => `${a}/${b} oyladı 🗳️`,
+    voteLocked: "Oyun kilitlendi ✔ Diğerleri bekleniyor...",
+    noVote: (n) => `${n} süresinde oy veremedi! 💤`,
+    muhtarDeciding: (n) => `Oylar eşit! Muhtar ${n} karar veriyor 🗳️`,
+    numThinking: (n) => `${n} son kozunu oynuyor 🎭`,
+    hostWilContinue: "Ev sahibi devam ettirecek ⏳",
+    toLobby: "Lobiye Dön 🏠",
     closeBtn: "Kapat",
     newGame: "Oyna",
     howToPlay: "Nasıl Oynanır?",
@@ -5364,6 +5389,17 @@ const I18N = {
     wipTitle: "Hands are on the way!",
     wipBody: "Rooms work — playing hands lands in the next update. 🚧",
     backLobby: "Back to Lobby",
+    onlineWaitConfig: "Host is setting up the game ⚙️",
+    digYours: "Pick a burrow, dig your card! ⛏️",
+    imReady: "Got it, I'm Ready ✔",
+    sawCards: (a, b) => `${a}/${b} saw their card 👀`,
+    votedProg: (a, b) => `${a}/${b} voted 🗳️`,
+    voteLocked: "Vote locked ✔ Waiting for the rest...",
+    noVote: (n) => `${n} didn't vote in time! 💤`,
+    muhtarDeciding: (n) => `It's a tie! Mayor ${n} decides 🗳️`,
+    numThinking: (n) => `${n} is playing their last card 🎭`,
+    hostWilContinue: "The host will continue ⏳",
+    toLobby: "Back to Lobby 🏠",
     closeBtn: "Close",
     newGame: "Play",
     howToPlay: "How to Play",
@@ -5677,6 +5713,7 @@ function renderPackChips() {
   const wrap = $("pack-chips");
   wrap.innerHTML = "";
   WORD_PACKS.forEach((pack) => {
+    if (pack.custom && typeof game !== "undefined" && game.on) return; // Bizden: online'da Faz C'de
     const btn = document.createElement("button");
     btn.className = "pack-chip" + (state.selectedPacks.includes(pack.id) ? " active" : "");
     btn.innerHTML = `<img class="pack-ico" src="${asset(`assets/pack-${pack.id}.png`)}" alt="" onerror="this.remove()"><span>${escapeHtml(pack.names[state.lang])}</span>`;
@@ -5889,7 +5926,12 @@ $("btn-exit").addEventListener("click", () => {
     text: t("leaveText"),
     confirmLabel: t("leaveConfirm"),
     cancelLabel: t("leaveCancel"),
-    onConfirm: () => { stopTimer(); showScreen("screen-home"); },
+    onConfirm: () => {
+      stopTimer();
+      if (typeof net !== "undefined" && net.code) leaveRoom(true);
+      if (typeof game !== "undefined") game.on = false;
+      showScreen("screen-home");
+    },
   });
 });
 
@@ -6027,6 +6069,8 @@ document.querySelectorAll("#diff-segment .seg-btn").forEach((b) =>
 // ================= Tur araçları =================
 // 👁 Kelimeme bak (amnezi modu)
 $("btn-peek").addEventListener("click", () => {
+  // Online: sadece KENDİ kelimeni görebilirsin (başkalarınınki sızmaz)
+  if (typeof game !== "undefined" && game.on) { onlineSelfPeek(); return; }
   $("peek-word-box").classList.add("hidden");
   $("peek-title").textContent = t("peekTitle");
   const grid = $("peek-grid");
@@ -6116,6 +6160,8 @@ $("btn-round-settings").addEventListener("click", () => $("settings-modal").clas
 
 // ================= Oyun başlat =================
 $("btn-start").addEventListener("click", () => {
+  // Odadayken (lobi) yerel oyun yanlışlıkla başlamasın — online akış kendi hook'unu kullanır
+  if (typeof net !== "undefined" && net.code && !(typeof game !== "undefined" && game.on)) return;
   SFX.start();
   clampSetup();
   const names = [...$("name-inputs").querySelectorAll("input")].map(
@@ -6281,8 +6327,8 @@ function pickPair() {
   return Math.random() < 0.5 ? [chosen.a, chosen.b] : [chosen.b, chosen.a];
 }
 
-function startEl() {
-  state.elNo++;
+// El çekirdeği: rol/kelime/sıra dağıtımı — UI'sız (online ev sahibi de kullanır)
+function buildElCore() {
   const n = state.playerCount;
   const [civilWord, spyWord] = pickPair();
 
@@ -6307,7 +6353,7 @@ function startEl() {
   const order = [];
   for (let i = 0; i < n; i++) order.push((startIdx + i) % n);
 
-  state.el = {
+  return {
     civilWord, spyWord, roles, order,
     twinA, twinB, papagan, muhtar,
     muhtarUsed: false, tiePick: -1,
@@ -6317,6 +6363,11 @@ function startEl() {
     guess: null, guessCorrect: false,
     points: new Array(n).fill(0),
   };
+}
+
+function startEl() {
+  state.elNo++;
+  state.el = buildElCore();
   state.revealIndex = 0;
   showRevealCard();
   showScreen("screen-reveal");
@@ -6411,6 +6462,7 @@ function digHole(i, btn) {
 }
 
 $("btn-next-player").addEventListener("click", () => {
+  if (typeof game !== "undefined" && game.on) { onlineCardDone(); return; }
   state.revealIndex++;
   if (state.revealIndex < state.playerCount) showRevealCard();
   else startRoundScreen();
@@ -6537,6 +6589,7 @@ function setAnnounceVisual(fromIdx, toIdx) {
   card.classList.remove("vv-anim");
   void card.offsetWidth;
   card.classList.add("vv-anim");
+  $("btn-announce-next").classList.remove("hidden"); // online açılış sekansı gizlemiş olabilir
   SFX.announce();
 }
 
@@ -6629,6 +6682,12 @@ $("btn-guess").addEventListener("click", () => {
 
 // ================= Puanlama =================
 function scoreEl() {
+  computeElPoints();
+  showElResult();
+}
+
+// Saf puan hesabı — UI'sız (online ev sahibi de kullanır)
+function computeElPoints() {
   const el = state.el;
   const counts = voteCounts();
   const topSet = el.topSet || [];
@@ -6668,8 +6727,6 @@ function scoreEl() {
     el.points[i] = pts;
     p.score += pts;
   });
-
-  showElResult();
 }
 
 // ================= Espri motoru =================
@@ -7114,7 +7171,10 @@ const net = {
   isHost: false,
   name: "",
   avatar: 0, // 0 = seçilmedi
-  players: {}, // presenceKey -> { name, avatar, host, t }
+  players: {},      // pid -> { name, avatar, host, t } — "roster" yayınından beslenir
+  lobbyRoster: {},  // yalnız ev sahibi: otoritatif üye listesi
+  gotRoster: false, // katılan: ev sahibinden roster geldi mi
+  rosterTimer: null,
 };
 
 function netClient() {
@@ -7151,54 +7211,105 @@ function netPlayerList() {
 }
 
 async function joinRoomChannel(code, asHost) {
+  return joinRoomOnce(code, asHost);
+}
+
+async function joinRoomOnce(code, asHost) {
   await leaveRoom(true);
+  const rc = netClient().realtime;
+  try { rc.connect(); } catch (e) {}
+  for (let i = 0; i < 30 && !rc.isConnected(); i++) {
+    await new Promise((r) => setTimeout(r, 150));
+  }
   net.code = code;
   net.isHost = asHost;
+  net.gotRoster = false;
   const ch = netClient().channel("room:" + code, {
-    config: { presence: { key: netSelfId() }, broadcast: { self: true } },
+    config: { broadcast: { self: true } },
   });
   net.channel = ch;
 
-  ch.on("presence", { event: "sync" }, () => {
-    const raw = ch.presenceState();
-    net.players = {};
-    Object.entries(raw).forEach(([key, metas]) => {
-      if (metas && metas[0]) net.players[key] = metas[0];
-    });
+  // ÜYELİK = kendi broadcast protokolümüz (Supabase presence güvenilmez çıktı — Faz B notu)
+  ch.on("broadcast", { event: "hello" }, ({ payload }) => {
+    if (!net.isHost || !payload || !payload.pid) return;
+    net.lobbyRoster[payload.pid] = { name: payload.name, avatar: payload.avatar, host: payload.pid === netSelfId(), t: payload.t || Date.now() };
+    pubRoster();
+  });
+  ch.on("broadcast", { event: "bye" }, ({ payload }) => {
+    if (!net.isHost || !payload || !payload.pid) return;
+    delete net.lobbyRoster[payload.pid];
+    pubRoster();
+  });
+  ch.on("broadcast", { event: "roster" }, ({ payload }) => {
+    if (!payload || !payload.players) return;
+    net.players = payload.players;
+    net.gotRoster = true;
     renderLobby();
   });
-  ch.on("broadcast", { event: "start" }, () => {
-    showScreen("screen-online-wip");
+  ch.on("broadcast", { event: "start" }, ({ payload }) => {
+    onGameStarting(payload && payload.roster);
   });
+  ch.on("broadcast", { event: "st" }, ({ payload }) => applyPhase(payload));
+  ch.on("broadcast", { event: "rv" }, ({ payload }) => applyRevealStep(payload));
+  ch.on("broadcast", { event: "prog" }, ({ payload }) => applyProgress(payload));
+  ch.on("broadcast", { event: "in" }, ({ payload }) => { if (net.isHost) hostOnIntent(payload); });
 
   await new Promise((resolve, reject) => {
-    const to = setTimeout(() => reject(new Error("timeout")), 8000);
-    ch.subscribe(async (status) => {
-      if (status === "SUBSCRIBED") {
+    // İlk websocket bağlantısı ~5 sn sürebilir ve supabase-js ara durumlarda kendi kendine
+    // yeniden dener — TIMED_OUT/CHANNEL_ERROR'da pes ETME, yalnız genel 15 sn sınırında vazgeç.
+    let done = false;
+    const to = setTimeout(() => { if (!done) { done = true; reject(new Error("timeout")); } }, 15000);
+    ch.subscribe(async (status, err) => {
+      if (status === "SUBSCRIBED" && !done) {
+        done = true;
         clearTimeout(to);
-        await trackSelf();
         resolve();
-      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-        clearTimeout(to);
-        reject(new Error(status));
       }
     });
   });
+
+  if (net.isHost) {
+    net.lobbyRoster = {};
+    net.lobbyRoster[netSelfId()] = { name: net.name, avatar: net.avatar, host: true, t: Date.now() };
+    pubRoster();
+    // kaçıran olursa diye periyodik yeniden yayın
+    if (net.rosterTimer) clearInterval(net.rosterTimer);
+    net.rosterTimer = setInterval(() => { if (net.isHost && net.channel) pubRoster(); }, 6000);
+  }
+  sendHello();
 }
 
-async function trackSelf() {
+function pubRoster() {
   if (!net.channel) return;
-  await net.channel.track({ name: net.name, avatar: net.avatar, host: net.isHost, t: Date.now() });
+  net.players = Object.assign({}, net.lobbyRoster);
+  renderLobby();
+  net.channel.send({ type: "broadcast", event: "roster", payload: { players: net.lobbyRoster } });
 }
+
+// Kendini duyur (katılan roster'da görünene kadar tekrarlar; isim/avatar değişince de çağrılır)
+function sendHello() {
+  if (!net.channel) return;
+  net.channel.send({
+    type: "broadcast", event: "hello",
+    payload: { pid: netSelfId(), name: net.name, avatar: net.avatar, t: Date.now() },
+  });
+}
+
+async function trackSelf() { sendHello(); }
 
 async function leaveRoom(silent) {
   if (net.channel) {
+    try { net.channel.send({ type: "broadcast", event: "bye", payload: { pid: netSelfId() } }); } catch (e) {}
     try { await net.channel.unsubscribe(); } catch (e) {}
   }
+  if (net.rosterTimer) clearInterval(net.rosterTimer);
+  net.rosterTimer = null;
   net.channel = null;
   net.code = null;
   net.isHost = false;
   net.players = {};
+  net.lobbyRoster = {};
+  net.gotRoster = false;
   if (!silent) showScreen("screen-online-entry");
 }
 
@@ -7238,11 +7349,13 @@ async function joinExistingRoom() {
   net.name = net.name || "";
   setLobbyBusy(true);
   try {
+    // Ev sahibinden roster gelene dek hello tekrarla (broadcast tabanlı üyelik)
     await joinRoomChannel(code, false);
-    // ev sahibi var mı? kısa bir yoklama payı tanı
-    await new Promise((r) => setTimeout(r, 900));
-    const hasHost = netPlayerList().some((p) => p.host);
-    if (!hasHost) {
+    for (let i = 0; i < 24 && !net.gotRoster; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      if (i % 3 === 2) sendHello();
+    }
+    if (!net.gotRoster) {
       await leaveRoom(true);
       showToastError(t("roomNotFound"));
       setLobbyBusy(false);
@@ -7349,7 +7462,7 @@ $("lobby-name").addEventListener("change", () => {
 $("btn-lobby-leave").addEventListener("click", () => leaveRoom(false));
 $("btn-online-start").addEventListener("click", () => {
   if (!net.isHost || !net.channel) return;
-  net.channel.send({ type: "broadcast", event: "start", payload: {} });
+  net.channel.send({ type: "broadcast", event: "start", payload: { roster: netPlayerList() } });
 });
 $("btn-wip-back").addEventListener("click", () => showScreen("screen-lobby"));
 
@@ -7361,5 +7474,600 @@ $("btn-wip-back").addEventListener("click", () => showScreen("screen-lobby"));
   $("join-form").classList.remove("hidden");
   $("room-code-input").value = m[1].toUpperCase();
 })();
+
+// ================= FAZ B: El Akışı Senkronu =================
+// Ev sahibi motoru çalıştırır; herkes (ev sahibi dahil) aynı "st" paketlerini işleyip
+// mevcut yerel render fonksiyonlarıyla çizer — istemciler replikadır.
+const VOTE_SECONDS = 45;
+const game = {
+  on: false,
+  roster: [],        // [{id, name, avatar}] — oyun başında sabitlenir
+  myIdx: -1,
+  my: null,          // bu elde kendi gizli kartım {role, word, sub, extra}
+  phase: null,
+  seq: 0,
+  publicEl: null,
+  deadline: 0,
+  cdTimer: null,
+  voted: false,
+  // yalnız ev sahibi:
+  h: null,           // { ready:Set, votes:Map, revealTimer, stepIdx }
+};
+
+function pub(event, payload) {
+  if (net.channel) net.channel.send({ type: "broadcast", event, payload });
+}
+function sendIntent(type, data) {
+  pub("in", Object.assign({ pid: netSelfId(), type }, data || {}));
+}
+
+function rosterToPlayers() {
+  return game.roster.map((r) => ({ name: r.name || "?", avatar: r.avatar || 1, score: 0, stats: newStats() }));
+}
+function pidToIdx(pid) { return game.roster.findIndex((r) => r.id === pid); }
+
+// ---------- Oyun başlangıcı ----------
+function onGameStarting(rosterList) {
+  game.on = true;
+  game.roster = (rosterList || netPlayerList()).map((p) => ({ id: p.id, name: p.name || t("playerN", 1), avatar: p.avatar || 1 }));
+  game.myIdx = pidToIdx(netSelfId());
+  state.players = rosterToPlayers();
+  state.playerCount = game.roster.length;
+  state.elNo = 0;
+  if (net.isHost) {
+    game.h = { ready: new Set(), votes: new Map(), stepIdx: 0 };
+    // Ev sahibi kurulum ekranına — isim/oylama bölümleri gizli
+    renderSetup();
+    showScreen("screen-setup");
+    onlineHideSetupBits(true);
+  } else {
+    showWait("⚙️", t("onlineWaitConfig"));
+  }
+}
+
+function onlineHideSetupBits(hide) {
+  const voteBlock = document.querySelector("#vote-segment")?.closest(".setup-block");
+  if (voteBlock) voteBlock.classList.toggle("hidden", hide);
+  const nameBlock = document.querySelector("#name-inputs")?.closest(".setup-block");
+  if (nameBlock) nameBlock.classList.toggle("hidden", hide);
+  const playersBlock = document.querySelector("#players-value")?.closest(".setup-block");
+  if (playersBlock) playersBlock.classList.toggle("hidden", hide);
+}
+
+// Ev sahibi kurulumda Başla'ya basınca (app.js btn-start akışını online'a sapla)
+function onlineHostStartMatch() {
+  state.voteMode = "phone"; // online: her zaman eşzamanlı gizli — yerel bayrak sadece puanlama dalları için
+  state.playerCount = game.roster.length;
+  state.players = rosterToPlayers();
+  state.elNo = 0;
+  hostNextEl();
+}
+
+function hostNextEl() {
+  state.elNo++;
+  state.el = buildElCore();
+  game.h.ready = new Set();
+  game.h.votes = new Map();
+  const el = state.el;
+  const per = {};
+  game.roster.forEach((r, i) => {
+    const role = el.roles[i];
+    let word = role === "kostebek" ? el.spyWord : el.civilWord;
+    let label = "cardLabelWord";
+    if (role === "numaraci") { word = t("numaraciWord"); label = "cardLabelRole"; }
+    let extra = "";
+    if (i === el.papagan) extra = t("papaganExtra");
+    if (i === el.twinA) extra = t("ikizExtra", state.players[el.twinB].name);
+    if (i === el.twinB) extra = t("ikizExtra", state.players[el.twinA].name);
+    if (i === el.muhtar) extra = t("muhtarExtra");
+    per[r.id] = { role, word, label, extra };
+  });
+  pub("st", {
+    phase: "deal", seq: ++game.seq,
+    roster: game.roster, elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
+    pub: sanitizedEl(el), per,
+  });
+}
+
+function sanitizedEl(el) {
+  // istemci ipucu ekranı için: kimlik sızdırmayan kompozisyon bilgisi
+  return {
+    order: el.order,
+    ksCount: state.ksCount,
+    hasNumaraci: el.roles.includes("numaraci"),
+    hasPapagan: el.papagan >= 0,
+    hasIkizler: el.twinA >= 0,
+    hasMuhtar: el.muhtar >= 0,
+  };
+}
+
+// ---------- Faz uygulayıcı (herkes) ----------
+function applyPhase(p) {
+  if (!game.on || !p || p.seq < game.seq) return;
+  game.seq = p.seq;
+  game.phase = p.phase;
+  stopCountdown();
+  if (p.roster) {
+    game.roster = p.roster;
+    game.myIdx = pidToIdx(netSelfId());
+  }
+  switch (p.phase) {
+    case "deal": {
+      // EV SAHİBİNDE STATE'E DOKUNMA: gerçek el/skorlar otoritatif — yalnız istemciler aynalar
+      if (!net.isHost) {
+        state.players = rosterToPlayers();
+        state.playerCount = game.roster.length;
+        state.elNo = p.elNo; state.totalEls = p.totalEls; state.mode = p.mode;
+        state.ksCount = p.pub.ksCount;
+        state.el = Object.assign(buildFakeEl(p.pub), { votes: new Array(game.roster.length).fill(-1) });
+      }
+      game.publicEl = p.pub;
+      game.my = p.per ? p.per[netSelfId()] : null;
+      onlineShowDeal();
+      break;
+    }
+    case "clues": {
+      startRoundScreen();
+      onlineAdjustRound();
+      break;
+    }
+    case "vote": {
+      game.voted = false;
+      game.deadline = p.deadline;
+      onlineShowVote(p);
+      break;
+    }
+    case "tie": {
+      onlineShowTie(p);
+      break;
+    }
+    case "guess": {
+      onlineShowGuess(p);
+      break;
+    }
+    case "elresult": {
+      // tam durumu aynala (istemci) → mevcut Büyük Açılış render'ı; ev sahibi zaten otoritatif
+      if (!net.isHost) {
+        state.players = p.players;
+        state.el = p.el;
+        state.elNo = p.elNo; state.totalEls = p.totalEls; state.mode = p.mode;
+      }
+      showElResult();
+      onlineAdjustElresult();
+      break;
+    }
+    case "final": {
+      if (!net.isHost) {
+        state.players = p.players;
+        state.elNo = p.elNo;
+      }
+      showFinal();
+      onlineAdjustFinal();
+      break;
+    }
+    case "lobby": {
+      game.on = false;
+      enterLobby();
+      break;
+    }
+  }
+}
+
+function buildFakeEl(pubEl) {
+  const n = game.roster.length;
+  const roles = new Array(n).fill("ahali");
+  for (let i = 0; i < pubEl.ksCount && i < n; i++) roles[i] = "kostebek";
+  if (pubEl.hasNumaraci && n > pubEl.ksCount) roles[pubEl.ksCount] = "numaraci";
+  return {
+    order: pubEl.order, roles,
+    papagan: pubEl.hasPapagan ? 0 : -1,
+    twinA: pubEl.hasIkizler ? 0 : -1, twinB: pubEl.hasIkizler ? 1 : -1,
+    muhtar: pubEl.hasMuhtar ? 0 : -1,
+    muhtarUsed: false, points: new Array(n).fill(0),
+  };
+}
+
+// ---------- Deal: kendi yuvanı kaz, kendi kartını gör ----------
+function onlineShowDeal() {
+  $("reveal-turn").classList.add("hidden");
+  $("btn-exit").classList.remove("hidden");
+  document.querySelector(".pick-headline").textContent = t("digYours");
+  const grid = $("hole-grid");
+  grid.innerHTML = "";
+  const GRASS = [{ left: "6%", top: "-3%" }, { right: "10%", top: "30%" }, { left: "44%", top: "33%" }, { left: "8%", top: "64%" }, { right: "16%", top: "62%" }];
+  GRASS.forEach((pos) => {
+    const g = document.createElement("img");
+    g.src = asset("assets/grass.png"); g.className = "grass-mark"; g.alt = "";
+    Object.assign(g.style, pos);
+    grid.appendChild(g);
+  });
+  for (let i = 0; i < game.roster.length; i++) {
+    const btn = document.createElement("button");
+    btn.className = "hole-btn";
+    btn.innerHTML = `<img class="hole-img" src="${asset(`assets/hole${(i % 3) + 1}.png`)}" alt="">
+       <img class="hole-glow-img" src="${asset("assets/hole-glow.png")}" alt="">`;
+    btn.addEventListener("click", () => onlineDig(btn), { once: true });
+    grid.appendChild(btn);
+  }
+  if (game.roster.length % 2 === 1) {
+    const btns = grid.querySelectorAll(".hole-btn");
+    btns[btns.length - 1].classList.add("center-span");
+  }
+  $("pick-stage").classList.remove("hidden");
+  $("card-stage").classList.add("hidden");
+  const cw = document.querySelector("#screen-reveal .center-wrap");
+  cw.classList.remove("carding");
+  showScreen("screen-reveal");
+  fitScreen("screen-reveal");
+}
+
+function onlineDig(btn) {
+  SFX.dig();
+  btn.classList.add("glow");
+  setTimeout(() => {
+    $("pick-stage").classList.add("hidden");
+    $("btn-exit").classList.add("hidden");
+    const cw = document.querySelector("#screen-reveal .center-wrap");
+    cw.style.zoom = "";
+    cw.classList.add("carding");
+    // kendi kartını doldur
+    const me = game.roster[game.myIdx];
+    $("card-player-name").textContent = me.name;
+    $("only-look").textContent = t("onlyLook", me.name);
+    $("card-label").textContent = t(game.my.label);
+    $("card-word").textContent = game.my.word;
+    $("card-word").classList.toggle("longw", game.my.word.length >= 9);
+    $("card-sub").textContent = game.my.role === "numaraci" ? t("numaraciSub") : t("dontShow");
+    $("card-extra").textContent = game.my.extra || "";
+    $("next-btn-text").textContent = t("imReady");
+    $("card-stage").classList.remove("hidden");
+    const cardWrap = document.querySelector(".card-wrap");
+    cardWrap.classList.remove("rise");
+    void cardWrap.offsetWidth;
+    cardWrap.classList.add("rise");
+    SFX.card();
+  }, 380);
+}
+
+function onlineCardDone() {
+  $("next-btn-text").textContent = t("hideAndPass");
+  showWait("👀", t("sawCards", 1, game.roster.length), true);
+  sendIntent("ready");
+}
+
+// ---------- İpucu turu ----------
+function onlineAdjustRound() {
+  const btn = $("btn-to-vote");
+  if (net.isHost) {
+    btn.classList.remove("hidden");
+  } else {
+    btn.classList.add("hidden");
+  }
+}
+
+function onlineSelfPeek() {
+  $("peek-grid").classList.add("hidden");
+  $("peek-title").textContent = t("peekOnly", game.roster[game.myIdx].name);
+  $("peek-label").textContent = t(game.my.label);
+  $("peek-word").textContent = game.my.word;
+  $("peek-word").classList.toggle("longw", game.my.word.length >= 9);
+  $("peek-word-box").classList.remove("hidden");
+  $("peek-modal").classList.remove("hidden");
+}
+
+// ---------- Oylama: geri sayımlı, eşzamanlı, gizli ----------
+function onlineShowVote(p) {
+  $("vote-title").textContent = t("voteTitle");
+  $("btn-oral-tie").classList.add("hidden");
+  const grid = $("vote-grid");
+  grid.innerHTML = "";
+  game.roster.forEach((r, i) => {
+    if (i === game.myIdx) return;
+    const btn = document.createElement("button");
+    btn.className = "vote-card";
+    btn.innerHTML = `${avHtml(i)}<span class="vc-name">${escapeHtml(r.name)}</span>`;
+    btn.addEventListener("click", () => {
+      if (game.voted) return;
+      game.voted = true;
+      SFX.vote();
+      grid.querySelectorAll(".vote-card").forEach((c) => c.classList.add("locked"));
+      btn.classList.add("leading");
+      $("vote-pass-note").textContent = t("voteLocked");
+      sendIntent("vote", { target: i });
+    });
+    grid.appendChild(btn);
+  });
+  $("vote-pass-note").textContent = t("votedProg", 0, game.roster.length);
+  showScreen("screen-vote");
+  fitScreen("screen-vote");
+  startCountdown(p.deadline, () => {
+    if (!game.voted) $("vote-pass-note").textContent = t("timeUp");
+  });
+}
+
+function startCountdown(deadline, onEnd) {
+  stopCountdown();
+  const pill = $("vote-cd");
+  pill.classList.remove("hidden", "warn");
+  const tick = () => {
+    const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    pill.textContent = `⏱ ${left}`;
+    pill.classList.toggle("warn", left <= 10);
+    if (left <= 0) { stopCountdown(); onEnd && onEnd(); }
+  };
+  tick();
+  game.cdTimer = setInterval(tick, 250);
+}
+function stopCountdown() {
+  if (game.cdTimer) clearInterval(game.cdTimer);
+  game.cdTimer = null;
+  const pill = $("vote-cd");
+  if (pill) pill.classList.add("hidden");
+}
+
+// ---------- Oy açılış sekansı (rv adımları) ----------
+function applyRevealStep(p) {
+  if (!game.on) return;
+  stopCountdown();
+  state.players = p.players || state.players;
+  setAnnounceVisual(p.voter, p.target);
+  $("announce-text").innerHTML = p.abstain
+    ? t("noVote", escapeHtml(state.players[p.voter].name))
+    : t("announceVote", escapeHtml(state.players[p.voter].name), escapeHtml(state.players[p.target].name), trDative(state.players[p.target].name));
+  $("btn-announce-next").classList.add("hidden");
+  showScreen("screen-announce");
+  fitScreen("screen-announce");
+}
+
+// ---------- Muhtar / Numaracı ara fazları ----------
+function onlineShowTie(p) {
+  if (game.myIdx === p.muhtarIdx) {
+    $("vote-title").textContent = t("tieTitle", game.roster[p.muhtarIdx].name);
+    $("vote-pass-note").textContent = t("tiePass", game.roster[p.muhtarIdx].name);
+    $("btn-oral-tie").classList.add("hidden");
+    const grid = $("vote-grid");
+    grid.innerHTML = "";
+    p.cands.forEach((i) => {
+      const btn = document.createElement("button");
+      btn.className = "vote-card";
+      btn.innerHTML = `${avHtml(i)}<span class="vc-name">${escapeHtml(game.roster[i].name)}</span>`;
+      btn.addEventListener("click", () => { SFX.vote(); sendIntent("tiePick", { target: i }); showWait("🗳️", t("muhtarDeciding", game.roster[p.muhtarIdx].name)); }, { once: true });
+      grid.appendChild(btn);
+    });
+    showScreen("screen-vote");
+    fitScreen("screen-vote");
+  } else {
+    showWait("🗳️", t("muhtarDeciding", game.roster[p.muhtarIdx].name));
+  }
+}
+
+function onlineShowGuess(p) {
+  if (game.myIdx === p.numIdx) {
+    $("guess-title").textContent = t("guessTitle", game.roster[p.numIdx].name);
+    $("guess-input").value = "";
+    showScreen("screen-guess");
+  } else {
+    showWait("🎭", t("numThinking", game.roster[p.numIdx].name));
+  }
+}
+
+// app.js'teki btn-guess handler'ı yerelde scoreEl çağırır — online'da intent'e sapla
+(function hookGuess() {
+  const btn = $("btn-guess");
+  btn.addEventListener("click", (e) => {
+    if (!game.on) return;
+    e.stopImmediatePropagation();
+    const guess = $("guess-input").value.trim();
+    if (!guess) return;
+    sendIntent("guess", { text: guess });
+    showWait("🎭", t("numThinking", game.roster[game.myIdx].name));
+  }, true); // capture: yerel handler'dan önce
+})();
+
+// ---------- Sonuç ekranları ayarları ----------
+// Yerel listener'ları temiz sök: klonla-değiştir, yeni davranış bağla
+function rebindBtn(id, fn) {
+  const b = $(id);
+  if (!b) return null;
+  const nb = b.cloneNode(true);
+  b.replaceWith(nb);
+  if (fn) nb.addEventListener("click", fn, { once: true });
+  return nb;
+}
+
+function onlineAdjustElresult() {
+  if (!net.isHost) {
+    ["btn-next-el", "btn-final", "btn-end-classic"].forEach((id) => $(id)?.classList.add("hidden"));
+    const note = document.createElement("p");
+    note.className = "pass-note";
+    note.style.marginTop = "auto";
+    note.textContent = t("hostWilContinue");
+    $("elresult-content").appendChild(note);
+  } else {
+    rebindBtn("btn-next-el", () => hostNextEl());
+    rebindBtn("btn-final", () => hostFinal());
+    rebindBtn("btn-end-classic", () => hostFinal());
+  }
+}
+
+// Final sayfalı (kutlama → ödüller → özet): "Lobiye Dön" yalnız SON sayfada —
+// renderFinalEnd'i sararak online ayarını doğru sayfaya bağla
+const _renderFinalEnd = renderFinalEnd;
+renderFinalEnd = function () {
+  _renderFinalEnd();
+  if (game.on) onlineAdjustFinal();
+};
+
+function onlineAdjustFinal() {
+  // her cihazda "Lobiye Dön"; ev sahibininki herkesi döndürür
+  const again = rebindBtn("btn-again", () => {
+    if (net.isHost) pub("st", { phase: "lobby", seq: ++game.seq });
+    else { game.on = false; enterLobby(); }
+  });
+  if (again) again.textContent = t("toLobby");
+  $("btn-home2")?.classList.add("hidden");
+}
+
+// ---------- Bekleme ekranı ----------
+function showWait(emoji, text, withProg) {
+  $("wait-emoji").textContent = emoji;
+  $("wait-text").textContent = text;
+  $("wait-prog").classList.toggle("hidden", !withProg);
+  showScreen("screen-online-wait");
+}
+function applyProgress(p) {
+  if (!game.on) return;
+  if (p.kind === "ready" && $("screen-online-wait").classList.contains("active")) {
+    $("wait-text").textContent = t("sawCards", p.done, p.total);
+  }
+  if (p.kind === "vote" && $("screen-vote").classList.contains("active") && game.voted) {
+    $("vote-pass-note").textContent = t("votedProg", p.done, p.total);
+  }
+}
+
+// ---------- Ev sahibi: intent işleme ----------
+function hostOnIntent(m) {
+  if (!game.on || !net.isHost) return;
+  const idx = pidToIdx(m.pid);
+  if (idx < 0) return;
+  if (m.type === "need_state") { rebroadcastPhase(); return; }
+  if (m.type === "ready" && game.phase === "deal") {
+    game.h.ready.add(m.pid);
+    pub("prog", { kind: "ready", done: game.h.ready.size, total: game.roster.length });
+    if (game.h.ready.size >= game.roster.length) {
+      pub("st", { phase: "clues", seq: ++game.seq });
+    }
+    return;
+  }
+  if (m.type === "vote" && game.phase === "vote") {
+    if (!game.h.votes.has(m.pid)) {
+      game.h.votes.set(m.pid, m.target);
+      pub("prog", { kind: "vote", done: game.h.votes.size, total: game.roster.length });
+      if (game.h.votes.size >= game.roster.length) hostFinishVoting();
+    }
+    return;
+  }
+  if (m.type === "tiePick" && game.phase === "tie") {
+    state.el.muhtarUsed = true;
+    state.el.tiePick = m.target;
+    hostResolveTopSet([m.target]);
+    return;
+  }
+  if (m.type === "guess" && game.phase === "guess") {
+    state.el.guess = m.text;
+    state.el.guessCorrect = normalize(m.text) === normalize(state.el.civilWord);
+    hostElResult();
+    return;
+  }
+}
+
+function rebroadcastPhase() {
+  // basit kurtarma: mevcut faza göre son paketi yeniden üret
+  if (game.phase === "clues") pub("st", { phase: "clues", seq: ++game.seq });
+  else if (game.phase === "vote") pub("st", { phase: "vote", seq: ++game.seq, deadline: game.deadline });
+}
+
+// Ev sahibi ipucu ekranında "Oylamaya Geç"e basınca (app.js akışını sapla)
+(function hookToVote() {
+  const btn = $("btn-to-vote");
+  btn.addEventListener("click", (e) => {
+    if (!game.on) return;
+    e.stopImmediatePropagation();
+    stopTimer();
+    hostStartVote();
+  }, true);
+})();
+
+function hostStartVote() {
+  game.h.votes = new Map();
+  game.deadline = Date.now() + VOTE_SECONDS * 1000;
+  pub("st", { phase: "vote", seq: ++game.seq, deadline: game.deadline });
+  game.h.voteTimeout = setTimeout(() => {
+    if (game.phase === "vote") hostFinishVoting();
+  }, VOTE_SECONDS * 1000 + 800);
+}
+
+function hostFinishVoting() {
+  if (game.h.voteTimeout) clearTimeout(game.h.voteTimeout);
+  game.phase = "revealing";
+  // oyları state'e yaz
+  const n = game.roster.length;
+  state.el.votes = new Array(n).fill(-1);
+  game.roster.forEach((r, i) => {
+    if (game.h.votes.has(r.id)) state.el.votes[i] = game.h.votes.get(r.id);
+  });
+  // açılış sekansı: konuşma sırasına göre adım adım yayınla
+  const steps = state.el.order.map((i) => ({
+    voter: i,
+    target: state.el.votes[i],
+    abstain: state.el.votes[i] < 0,
+  }));
+  let k = 0;
+  const stepNext = () => {
+    if (k < steps.length) {
+      const s = steps[k++];
+      pub("rv", { voter: s.voter, target: Math.max(0, s.target), abstain: s.abstain, players: state.players });
+      game.h.revealTimer = setTimeout(stepNext, 2600);
+    } else {
+      game.h.revealTimer = setTimeout(hostAfterReveal, 900);
+    }
+  };
+  stepNext();
+}
+
+function hostAfterReveal() {
+  const counts = voteCounts();
+  const max = Math.max(...counts);
+  const topSet = counts.map((c, i) => (c === max && c > 0 ? i : -1)).filter((i) => i >= 0);
+  if (topSet.length > 1 && state.el.muhtar >= 0 && !state.el.muhtarUsed) {
+    game.phase = "tie";
+    pub("st", { phase: "tie", seq: ++game.seq, cands: topSet, muhtarIdx: state.el.muhtar });
+    return;
+  }
+  hostResolveTopSet(topSet);
+}
+
+function hostResolveTopSet(topSet) {
+  state.el.topSet = topSet;
+  const numIdx = state.el.roles.indexOf("numaraci");
+  if (numIdx >= 0 && topSet.includes(numIdx) && state.el.guess === null) {
+    game.phase = "guess";
+    pub("st", { phase: "guess", seq: ++game.seq, numIdx });
+    return;
+  }
+  hostElResult();
+}
+
+function hostElResult() {
+  computeElPoints();
+  pub("st", {
+    phase: "elresult", seq: ++game.seq,
+    players: state.players, el: state.el,
+    elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
+  });
+}
+
+function hostFinal() {
+  pub("st", { phase: "final", seq: ++game.seq, players: state.players, elNo: state.elNo });
+}
+
+// Ev sahibi kurulumdaki Başla'yı online akışa sapla
+(function hookStart() {
+  const btn = $("btn-start");
+  btn.addEventListener("click", (e) => {
+    if (!game.on || !net.isHost) return;
+    e.stopImmediatePropagation();
+    SFX.start();
+    clampSetup();
+    onlineHostStartMatch();
+  }, true);
+})();
+
+// Yeniden bağlanan istemci durum ister
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && game.on && !net.isHost) {
+    setTimeout(() => sendIntent("need_state"), 1200);
+  }
+});
 
 </script>
