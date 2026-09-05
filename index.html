@@ -1938,6 +1938,73 @@ html, body {
 .lob-av img { width: 100%; height: 100%; object-fit: contain; }
 .lob-av.sel { border-color: var(--ink); box-shadow: 0 0 0 3.5px var(--lime); }
 .lob-av.taken { opacity: 0.3; }
+#btn-lobby-ready { font-size: 19px; padding: 12px 18px; }
+.lobby-self input.need { animation: needShake 0.4s ease; border-color: var(--pink); }
+@keyframes needShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  55% { transform: translateX(6px); }
+  80% { transform: translateX(-3px); }
+}
+.lobby-row .ready-chip {
+  margin-left: auto;
+  width: 24px; height: 24px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--lime);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  font-size: 14px; font-weight: 900; color: var(--ink);
+  flex-shrink: 0;
+}
+.lobby-row .ready-chip + .host-badge { margin-left: 8px; }
+.lobby-done {
+  border-top: 2.5px dashed rgba(7, 21, 58, 0.3);
+  padding-top: 14px; margin-top: 4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.lobby-done-text {
+  flex: 1;
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 800; font-size: 17px; color: var(--ink);
+}
+.lobby-edit-btn { font-size: 13.5px; padding: 8px 13px; flex-shrink: 0; }
+
+/* Online bekleme ekranı: çukurlarda sallanan oyuncular */
+.wait-scene {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 6px 14px;
+  max-width: 340px;
+  margin-bottom: 22px;
+}
+.wait-hole {
+  position: relative;
+  width: 88px; height: 96px;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.wh-ground { width: 100%; display: block; }
+.wh-av {
+  position: absolute;
+  top: 0; left: 50%;
+  width: 52px; height: 52px;
+  margin-left: -26px;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: var(--cream);
+  padding: 4px;
+  object-fit: contain;
+  box-shadow: 0 3px 0 rgba(7, 21, 58, 0.35);
+}
+.wh-av.me { box-shadow: 0 0 0 3.5px var(--lime), 0 3px 0 rgba(7, 21, 58, 0.35); }
+.wh-q {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 22px; color: var(--grey);
+}
+.wait-hole .wh-av { animation: waitPeek 2.6s ease-in-out infinite; animation-delay: inherit; }
+@keyframes waitPeek {
+  0%, 100% { transform: translateY(2px) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+.wait-emoji { font-size: 34px; line-height: 1; filter: drop-shadow(0 3px 0 rgba(7, 21, 58, 0.4)); }
 
 /* Online oylama: kilitli kartlar */
 .vote-card.locked { opacity: 0.45; pointer-events: none; }
@@ -2333,9 +2400,14 @@ html, body {
         <div class="whowas-card lobby-card">
           <h3><span data-i18n="playersTitle">Oyuncular</span> <span class="lobby-count-pill"><span id="lobby-count">0</span>/10</span></h3>
           <div id="lobby-players"></div>
-          <div class="lobby-self">
+          <div class="lobby-self" id="lobby-edit">
             <input type="text" id="lobby-name" maxlength="14" autocomplete="off" data-i18n-ph="yourName" placeholder="Adın">
             <div class="lobby-avatars" id="lobby-avatars"></div>
+            <button class="btn btn-primary" id="btn-lobby-ready" data-i18n="registerBtn">Kaydol ✔</button>
+          </div>
+          <div class="lobby-done hidden" id="lobby-done">
+            <span class="lobby-done-text" id="lobby-done-text" data-i18n="registered">Kaydoldun! 🎉</span>
+            <button class="btn btn-ghost lobby-edit-btn" id="btn-lobby-edit" data-i18n="editProfile">Değiştir ✏️</button>
           </div>
         </div>
         <button class="btn btn-primary btn-big hidden" id="btn-online-start">Başla 🎉</button>
@@ -2347,7 +2419,12 @@ html, body {
     <!-- ONLINE: BEKLEME -->
     <section id="screen-online-wait" class="screen">
       <div class="content center-col online-col" style="justify-content:center">
-        <span class="guess-mask" id="wait-emoji">⏳</span>
+        <span class="doodle" style="left:12%; top:calc(env(safe-area-inset-top) + 9%); color:var(--sun); font-size:26px; transform:rotate(-16deg)">★</span>
+        <span class="doodle" style="right:10%; top:calc(env(safe-area-inset-top) + 14%); color:var(--pink); font-size:20px; transform:rotate(12deg)">✦</span>
+        <span class="dash" style="right:16%; top:calc(env(safe-area-inset-top) + 8%); transform:rotate(-58deg)"></span>
+        <span class="doodle" style="left:8%; bottom:12%; color:var(--lime); font-size:22px; transform:rotate(20deg)">✦</span>
+        <div class="wait-scene" id="wait-scene"></div>
+        <span class="wait-emoji" id="wait-emoji">⏳</span>
         <p class="pass-note" id="wait-text"></p>
         <p class="pass-note hidden" id="wait-prog"></p>
       </div>
@@ -5125,6 +5202,9 @@ const I18N = {
     you: "sen",
     hostBadge: "EV SAHİBİ",
     waitingHost: "Ev sahibi bekleniyor... ⏳",
+    registerBtn: "Kaydol ✔",
+    registered: "Kaydoldun! 🎉",
+    editProfile: "Değiştir ✏️",
     needPlayers: "En az 3 oyuncu gerek",
     leaveRoom: "Odadan Ayrıl 🚪",
     badCode: "Kod 4 harf olmalı 🤨",
@@ -5380,6 +5460,9 @@ const I18N = {
     you: "you",
     hostBadge: "HOST",
     waitingHost: "Waiting for the host... ⏳",
+    registerBtn: "Register ✔",
+    registered: "You're in! 🎉",
+    editProfile: "Edit ✏️",
     needPlayers: "Need at least 3 players",
     leaveRoom: "Leave Room 🚪",
     badCode: "Code must be 4 letters 🤨",
@@ -7173,7 +7256,8 @@ var net = {
   isHost: false,
   name: "",
   avatar: 0, // 0 = seçilmedi
-  players: {},      // pid -> { name, avatar, host, t } — "roster" yayınından beslenir
+  ready: false, // Kaydol'a bastı mı (lobide profil kilitli)
+  players: {},      // pid -> { name, avatar, host, ready, t } — "roster" yayınından beslenir
   lobbyRoster: {},  // yalnız ev sahibi: otoritatif üye listesi
   gotRoster: false, // katılan: ev sahibinden roster geldi mi
   rosterTimer: null,
@@ -7234,7 +7318,7 @@ async function joinRoomOnce(code, asHost) {
   // ÜYELİK = kendi broadcast protokolümüz (Supabase presence güvenilmez çıktı — Faz B notu)
   ch.on("broadcast", { event: "hello" }, ({ payload }) => {
     if (!net.isHost || !payload || !payload.pid) return;
-    net.lobbyRoster[payload.pid] = { name: payload.name, avatar: payload.avatar, host: payload.pid === netSelfId(), t: payload.t || Date.now() };
+    net.lobbyRoster[payload.pid] = { name: payload.name, avatar: payload.avatar, ready: !!payload.ready, host: payload.pid === netSelfId(), t: payload.t || Date.now() };
     pubRoster();
   });
   ch.on("broadcast", { event: "bye" }, ({ payload }) => {
@@ -7272,7 +7356,7 @@ async function joinRoomOnce(code, asHost) {
 
   if (net.isHost) {
     net.lobbyRoster = {};
-    net.lobbyRoster[netSelfId()] = { name: net.name, avatar: net.avatar, host: true, t: Date.now() };
+    net.lobbyRoster[netSelfId()] = { name: net.name, avatar: net.avatar, ready: net.ready, host: true, t: Date.now() };
     pubRoster();
     // kaçıran olursa diye periyodik yeniden yayın
     if (net.rosterTimer) clearInterval(net.rosterTimer);
@@ -7293,7 +7377,7 @@ function sendHello() {
   if (!net.channel) return;
   net.channel.send({
     type: "broadcast", event: "hello",
-    payload: { pid: netSelfId(), name: net.name, avatar: net.avatar, t: Date.now() },
+    payload: { pid: netSelfId(), name: net.name, avatar: net.avatar, ready: net.ready, t: Date.now() },
   });
 }
 
@@ -7312,6 +7396,7 @@ async function leaveRoom(silent) {
   net.players = {};
   net.lobbyRoster = {};
   net.gotRoster = false;
+  net.ready = false;
   if (!silent) showScreen("screen-online-entry");
 }
 
@@ -7410,6 +7495,7 @@ function renderLobby() {
       return `<div class="lobby-row${me ? " me" : ""}">
         ${av}
         <span class="lp-name">${escapeHtml(p.name || t("unnamed"))}${me ? ` <em>(${t("you")})</em>` : ""}</span>
+        ${p.ready ? `<span class="ready-chip">✓</span>` : ""}
         ${p.host ? `<span class="host-badge">${t("hostBadge")}</span>` : ""}
       </div>`;
     }).join("");
@@ -7445,6 +7531,9 @@ function renderLobby() {
     startBtn.classList.add("hidden");
     waitNote.classList.remove("hidden");
   }
+  // Kaydol durumu: kayıtlıysa düzenleme alanı kapanır, onay kartı görünür
+  $("lobby-edit").classList.toggle("hidden", net.ready);
+  $("lobby-done").classList.toggle("hidden", !net.ready);
 }
 
 // ---------- Olay bağlama ----------
@@ -7460,6 +7549,25 @@ $("room-code-input").addEventListener("input", (e) => { e.target.value = e.targe
 $("lobby-name").addEventListener("change", () => {
   net.name = $("lobby-name").value.trim().slice(0, 14);
   trackSelf();
+});
+$("btn-lobby-ready").addEventListener("click", () => {
+  // ismi inputtan DOĞRUDAN oku (change eventine güvenme — mobilde blur gelmeyebilir)
+  const nm = $("lobby-name").value.trim().slice(0, 14);
+  if (!nm) {
+    const inp = $("lobby-name");
+    inp.classList.remove("need"); void inp.offsetWidth; inp.classList.add("need");
+    inp.focus();
+    return;
+  }
+  net.name = nm;
+  net.ready = true;
+  sendHello();
+  renderLobby();
+});
+$("btn-lobby-edit").addEventListener("click", () => {
+  net.ready = false;
+  sendHello();
+  renderLobby();
 });
 $("btn-lobby-leave").addEventListener("click", () => leaveRoom(false));
 $("btn-online-start").addEventListener("click", () => {
@@ -7912,7 +8020,24 @@ function onlineAdjustFinal() {
 }
 
 // ---------- Bekleme ekranı ----------
+// Markalı sahne: her oyuncu kendi çukurunda, avatarı yukarıda hafifçe sallanır
+function renderWaitScene() {
+  const scene = $("wait-scene");
+  if (!scene) return;
+  const list = game.on && game.roster.length ? game.roster : netPlayerList();
+  scene.innerHTML = list.map((p, i) => {
+    const me = (p.id || "") === netSelfId();
+    const av = p.avatar
+      ? `<img class="wh-av${me ? " me" : ""}" src="${avatarSrc(p.avatar)}" alt="">`
+      : `<span class="wh-av wh-q${me ? " me" : ""}">?</span>`;
+    return `<div class="wait-hole" style="animation-delay:${(i * 0.28).toFixed(2)}s">
+      ${av}
+      <img class="wh-ground" src="${asset(`assets/hole${(i % 3) + 1}.png`)}" alt="">
+    </div>`;
+  }).join("");
+}
 function showWait(emoji, text, withProg) {
+  renderWaitScene();
   $("wait-emoji").textContent = emoji;
   $("wait-text").textContent = text;
   $("wait-prog").classList.toggle("hidden", !withProg);
