@@ -7164,7 +7164,9 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
 const SUPA_URL = "https://uauihsubsycizagblehm.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdWloc3Vic3ljaXphZ2JsZWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTIyODgsImV4cCI6MjEwNDE4ODI4OH0.g1v2rjVaFokr5oawgYk51nR3T3WhgZXR1PC4sAk_ZQ4";
 
-const net = {
+// DİKKAT: var ŞART (const değil) — bundle'da app.js ile aynı script scope'unu paylaşır;
+// app.js'in açılıştaki typeof guard'ları const/let TDZ'sinde ReferenceError fırlatır
+var net = {
   client: null,
   channel: null,
   code: null,
@@ -7479,7 +7481,8 @@ $("btn-wip-back").addEventListener("click", () => showScreen("screen-lobby"));
 // Ev sahibi motoru çalıştırır; herkes (ev sahibi dahil) aynı "st" paketlerini işleyip
 // mevcut yerel render fonksiyonlarıyla çizer — istemciler replikadır.
 const VOTE_SECONDS = 45;
-const game = {
+// var ŞART — bkz. net tanımındaki TDZ notu
+var game = {
   on: false,
   roster: [],        // [{id, name, avatar}] — oyun başında sabitlenir
   myIdx: -1,
