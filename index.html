@@ -2381,6 +2381,7 @@ html, body {
       </header>
       <div class="content center-col online-col">
         <p class="pass-note" data-i18n="onlineHint">Herkes kendi telefonuyla, aynı masada 📱</p>
+        <button class="btn btn-primary btn-big online-big hidden" id="btn-resume-room">Devam Et ↻</button>
         <button class="btn btn-primary btn-big online-big" id="btn-create-room" data-i18n="createRoom">Oda Kur 🏠</button>
         <button class="btn btn-ghost btn-big online-big" id="btn-show-join" data-i18n="joinRoom">Odaya Katıl 🔑</button>
         <div class="join-form hidden" id="join-form">
@@ -5217,6 +5218,11 @@ const I18N = {
     registered: "Kaydoldun! 🎉",
     editProfile: "Değiştir ✏️",
     pickAvatar: "Avatarını seç",
+    writeYours: (n) => `${n}, gizli kelime çiftini yaz ✍️ Kimse görmeyecek!`,
+    writeWait: "Çiftin havuza karıştı! Diğerleri yazıyor... ✍️",
+    writeProg: (d, tot) => `${d}/${tot} çiftini yazdı ✍️`,
+    bizdenEmpty: "Kimse çift yazmadı — Genel paketiyle devam! 📦",
+    resumeRoom: "Oyuna Devam Et ↻",
     needPlayers: "En az 3 oyuncu gerek",
     leaveRoom: "Odadan Ayrıl 🚪",
     badCode: "Kod 4 harf olmalı 🤨",
@@ -5476,6 +5482,11 @@ const I18N = {
     registered: "You're in! 🎉",
     editProfile: "Edit ✏️",
     pickAvatar: "Pick your avatar",
+    writeYours: (n) => `${n}, write your secret word pair ✍️ Nobody will see!`,
+    writeWait: "Your pair joined the pool! Others are writing... ✍️",
+    writeProg: (d, tot) => `${d}/${tot} wrote their pair ✍️`,
+    bizdenEmpty: "Nobody wrote a pair — continuing with the General pack! 📦",
+    resumeRoom: "Resume Game ↻",
     needPlayers: "Need at least 3 players",
     leaveRoom: "Leave Room 🚪",
     badCode: "Code must be 4 letters 🤨",
@@ -5809,7 +5820,6 @@ function renderPackChips() {
   const wrap = $("pack-chips");
   wrap.innerHTML = "";
   WORD_PACKS.forEach((pack) => {
-    if (pack.custom && typeof game !== "undefined" && game.on) return; // Bizden: online'da Faz C'de
     const btn = document.createElement("button");
     btn.className = "pack-chip" + (state.selectedPacks.includes(pack.id) ? " active" : "");
     btn.innerHTML = `<img class="pack-ico" src="${asset(`assets/pack-${pack.id}.png`)}" alt="" onerror="this.remove()"><span>${escapeHtml(pack.names[state.lang])}</span>`;
@@ -5930,11 +5940,12 @@ const SFX = {
     noiseBurst(0.3, { gain: 0.06, at: 0.42, cutoff: 5000 });
   },
   story: () => tone(700, 0.08, { gain: 0.08, slide: 220 }),
+  tick: (strong) => tone(strong ? 1180 : 830, 0.05, { type: "square", gain: strong ? 0.07 : 0.045 }),
 };
-// Ayarlardaki "Ses Efektleri" anahtarı tüm SFX'leri kapsar
+// Ayarlardaki "Ses Efektleri" anahtarı tüm SFX'leri kapsar (argümanlar iletilir — tick(strong) gibi)
 Object.keys(SFX).forEach((k) => {
   const f = SFX[k];
-  SFX[k] = () => { if (state.sfxOn === false) return; f(); };
+  SFX[k] = (...a) => { if (state.sfxOn === false) return; f(...a); };
 });
 
 // Lobi/kutlama müziği: yumuşak pentatonik arpej döngüsü
@@ -7296,6 +7307,21 @@ function netSelfId() {
   return id;
 }
 
+// Oda-bazlı kimlik hatırlama: uygulama kapatılıp açılınca (sessionStorage gider) eski pid
+// localStorage'dan "prev" olarak hello'ya eklenir; EV SAHİBİ karar verir — eski oyuncu
+// gerçekten sessizse kaydı yeni pid'e taşır (remap). Otomatik pid devralma YOK: localStorage
+// sekmelerce paylaşıldığından devralma iki canlı sekmenin aynı kimliğe çökmesine yol açar.
+function rememberRoomPid(code) {
+  try { localStorage.setItem("hm_room_pid", JSON.stringify({ code, pid: netSelfId(), t: Date.now() })); } catch (e) {}
+}
+function prevRoomPid(code) {
+  try {
+    const s = JSON.parse(localStorage.getItem("hm_room_pid") || "null");
+    if (s && s.code === code && s.pid !== netSelfId() && Date.now() - s.t < 3 * 3600 * 1000) return s.pid;
+  } catch (e) {}
+  return undefined;
+}
+
 // Telaffuz edilebilir 4 harfli oda kodu (sessiz-sesli-sessiz-sesli)
 const CODE_C = "BCDFGHJKLMNPRSTVYZ";
 const CODE_V = "AEIOU";
@@ -7336,6 +7362,33 @@ async function joinRoomOnce(code, asHost) {
   // ÜYELİK = kendi broadcast protokolümüz (Supabase presence güvenilmez çıktı — Faz B notu)
   ch.on("broadcast", { event: "hello" }, ({ payload }) => {
     if (!net.isHost || !payload || !payload.pid) return;
+    // Kimlik remap — YALNIZ oyun sürerken: app'i kapatıp açan oyuncu eski pid'ini "prev" ile
+    // bildirir; eski kayıt roster'da, HOST DEĞİL ve gerçekten sessizse yeni pid'e taşınır.
+    // Lobide asla remap yapılmaz (paylaşılan localStorage yanlış pozitif verebilir).
+    if (game.on && game.h && payload.prev && payload.prev !== payload.pid &&
+        net.lobbyRoster[payload.prev] && !net.lobbyRoster[payload.prev].host && !net.lobbyRoster[payload.pid]) {
+      const activeRecently = Date.now() - (game.h.seen[payload.prev] || 0) < DEAD_MS;
+      const inRoster = game.roster.some((r) => r.id === payload.prev);
+      if (!activeRecently && inRoster) {
+        const old = net.lobbyRoster[payload.prev];
+        delete net.lobbyRoster[payload.prev];
+        net.lobbyRoster[payload.pid] = {
+          name: payload.name || old.name, avatar: payload.avatar || old.avatar,
+          ready: old.ready || !!payload.ready, host: false, t: old.t,
+        };
+        const gi = game.roster.findIndex((r) => r.id === payload.prev);
+        game.roster[gi].id = payload.pid;
+        if (payload.name) game.roster[gi].name = payload.name;
+        // devredilen bekleyen adımlar da taşınır
+        if (game.h.ready.has(payload.prev)) game.h.ready.add(payload.pid);
+        if (game.h.written.has(payload.prev)) game.h.written.add(payload.pid);
+        if (game.h.votes.has(payload.prev)) game.h.votes.set(payload.pid, game.h.votes.get(payload.prev));
+        game.h.seen[payload.pid] = Date.now();
+        pubRoster();
+        hostSendSync(payload.pid);
+        return;
+      }
+    }
     net.lobbyRoster[payload.pid] = { name: payload.name, avatar: payload.avatar, ready: !!payload.ready, host: payload.pid === netSelfId(), t: payload.t || Date.now() };
     pubRoster();
   });
@@ -7357,6 +7410,9 @@ async function joinRoomOnce(code, asHost) {
   ch.on("broadcast", { event: "rv" }, ({ payload }) => applyRevealStep(payload));
   ch.on("broadcast", { event: "prog" }, ({ payload }) => applyProgress(payload));
   ch.on("broadcast", { event: "in" }, ({ payload }) => { if (net.isHost) hostOnIntent(payload); });
+  ch.on("broadcast", { event: "hb" }, ({ payload }) => {
+    if (net.isHost && game.on && game.h && payload && payload.pid) game.h.seen[payload.pid] = Date.now();
+  });
 
   await new Promise((resolve, reject) => {
     // İlk websocket bağlantısı ~5 sn sürebilir ve supabase-js ara durumlarda kendi kendine
@@ -7395,7 +7451,7 @@ function sendHello() {
   if (!net.channel) return;
   net.channel.send({
     type: "broadcast", event: "hello",
-    payload: { pid: netSelfId(), name: net.name, avatar: net.avatar, ready: net.ready, t: Date.now() },
+    payload: { pid: netSelfId(), name: net.name, avatar: net.avatar, ready: net.ready, prev: prevRoomPid(net.code), t: Date.now() },
   });
 }
 
@@ -7406,6 +7462,7 @@ async function leaveRoom(silent) {
     try { net.channel.send({ type: "broadcast", event: "bye", payload: { pid: netSelfId() } }); } catch (e) {}
     try { await net.channel.unsubscribe(); } catch (e) {}
   }
+  if (net.isHost) clearSnap();
   if (net.rosterTimer) clearInterval(net.rosterTimer);
   net.rosterTimer = null;
   net.channel = null;
@@ -7432,6 +7489,13 @@ document.addEventListener("visibilitychange", () => {
 function openOnlineEntry() {
   $("join-form").classList.add("hidden");
   $("online-err").classList.add("hidden");
+  // Ev sahibi kurtarma: taze snapshot varsa "devam et" butonu göster
+  const snap = readSnap();
+  const rbtn = $("btn-resume-room");
+  if (rbtn) {
+    rbtn.classList.toggle("hidden", !snap || !!net.code);
+    if (snap) rbtn.textContent = t("resumeRoom") + " · " + snap.code;
+  }
   showScreen("screen-online-entry");
 }
 
@@ -7441,6 +7505,7 @@ async function hostCreateRoom() {
   setLobbyBusy(true);
   try {
     await joinRoomChannel(code, true);
+    rememberRoomPid(code);
     enterLobby();
   } catch (e) {
     showToastError(t("netFail"));
@@ -7466,7 +7531,10 @@ async function joinExistingRoom() {
       setLobbyBusy(false);
       return;
     }
+    rememberRoomPid(code);
     enterLobby();
+    // Oyun ortasıysa ev sahibi tam durumu gönderir (sync) — lobide sessizce yok sayılır
+    setTimeout(() => { if (!net.isHost && net.channel) sendIntent("need_state"); }, 900);
   } catch (e) {
     showToastError(t("netFail"));
   }
@@ -7558,6 +7626,7 @@ function renderLobby() {
 $("btn-online").addEventListener("click", () => { openOnlineEntry(); });
 $("btn-online-back").addEventListener("click", () => showScreen("screen-home"));
 $("btn-create-room").addEventListener("click", hostCreateRoom);
+$("btn-resume-room").addEventListener("click", resumeHostedRoom);
 $("btn-show-join").addEventListener("click", () => {
   $("join-form").classList.remove("hidden");
   $("room-code-input").focus();
@@ -7644,7 +7713,7 @@ function onGameStarting(rosterList) {
   state.playerCount = game.roster.length;
   state.elNo = 0;
   if (net.isHost) {
-    game.h = { ready: new Set(), votes: new Map(), stepIdx: 0 };
+    game.h = newHostState();
     // Ev sahibi kurulum ekranına — isim/oylama bölümleri gizli
     renderSetup();
     showScreen("screen-setup");
@@ -7652,6 +7721,10 @@ function onGameStarting(rosterList) {
   } else {
     showWait("⚙️", t("onlineWaitConfig"));
   }
+}
+
+function newHostState() {
+  return { ready: new Set(), votes: new Map(), written: new Set(), stepIdx: 0, seen: {}, phaseAt: Date.now(), lastExtra: null };
 }
 
 function onlineHideSetupBits(hide) {
@@ -7669,6 +7742,26 @@ function onlineHostStartMatch() {
   state.playerCount = game.roster.length;
   state.players = rosterToPlayers();
   state.elNo = 0;
+  state.customPairs = [];
+  hostSaveSnap();
+  if (state.selectedPacks.includes("bizden")) { hostStartWrite(); return; }
+  hostNextEl();
+}
+
+// ---------- Bizden: eşzamanlı gizli çift yazma ----------
+function hostStartWrite() {
+  game.h.written = new Set();
+  game.h.phaseAt = Date.now();
+  pub("st", { phase: "write", seq: ++game.seq });
+}
+
+function hostFinishWrite() {
+  if (onlyBizdenSelected() && state.customPairs.length === 0) {
+    // herkes atladı: oyunsuz kalmamak için Genel'e düş
+    state.selectedPacks = ["genel"];
+    showToastError(t("bizdenEmpty"));
+  }
+  hostSaveSnap();
   hostNextEl();
 }
 
@@ -7677,7 +7770,16 @@ function hostNextEl() {
   state.el = buildElCore();
   game.h.ready = new Set();
   game.h.votes = new Map();
-  const el = state.el;
+  game.h.phaseAt = Date.now();
+  pub("st", {
+    phase: "deal", seq: ++game.seq,
+    roster: game.roster, elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
+    players: state.players,
+    pub: sanitizedEl(state.el), per: buildPerSecrets(state.el),
+  });
+}
+
+function buildPerSecrets(el) {
   const per = {};
   game.roster.forEach((r, i) => {
     const role = el.roles[i];
@@ -7691,11 +7793,7 @@ function hostNextEl() {
     if (i === el.muhtar) extra = t("muhtarExtra");
     per[r.id] = { role, word, label, extra };
   });
-  pub("st", {
-    phase: "deal", seq: ++game.seq,
-    roster: game.roster, elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
-    pub: sanitizedEl(el), per,
-  });
+  return per;
 }
 
 function sanitizedEl(el) {
@@ -7712,7 +7810,13 @@ function sanitizedEl(el) {
 
 // ---------- Faz uygulayıcı (herkes) ----------
 function applyPhase(p) {
-  if (!game.on || !p || p.seq < game.seq) return;
+  if (!p) return;
+  if (p.resync) {
+    // yeniden bağlanan istemciye hedefli tam durum — ev sahibi ve diğerleri yok sayar
+    if (net.isHost) return;
+    if (p.to && p.to !== netSelfId()) return;
+    game.on = true;
+  } else if (!game.on || p.seq < game.seq) return;
   game.seq = p.seq;
   game.phase = p.phase;
   stopCountdown();
@@ -7720,30 +7824,56 @@ function applyPhase(p) {
     game.roster = p.roster;
     game.myIdx = pidToIdx(netSelfId());
   }
+  // İSTEMCİ AYNASI (ev sahibinde state'e dokunulmaz — gerçek el/skorlar otoritatif):
+  // normal deal'de ve her resync'te el kompozisyonu + skorlar + kendi gizli kartı kurulur
+  if (!net.isHost && p.pub && (p.phase === "deal" || p.resync)) {
+    state.playerCount = game.roster.length;
+    state.elNo = p.elNo; state.totalEls = p.totalEls; state.mode = p.mode;
+    state.ksCount = p.pub.ksCount;
+    state.el = Object.assign(buildFakeEl(p.pub), { votes: new Array(game.roster.length).fill(-1) });
+    state.players = p.players || rosterToPlayers();
+  }
   switch (p.phase) {
     case "deal": {
-      // EV SAHİBİNDE STATE'E DOKUNMA: gerçek el/skorlar otoritatif — yalnız istemciler aynalar
-      if (!net.isHost) {
-        state.players = rosterToPlayers();
-        state.playerCount = game.roster.length;
-        state.elNo = p.elNo; state.totalEls = p.totalEls; state.mode = p.mode;
-        state.ksCount = p.pub.ksCount;
-        state.el = Object.assign(buildFakeEl(p.pub), { votes: new Array(game.roster.length).fill(-1) });
-      }
       game.publicEl = p.pub;
       game.my = p.per ? p.per[netSelfId()] : null;
+      if (p.resync && p.youReady) {
+        // kartını zaten görmüştü: bekleme ekranına dön
+        showWait("👀", t("sawCards", p.readyDone || 1, game.roster.length), true);
+        break;
+      }
       onlineShowDeal();
       break;
     }
+    case "write": {
+      if (p.resync && p.youWrote) {
+        showWait("✍️", t("writeWait"), true);
+        break;
+      }
+      onlineShowWrite();
+      break;
+    }
     case "clues": {
+      if (p.resync) {
+        game.publicEl = p.pub;
+        if (p.per) game.my = p.per[netSelfId()] || game.my;
+      }
       startRoundScreen();
       onlineAdjustRound();
       break;
     }
     case "vote": {
-      game.voted = false;
+      if (p.resync) {
+        game.publicEl = p.pub;
+        if (p.per) game.my = p.per[netSelfId()] || game.my;
+      }
+      game.voted = !!(p.resync && p.youVoted);
       game.deadline = p.deadline;
       onlineShowVote(p);
+      if (game.voted) {
+        document.querySelectorAll("#vote-grid .vote-card").forEach((c) => c.classList.add("locked"));
+        $("vote-pass-note").textContent = t("voteLocked");
+      }
       break;
     }
     case "tie": {
@@ -7776,6 +7906,7 @@ function applyPhase(p) {
     }
     case "lobby": {
       game.on = false;
+      if (net.isHost) clearSnap();
       enterLobby();
       break;
     }
@@ -7918,10 +8049,15 @@ function startCountdown(deadline, onEnd) {
   stopCountdown();
   const pill = $("vote-cd");
   pill.classList.remove("hidden", "warn");
+  let prevLeft = -1;
   const tick = () => {
     const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
     pill.textContent = `⏱ ${left}`;
     pill.classList.toggle("warn", left <= 10);
+    if (left !== prevLeft) {
+      if (left > 0 && left <= 10) SFX.tick(left <= 3);
+      prevLeft = left;
+    }
     if (left <= 0) { stopCountdown(); onEnd && onEnd(); }
   };
   tick();
@@ -8066,6 +8202,9 @@ function applyProgress(p) {
   if (p.kind === "ready" && $("screen-online-wait").classList.contains("active")) {
     $("wait-text").textContent = t("sawCards", p.done, p.total);
   }
+  if (p.kind === "write" && $("screen-online-wait").classList.contains("active")) {
+    $("wait-text").textContent = t("writeProg", p.done, p.total);
+  }
   if (p.kind === "vote" && $("screen-vote").classList.contains("active") && game.voted) {
     $("vote-pass-note").textContent = t("votedProg", p.done, p.total);
   }
@@ -8076,13 +8215,19 @@ function hostOnIntent(m) {
   if (!game.on || !net.isHost) return;
   const idx = pidToIdx(m.pid);
   if (idx < 0) return;
-  if (m.type === "need_state") { rebroadcastPhase(); return; }
+  game.h.seen[m.pid] = Date.now();
+  if (m.type === "need_state") { hostSendSync(m.pid); return; }
   if (m.type === "ready" && game.phase === "deal") {
     game.h.ready.add(m.pid);
-    pub("prog", { kind: "ready", done: game.h.ready.size, total: game.roster.length });
-    if (game.h.ready.size >= game.roster.length) {
-      pub("st", { phase: "clues", seq: ++game.seq });
-    }
+    hostCheckReadyDone(true);
+    return;
+  }
+  if (m.type === "pair" && game.phase === "write") {
+    if (game.h.written.has(m.pid)) return;
+    game.h.written.add(m.pid);
+    if (!m.skip && m.a && m.b) state.customPairs.push({ a: String(m.a).slice(0, 28), b: String(m.b).slice(0, 28) });
+    pub("prog", { kind: "write", done: game.h.written.size, total: game.roster.length });
+    if (game.h.written.size >= game.roster.length) hostFinishWrite();
     return;
   }
   if (m.type === "vote" && game.phase === "vote") {
@@ -8107,10 +8252,54 @@ function hostOnIntent(m) {
   }
 }
 
-function rebroadcastPhase() {
-  // basit kurtarma: mevcut faza göre son paketi yeniden üret
-  if (game.phase === "clues") pub("st", { phase: "clues", seq: ++game.seq });
-  else if (game.phase === "vote") pub("st", { phase: "vote", seq: ++game.seq, deadline: game.deadline });
+function hostCheckReadyDone(withProg) {
+  if (withProg) pub("prog", { kind: "ready", done: game.h.ready.size, total: game.roster.length });
+  if (game.h.ready.size >= game.roster.length) {
+    game.h.phaseAt = Date.now();
+    pub("st", { phase: "clues", seq: ++game.seq });
+  }
+}
+
+// Yeniden bağlanan istemciye TAM durum: roster + skorlar + el kompozisyonu + kendi gizli kartı
+function hostSendSync(pid) {
+  if (!state.el) return; // henüz el yok (lobi/kurulum) — istek sessizce düşer
+  const base = {
+    resync: true, to: pid, seq: ++game.seq,
+    roster: game.roster, players: state.players,
+    elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
+    pub: sanitizedEl(state.el), per: buildPerSecrets(state.el),
+  };
+  let ph = game.phase;
+  if (ph === "revealing") ph = "vote"; // açılış sırasında dönen: oy ekranında bekler, rv adımları devralır
+  switch (ph) {
+    case "deal":
+      Object.assign(base, { phase: "deal", youReady: game.h.ready.has(pid), readyDone: game.h.ready.size });
+      break;
+    case "write":
+      Object.assign(base, { phase: "write", youWrote: game.h.written.has(pid) });
+      break;
+    case "clues":
+      base.phase = "clues";
+      break;
+    case "vote":
+      Object.assign(base, { phase: "vote", deadline: game.deadline, youVoted: game.h.votes.has(pid) });
+      break;
+    case "tie":
+      Object.assign(base, { phase: "tie" }, game.h.lastExtra || {});
+      break;
+    case "guess":
+      Object.assign(base, { phase: "guess" }, game.h.lastExtra || {});
+      break;
+    case "elresult":
+      Object.assign(base, { phase: "elresult", el: state.el });
+      break;
+    case "final":
+      base.phase = "final";
+      break;
+    default:
+      return;
+  }
+  pub("st", base);
 }
 
 // Ev sahibi ipucu ekranında "Oylamaya Geç"e basınca (app.js akışını sapla)
@@ -8167,6 +8356,8 @@ function hostAfterReveal() {
   const topSet = counts.map((c, i) => (c === max && c > 0 ? i : -1)).filter((i) => i >= 0);
   if (topSet.length > 1 && state.el.muhtar >= 0 && !state.el.muhtarUsed) {
     game.phase = "tie";
+    game.h.phaseAt = Date.now();
+    game.h.lastExtra = { cands: topSet, muhtarIdx: state.el.muhtar };
     pub("st", { phase: "tie", seq: ++game.seq, cands: topSet, muhtarIdx: state.el.muhtar });
     return;
   }
@@ -8178,6 +8369,8 @@ function hostResolveTopSet(topSet) {
   const numIdx = state.el.roles.indexOf("numaraci");
   if (numIdx >= 0 && topSet.includes(numIdx) && state.el.guess === null) {
     game.phase = "guess";
+    game.h.phaseAt = Date.now();
+    game.h.lastExtra = { numIdx };
     pub("st", { phase: "guess", seq: ++game.seq, numIdx });
     return;
   }
@@ -8186,6 +8379,7 @@ function hostResolveTopSet(topSet) {
 
 function hostElResult() {
   computeElPoints();
+  hostSaveSnap();
   pub("st", {
     phase: "elresult", seq: ++game.seq,
     players: state.players, el: state.el,
@@ -8215,5 +8409,141 @@ document.addEventListener("visibilitychange", () => {
     setTimeout(() => sendIntent("need_state"), 1200);
   }
 });
+
+// ================= FAZ C: sağlamlık =================
+
+// ---------- Bizden yazma ekranı (herkes, ev sahibi dahil) ----------
+function onlineShowWrite() {
+  $("author-pass").textContent = t("writeYours", game.roster[game.myIdx].name);
+  $("author-a").value = "";
+  $("author-b").value = "";
+  $("author-a").placeholder = t("authorA");
+  $("author-b").placeholder = t("authorB");
+  $("author-warn").classList.add("hidden");
+  $("btn-author-done").classList.add("hidden");
+  showScreen("screen-author");
+}
+
+(function hookAuthor() {
+  $("btn-author-next").addEventListener("click", (e) => {
+    if (!game.on) return;
+    e.stopImmediatePropagation();
+    const a = $("author-a").value.trim();
+    const b = $("author-b").value.trim();
+    if (!a || !b) { $("author-warn").classList.remove("hidden"); return; }
+    sendIntent("pair", { a, b });
+    showWait("✍️", t("writeWait"), true);
+  }, true);
+  $("btn-author-skip").addEventListener("click", (e) => {
+    if (!game.on) return;
+    e.stopImmediatePropagation();
+    sendIntent("pair", { skip: true });
+    showWait("✍️", t("writeWait"), true);
+  }, true);
+})();
+
+// ---------- Kalp atışı + takılma bekçisi ----------
+var HB_MS = 8000;      // istemci "yaşıyorum" aralığı
+var DEAD_MS = 25000;   // bu kadar sessiz kalan oyuncu "kopmuş" sayılır
+
+setInterval(() => {
+  if (game.on && net.channel) pub("hb", { pid: netSelfId() });
+}, HB_MS);
+
+// Ev sahibi: kopan oyuncu oyunu KİLİTLEYEMEZ — sessiz kalanların adımı otomatik tamamlanır
+setInterval(() => {
+  if (!game.on || !net.isHost || !game.h || !state.el) return;
+  const now = Date.now();
+  const lastOf = (pid) => Math.max(game.h.seen[pid] || 0, game.h.phaseAt || 0);
+  const silent = (pid) => now - lastOf(pid) > DEAD_MS;
+  if (game.phase === "deal") {
+    let changed = false;
+    game.roster.forEach((r) => {
+      if (r.id === netSelfId() || game.h.ready.has(r.id)) return;
+      if (silent(r.id)) { game.h.ready.add(r.id); changed = true; }
+    });
+    if (changed) hostCheckReadyDone(true);
+  } else if (game.phase === "write") {
+    let changed = false;
+    game.roster.forEach((r) => {
+      if (r.id === netSelfId() || game.h.written.has(r.id)) return;
+      if (silent(r.id)) { game.h.written.add(r.id); changed = true; }
+    });
+    if (changed) {
+      pub("prog", { kind: "write", done: game.h.written.size, total: game.roster.length });
+      if (game.h.written.size >= game.roster.length) hostFinishWrite();
+    }
+  } else if (game.phase === "tie" && game.h.lastExtra && game.h.lastExtra.cands) {
+    const mPid = game.roster[game.h.lastExtra.muhtarIdx]?.id;
+    if (mPid && mPid !== netSelfId() && silent(mPid)) {
+      const c = game.h.lastExtra.cands;
+      state.el.muhtarUsed = true;
+      hostResolveTopSet([c[Math.floor(Math.random() * c.length)]]);
+    }
+  } else if (game.phase === "guess" && game.h.lastExtra && game.h.lastExtra.numIdx >= 0) {
+    const nPid = game.roster[game.h.lastExtra.numIdx]?.id;
+    if (nPid && nPid !== netSelfId() && now - lastOf(nPid) > DEAD_MS + 10000) {
+      state.el.guess = "";
+      state.el.guessCorrect = false;
+      hostElResult();
+    }
+  }
+}, 5000);
+
+// ---------- Ev sahibi kurtarma: sayfa yenilenirse oyuna devam ----------
+var SNAP_KEY = "hm_host_resume";
+var SNAP_TTL = 15 * 60 * 1000;
+
+function hostSaveSnap() {
+  if (!net.isHost || !net.code) return;
+  try {
+    const cfg = {};
+    ["mode", "totalEls", "selectedPacks", "difficulty", "ksCount",
+     "withNumaraci", "withPapagan", "withIkizler", "withMuhtar", "customPairs"].forEach((k) => { cfg[k] = state[k]; });
+    localStorage.setItem(SNAP_KEY, JSON.stringify({
+      code: net.code, pid: netSelfId(), t: Date.now(), seq: game.seq,
+      roster: game.roster, players: state.players, elNo: state.elNo, cfg,
+    }));
+  } catch (e) {}
+}
+function readSnap() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SNAP_KEY) || "null");
+    if (s && Date.now() - s.t < SNAP_TTL) return s;
+  } catch (e) {}
+  return null;
+}
+function clearSnap() { try { localStorage.removeItem(SNAP_KEY); } catch (e) {} }
+
+async function resumeHostedRoom() {
+  const snap = readSnap();
+  if (!snap) return;
+  sessionStorage.setItem("hm_pid", snap.pid);
+  setLobbyBusy(true);
+  try {
+    Object.assign(state, snap.cfg);
+    state.voteMode = "phone";
+    state.players = snap.players;
+    state.playerCount = snap.roster.length;
+    state.elNo = snap.elNo;
+    await joinRoomChannel(snap.code, true);
+    net.name = (snap.roster.find((r) => r.id === snap.pid) || {}).name || net.name;
+    net.ready = true;
+    game.on = true;
+    game.seq = snap.seq + 50; // istemcilerin seq'inin önüne geç
+    game.roster = snap.roster;
+    game.myIdx = pidToIdx(netSelfId());
+    game.h = newHostState();
+    net.lobbyRoster = {};
+    snap.roster.forEach((r) => {
+      net.lobbyRoster[r.id] = { name: r.name, avatar: r.avatar, ready: true, host: r.id === snap.pid, t: Date.now() };
+    });
+    pubRoster();
+    hostNextEl(); // yarım kalan el YENİDEN dağıtılır (skorlar korunur)
+  } catch (e) {
+    showToastError(t("netFail"));
+  }
+  setLobbyBusy(false);
+}
 
 </script>
