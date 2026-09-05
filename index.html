@@ -39,6 +39,8 @@ html, body {
   overscroll-behavior: none;
   touch-action: manipulation;     /* çift dokunuş zoom'u kapalı */
 }
+/* iOS klavye bug'ına karşı: gövde viewport'a sabit — pencere hiçbir koşulda kaydırılamaz */
+body { position: fixed; inset: 0; }
 
 /* App kabuğu doğrudan viewport'a SABİTLENİR: yüzde yükseklik html/body zincirine değil
    pencerenin kendisine çözülür — iOS standalone alt bant sorununun kökten çözümü.
@@ -1964,6 +1966,8 @@ html, body {
   55% { transform: translateX(6px); }
   80% { transform: translateX(-3px); }
 }
+.set-ver { text-align: center; font-size: 11px; font-weight: 800; color: rgba(7, 21, 58, 0.35); margin-top: 8px; }
+
 /* Her ekranın üstünde yüzen bildirim */
 #toast {
   position: fixed;
@@ -2234,6 +2238,7 @@ html, body {
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
+        <p class="set-ver" id="app-ver">v54</p>
       </div>
     </div>
 
@@ -5825,7 +5830,7 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
   $(id).classList.add("active");
   $("btn-exit").classList.toggle("hidden", !IN_GAME_SCREENS.includes(id));
-  window.scrollTo(0, 0);
+  resetViewportScroll();
   // Giriş animasyonu — içinde position:fixed eleman olan ekranlarda transform yasak → sadece fade
   const c = $(id).querySelector(".content, .center-wrap, .home-wrap");
   if (c) {
@@ -7304,6 +7309,22 @@ function loadPrefs() {
 }
 
 // iOS standalone: dvh/% tutarsızlıklarına karşı kesin yükseklik — gerçek pencere ölçüsü
+// iOS standalone KLAVYE BUG'I: klavye kapanınca WebKit layout viewport'u yukarı kaydırılmış
+// bırakabilir → altta zemin rengi "bant" olarak kalır, alt elemanlar yukarı itilir.
+// Çözüm: klavye/odak her kapandığında ve ekran değişiminde kaydırmayı sıfırla.
+function resetViewportScroll() {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+}
+document.addEventListener("focusout", () => {
+  setTimeout(resetViewportScroll, 60);
+  setTimeout(resetViewportScroll, 350); // iOS klavye kapanışı animasyonlu — ikinci geç sıfırlama
+});
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => setTimeout(resetViewportScroll, 80));
+}
+
 function setAppHeight() {
   // Kurulu app (standalone): html/body %100 zinciri tam ekranı verir; innerHeight ise alt
   // güvenli alanı dışlayabilir → değişkeni SİL, %100 fallback kullanılsın (alt mavi bant fix'i)
