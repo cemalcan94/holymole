@@ -1440,6 +1440,17 @@ body { position: fixed; inset: 0; }
 }
 .reveal-row .r-name { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 17px; }
 .reveal-row .r-votes { color: var(--pink); font-size: 13px; font-weight: 800; }
+.pack-chip { position: relative; }
+.chip-badge {
+  position: absolute; top: -10px; right: -4px;
+  background: var(--sun); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 8px;
+  padding: 1px 6px 0;
+  font-family: "Baloo 2", sans-serif; font-size: 9px; font-weight: 800; letter-spacing: .3px;
+  transform: rotate(3deg);
+  box-shadow: 0 2px 0 var(--ink);
+  pointer-events: none; white-space: nowrap;
+}
 @keyframes hmShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
 .shake { animation: hmShake .35s ease; }
 .reveal-row .r-why { color: var(--ink); opacity: .72; font-size: 11.5px; font-weight: 700; line-height: 1.3; margin-top: 1px; }
@@ -2368,7 +2379,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v95</p>
+        <p class="set-ver" id="app-ver">v96</p>
       </div>
     </div>
 
@@ -2419,6 +2430,7 @@ body { position: fixed; inset: 0; }
         <div class="setup-block">
           <label class="setup-label" data-i18n="wordPacks">Kelime Paketleri</label>
           <div class="pack-chips" id="pack-chips"></div>
+          <p class="setup-hint" data-i18n="launchFreeHint">Genel dışındaki paketler açılış dönemine özel ücretsiz! 🎉</p>
           <label class="setup-label" style="margin-top:6px" data-i18n="difficulty">Zorluk</label>
           <div class="segment small" id="diff-segment">
             <button class="seg-btn" data-diff="easy" data-i18n="diffEasy">Kolay</button>
@@ -5458,6 +5470,8 @@ const I18N = {
     noElim: "Elemesiz",
     noElimHint: "Aklanan ipucu veremez ama oy vermeye devam eder",
     features: "Özellikler",
+    launchBadge: "AÇILIŞA ÖZEL",
+    launchFreeHint: "Genel dışındaki paketler açılış dönemine özel ücretsiz! 🎉",
     rElNo: (n) => `${n}. El`,
     rSpyRounds: (n) => `${n} tur atlattı`,
     rSpyEscape: "kaçtı",
@@ -5747,6 +5761,8 @@ const I18N = {
     noElim: "No Elimination",
     noElimHint: "Cleared players can't give clues but keep voting",
     features: "Twists",
+    launchBadge: "LAUNCH SPECIAL",
+    launchFreeHint: "All packs beyond General are free for the launch period! 🎉",
     rElNo: (n) => `Hand ${n}`,
     rSpyRounds: (n) => `survived ${n} round${n > 1 ? "s" : ""}`,
     rSpyEscape: "escaped",
@@ -6062,7 +6078,8 @@ function renderPackChips() {
   [...WORD_PACKS.filter((p) => !p.custom), ...WORD_PACKS.filter((p) => p.custom)].forEach((pack) => {
     const btn = document.createElement("button");
     btn.className = "pack-chip" + (state.selectedPacks.includes(pack.id) ? " active" : "");
-    btn.innerHTML = `<img class="pack-ico" src="${asset(`assets/pack-${pack.id}.png`)}" alt="" onerror="this.remove()"><span>${escapeHtml(pack.names[state.lang])}</span>`;
+    const rozet = (!pack.custom && pack.id !== "genel") ? `<span class="chip-badge">${t("launchBadge")}</span>` : "";
+    btn.innerHTML = `<img class="pack-ico" src="${asset(`assets/pack-${pack.id}.png`)}" alt="" onerror="this.remove()"><span>${escapeHtml(pack.names[state.lang])}</span>${rozet}`;
     btn.addEventListener("click", () => {
       if (state.selectedPacks.includes(pack.id)) {
         if (state.selectedPacks.length > 1) state.selectedPacks = state.selectedPacks.filter((id) => id !== pack.id);
@@ -6544,6 +6561,7 @@ $("btn-start").addEventListener("click", () => {
     avatars.push(a);
   }
   state.players = names.map((name, i) => ({ name, avatar: avatars[i], score: 0, scoreLog: [], stats: newStats() }));
+  track("game_start", { mode: state.mode, players: state.playerCount, vote: state.voteMode, lang: state.lang, packs: state.selectedPacks.join("|"), online: 0 });
   const proceed = () => {
     if (state.selectedPacks.includes("bizden")) {
       state.authorIndex = 0;
@@ -7219,6 +7237,11 @@ function computeElPoints() {
     p.score += pts;
     if (rs.length) (p.scoreLog = p.scoreLog || []).push({ el: state.elNo, rs });
   });
+  track("hand_end", {
+    caught: el.caught ? 1 : 0, escaped: el.escaped ? 1 : 0,
+    rounds: el.roundVotes.length, players: state.playerCount,
+    online: (typeof game !== "undefined" && game.on) ? 1 : 0,
+  });
 }
 
 // Puan gerekçelerini okunur satıra çevir (el sonucu + puan tablosu ortak)
@@ -7445,6 +7468,7 @@ const FINAL_TITLE_DOODLES = `
   <span class="dash" style="right:-32px; top:20px; width:10px; transform:rotate(-24deg)"></span>`;
 
 function showFinal() {
+  track("night_end", { els: state.elNo, players: state.playerCount });
   const sorted = state.players.map((p, i) => ({ ...p, idx: i })).sort((a, b) => b.score - a.score);
   state.finalAwards = computeAwards(); // şampiyon kutlama sayfasında, ödüller story sayfasında
   state.finalSorted = sorted;
@@ -7725,6 +7749,35 @@ if ("serviceWorker" in navigator && location.protocol === "https:") {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 
+// ================= İstatistik (GA4) =================
+// GA_ID girilince aktifleşir (analytics.google.com → yeni özellik → "G-XXXX" ölçüm kimliği).
+// Boşken hiçbir şey yüklenmez; artifact CSP'si engellerse sessizce devre dışı kalır.
+var GA_ID = ""; // örn. "G-ABC123XYZ"
+var gaReady = false;
+function initAnalytics() {
+  if (!GA_ID || location.protocol === "file:") return;
+  try {
+    const s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    s.onerror = () => { gaReady = false; };
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag("js", new Date());
+    window.gtag("config", GA_ID, {
+      app_version: ($("app-ver") || {}).textContent || "",
+      language: state.lang,
+    });
+    gaReady = true;
+  } catch (e) { /* istatistik oyunu asla bozmasın */ }
+}
+function track(ev, params) {
+  if (!gaReady) return;
+  try { window.gtag("event", ev, params || {}); } catch (e) { /* sessiz */ }
+}
+initAnalytics();
+
 // ================= ONLINE MOD — Faz A: Oda & Lobi =================
 // Model: telefonlar kumanda, oyun masada. Supabase Realtime (yalnız broadcast+presence, DB yok).
 const SUPA_URL = "https://uauihsubsycizagblehm.supabase.co";
@@ -7968,6 +8021,7 @@ async function hostCreateRoom() {
   try {
     await joinRoomChannel(code, true);
     rememberRoomPid(code);
+    track("room_created", { lang: state.lang });
     enterLobby();
   } catch (e) {
     showToastError(t("netFail"));
@@ -7994,6 +8048,7 @@ async function joinExistingRoom() {
       return;
     }
     rememberRoomPid(code);
+    track("room_joined", { lang: state.lang });
     enterLobby();
     // Oyun ortasıysa ev sahibi tam durumu gönderir (sync) — lobide sessizce yok sayılır
     setTimeout(() => { if (!net.isHost && net.channel) sendIntent("need_state"); }, 900);
@@ -9022,6 +9077,7 @@ function hostFinal() {
     e.stopImmediatePropagation();
     SFX.start();
     clampSetup();
+    track("game_start", { mode: state.mode, players: game.roster.length, vote: state.voteMode, lang: state.lang, packs: state.selectedPacks.join("|"), online: 1 });
     onlineHostStartMatch();
   }, true);
 })();
