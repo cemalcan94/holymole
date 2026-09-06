@@ -2252,7 +2252,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v68</p>
+        <p class="set-ver" id="app-ver">v69</p>
       </div>
     </div>
 
@@ -7325,19 +7325,11 @@ function loadPrefs() {
 let dbgTimer = null, dbgTaps = 0;
 function toggleDebugHud() {
   let hud = $("dbg-hud");
-  if (hud) { hud.remove(); $("dbg-vp")?.remove(); $("dbg-app")?.remove(); clearInterval(dbgTimer); return; }
+  if (hud) { hud.remove(); clearInterval(dbgTimer); return; }
   hud = document.createElement("div");
   hud.id = "dbg-hud";
   hud.style.cssText = "position:fixed;top:calc(env(safe-area-inset-top) + 4px);left:4px;z-index:99999;background:rgba(7,21,58,.92);color:#d3f518;font:700 11px/1.5 monospace;padding:8px 10px;border-radius:10px;pointer-events:none;white-space:pre";
   document.body.appendChild(hud);
-  const vp = document.createElement("div");
-  vp.id = "dbg-vp";
-  vp.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:5px;background:#ff4d9a;z-index:99998;pointer-events:none";
-  document.body.appendChild(vp);
-  const ap = document.createElement("div");
-  ap.id = "dbg-app";
-  ap.style.cssText = "position:absolute;left:0;right:0;bottom:0;height:5px;background:#d3f518;z-index:99998;pointer-events:none";
-  $("app").appendChild(ap);
   const probe = document.createElement("div");
   probe.style.cssText = "position:fixed;padding-bottom:env(safe-area-inset-bottom);visibility:hidden";
   document.body.appendChild(probe);
