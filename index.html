@@ -1436,6 +1436,8 @@ body { position: fixed; inset: 0; }
 }
 .reveal-row .r-name { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 17px; }
 .reveal-row .r-votes { color: var(--pink); font-size: 13px; font-weight: 800; }
+@keyframes hmShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+.shake { animation: hmShake .35s ease; }
 .reveal-row .r-why { color: var(--ink); opacity: .72; font-size: 11.5px; font-weight: 700; line-height: 1.3; margin-top: 1px; }
 .reveal-row .r-pts {
   margin-left: auto;
@@ -2362,7 +2364,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v89</p>
+        <p class="set-ver" id="app-ver">v90</p>
       </div>
     </div>
 
@@ -5465,6 +5467,8 @@ const I18N = {
     roundPill: (n) => `TUR ${n}`,
     clearedChip: "AKLANDI",
     clearedAtRound: (r) => `Tur ${r}'de aklandı`,
+    exposedChip: "AÇIĞA ÇIKTI",
+    exposedAtRound: (r) => `Tur ${r}'de açığa çıktı`,
     spectateVote: "Aklandın — bu tur oy hakkın yok, sonucu izle 👀",
     revealInnocent: (n) => `${n} açıldı — MASUM! Soruşturma sürüyor 🔍`,
     tieNoElimText: "Oylar eşit kaldı — kimse açılmadı. Köstebek bir turu daha atlattı!",
@@ -5753,6 +5757,8 @@ const I18N = {
     roundPill: (n) => `ROUND ${n}`,
     clearedChip: "CLEARED",
     clearedAtRound: (r) => `Cleared in round ${r}`,
+    exposedChip: "EXPOSED",
+    exposedAtRound: (r) => `Exposed in round ${r}`,
     spectateVote: "You're cleared — no vote this round, watch the result 👀",
     revealInnocent: (n) => `${n} is revealed — INNOCENT! The hunt continues 🔍`,
     tieNoElimText: "The vote stayed tied — nobody was revealed. The Mole survives another round!",
@@ -6729,7 +6735,7 @@ function buildElCore() {
     roundPicks: [],     // sözlü mod: her turun grup kararı
     spyRounds: 0,       // köstebeğin atlattığı tur sayısı
     spyEverVoted: false,
-    caught: false, escaped: false, numRevealed: false,
+    caught: false, escaped: false, numRevealed: false, numOut: -1,
   };
 }
 
@@ -6867,7 +6873,7 @@ function startRoundScreen() {
   state.el.out.forEach((pIdx) => {
     const div = document.createElement("div");
     div.className = "speak-item cleared";
-    div.innerHTML = `<span class="order-num">✓</span>${avHtml(pIdx)}<span>${escapeHtml(state.players[pIdx].name)}</span><span class="cleared-chip">${t("clearedChip")}</span>`;
+    div.innerHTML = `<span class="order-num">✓</span>${avHtml(pIdx)}<span>${escapeHtml(state.players[pIdx].name)}</span><span class="cleared-chip">${t(pIdx === (state.el.numOut ?? -1) ? "exposedChip" : "clearedChip")}</span>`;
     wrap.appendChild(div);
   });
   showScreen("screen-round");
@@ -7077,6 +7083,7 @@ function resolveTopSet(topSet) {
   if (el.roles[T] === "kostebek") { el.caught = true; scoreEl(); return; }
   if (el.roles[T] === "numaraci") {
     el.numRevealed = true;
+    el.numOut = T;
     el.out.push(T);
     el.outRound[T] = el.roundNo;
     $("guess-title").textContent = t("guessTitle", state.players[T].name);
@@ -7127,9 +7134,17 @@ function normalize(s) {
   return s.trim().toLocaleLowerCase(state.lang === "tr" ? "tr-TR" : "en-US");
 }
 
+// Boş girişte inputu salla — sessiz kalmasın
+function shakeEl(el) {
+  el.classList.remove("shake");
+  void el.offsetWidth;
+  el.classList.add("shake");
+  el.focus();
+}
+
 $("btn-guess").addEventListener("click", () => {
   const guess = normalize($("guess-input").value);
-  if (!guess) return;
+  if (!guess) { shakeEl($("guess-input")); return; }
   state.el.guess = $("guess-input").value.trim();
   state.el.guessCorrect = guess === normalize(state.el.civilWord);
   const numIdx = state.el.roles.indexOf("numaraci");
@@ -7324,7 +7339,7 @@ function showElResult() {
   state.players.forEach((p, i) => {
     const role = el.roles[i];
     const voteLabel = el.out.includes(i) && role !== "kostebek"
-      ? t("clearedAtRound", el.outRound[i])
+      ? t(role === "numaraci" ? "exposedAtRound" : "clearedAtRound", el.outRound[i])
       : (oral
         ? (i === el.groupPick ? t("groupChoice") : "")
         : t("votesShort", counts[i]));
@@ -8362,6 +8377,7 @@ function applyPhase(p) {
       if (state.el) {
         state.el.out = p.outs || [];
         state.el.roundNo = p.roundNo || 1;
+        state.el.numOut = p.numOut ?? -1;
       }
       startRoundScreen();
       onlineAdjustRound();
@@ -8673,7 +8689,7 @@ function onlineShowGuess(p) {
     if (!game.on) return;
     e.stopImmediatePropagation();
     const guess = $("guess-input").value.trim();
-    if (!guess) return;
+    if (!guess) { shakeEl($("guess-input")); return; }
     sendIntent("guess", { text: guess });
     showWait("assets/role-numaraci.png", t("numThinking", game.roster[game.myIdx].name));
   }, true); // capture: yerel handler'dan önce
@@ -8820,7 +8836,7 @@ function hostSendSync(pid) {
     roster: game.roster, players: state.players,
     elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
     pub: sanitizedEl(state.el), per: buildPerSecrets(state.el),
-    outs: state.el.out, roundNo: state.el.roundNo,
+    outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1,
   };
   let ph = game.phase;
   if (ph === "revealing") ph = "vote"; // açılış sırasında dönen: oy ekranında bekler, rv adımları devralır
@@ -8872,7 +8888,7 @@ function hostSendSync(pid) {
 // Yeni ipucu turu yayını: aklananlar + tur no her cihaza gider
 function hostPubClues() {
   game.h.phaseAt = Date.now();
-  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo });
+  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1 });
 }
 
 function hostStartVote() {
@@ -8940,6 +8956,7 @@ function hostResolveTopSet(topSet) {
   if (el.roles[T] === "kostebek") { el.caught = true; hostElResult(); return; }
   if (el.roles[T] === "numaraci" && el.guess === null) {
     el.numRevealed = true;
+    el.numOut = T;
     el.out.push(T);
     el.outRound[T] = el.roundNo;
     game.phase = "guess";
