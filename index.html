@@ -2362,7 +2362,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v86</p>
+        <p class="set-ver" id="app-ver">v87</p>
       </div>
     </div>
 
@@ -7431,10 +7431,15 @@ function showFinal() {
 function scoreTableHtml() {
   let h = `<div class="whowas-card"><h3>${t("scoreboard")}</h3>`;
   state.finalSorted.forEach((p, rank) => {
+    const log = (p.scoreLog || []).map((e) =>
+      `<div class="r-why"><b>${escapeHtml(t("rElNo", e.el))}:</b> ${fmtReasons(e.rs)}</div>`).join("");
     h += `<div class="reveal-row">
       <span class="rank-num${rank === 0 ? " gold" : ""}">${rank + 1}</span>
       ${avHtml(p.idx)}
-      <div class="r-name" style="flex:1; min-width:0">${escapeHtml(p.name)}${rank === 0 ? ` <img class="rank-crown" src="${asset("assets/ico-tac.png")}" alt="👑">` : ""}</div>
+      <div style="flex:1; min-width:0">
+        <div class="r-name">${escapeHtml(p.name)}${rank === 0 ? ` <img class="rank-crown" src="${asset("assets/ico-tac.png")}" alt="👑">` : ""}</div>
+        ${log}
+      </div>
       <span class="r-pts">${p.score}</span>
     </div>`;
   });
