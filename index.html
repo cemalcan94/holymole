@@ -60,6 +60,13 @@ body { position: fixed; inset: 0; }
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
 }
 .screen.active { display: flex; }
+/* iOS PWA GERÇEĞİ: OS, viewport'un son ~100pt'ini opak şeritle ÖRTÜYOR — oraya çizilen
+   buton/içerik kısmen ya da tamamen kapanıyor. Kullanılabilir alanı şeridin ÜSTÜNDE
+   bitiriyoruz: hiçbir buton/scroll sonu artık şeridin altına yerleşemez; şerit yalnızca
+   zemine (fade ile eriyen düz maviye) denk gelir. (Ana sayfa hariç: %'lik mockup düzeni,
+   son 100pt'te zaten içerik yok.) */
+html.ios-pwa .screen:not(#screen-home) { padding-bottom: 100px; }
+html.ios-pwa #screen-lobby .content { padding-bottom: 16px; }
 .hidden { display: none !important; }
 
 .baloo, h1, h2, .stepper-value, .card-word, .announce-text, .vote-title { font-family: "Baloo 2", "Nunito", sans-serif; }
@@ -2390,7 +2397,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v98</p>
+        <p class="set-ver" id="app-ver">v99</p>
       </div>
     </div>
 
@@ -7733,6 +7740,8 @@ function setAppHeight() {
   // h≤200 (gizli sekme vb.): değişkene dokunma — CSS %100 fallback devrede kalır
 }
 setAppHeight();
+// iOS ana ekrana eklenmiş PWA: OS alt şeridi içeriğin üzerini örter → kabuğa alt boşluk
+if (navigator.standalone === true) document.documentElement.classList.add("ios-pwa");
 window.addEventListener("resize", setAppHeight);
 window.addEventListener("orientationchange", () => setTimeout(setAppHeight, 250));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) setAppHeight(); });
