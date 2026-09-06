@@ -2128,14 +2128,6 @@ body { position: fixed; inset: 0; }
 
 /* Mod kartının arkasından bakan Moly */
 .mode-card { position: relative; }
-.peek-moly {
-  position: absolute;
-  top: -41px; left: 55%;
-  transform: translateX(-50%);
-  width: 96px;
-  z-index: -1;
-  animation: waitPeek 3s ease-in-out infinite;
-}
 .peek-moly svg { width: 100%; display: block; }
 
 /* İkonlu mod butonları + nasıl oynanır */
@@ -2149,7 +2141,7 @@ body { position: fixed; inset: 0; }
 .home-wrap .circle-btn {
   width: 46px; height: 46px;
   border-width: 3.5px;
-  top: calc(env(safe-area-inset-top, 0px) + 3.2%);
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
 }
 .cb-left { left: 7%; }
 .cb-right { right: 7%; }
@@ -2190,7 +2182,7 @@ body { position: fixed; inset: 0; }
 .home-wrap .soon-badge { top: -15px; right: -6px; }
 .home-wrap .how-pill {
   position: absolute;
-  top: 73%; left: 50%;
+  top: 75.5%; left: 50%;
   transform: translateX(-50%);
   width: 60%;
   min-width: 250px;
@@ -2288,7 +2280,7 @@ body { position: fixed; inset: 0; }
         </h1>
         <p class="tagline" data-i18n="tagline">ŞÜPHEYE HAZIR MISIN?</p>
         <div class="peek-moly" aria-hidden="true">
-            <svg viewBox="0 0 96 64">
+            <svg viewBox="0 0 92 64">
               <line x1="64" y1="12" x2="72" y2="4" stroke="#FFD93D" stroke-width="6.5" stroke-linecap="round"/>
               <line x1="78" y1="24" x2="91" y2="20" stroke="#FFD93D" stroke-width="6.5" stroke-linecap="round"/>
               <path d="M13 64 C13 34 27 17 46 17 C65 17 79 34 79 64 Z" fill="#07153a"/>
@@ -2331,7 +2323,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v74</p>
+        <p class="set-ver" id="app-ver">v76</p>
       </div>
     </div>
 
