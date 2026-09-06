@@ -2128,7 +2128,7 @@ body { position: fixed; inset: 0; }
 
 /* Mod kartının arkasından bakan Moly */
 .mode-card { position: relative; }
-.peek-moly svg { width: 100%; display: block; }
+.peek-moly svg { width: 100%; display: block; animation: waitPeek 3s ease-in-out infinite; transform-origin: 50% 100%; }
 
 /* İkonlu mod butonları + nasıl oynanır */
 .mode-btn { display: flex; align-items: center; justify-content: center; gap: 13px; }
@@ -2141,7 +2141,7 @@ body { position: fixed; inset: 0; }
 .home-wrap .circle-btn {
   width: 46px; height: 46px;
   border-width: 3.5px;
-  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  top: calc(env(safe-area-inset-top, 0px) + 6px);
 }
 .cb-left { left: 7%; }
 .cb-right { right: 7%; }
@@ -2323,7 +2323,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v76</p>
+        <p class="set-ver" id="app-ver">v77</p>
       </div>
     </div>
 
