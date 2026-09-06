@@ -664,19 +664,10 @@ body { position: fixed; inset: 0; }
   z-index: 0;
 }
 /* Sonuç sayfaları zemini: CSS ışın patlaması — merkezi HER ekranda sayfanın tam ortası */
-/* iOS ALT BANT ÇÖZÜMÜ: layout viewport'un (innerHeight) altındaki OS şeridine içerik
-   ÇİZİLEMEZ ama kök elemanın arka planı TÜM canvas'a (şerit dahil) yayılır. Işınlı
-   ekranlarda aynı desen köke de verilir (JS: showScreen → html.bg-rays) — desen merkezi
-   --app-h/2'ye sabitlenir ki ekrandaki ::before ile birebir hizalansın, sınır kaybolsun. */
-html.bg-rays {
-  background:
-    radial-gradient(circle at 50% calc(var(--app-h, 100%) / 2), rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 42%),
-    repeating-conic-gradient(from 4deg at 50% calc(var(--app-h, 100%) / 2),
-      rgba(255, 255, 255, 0.065) 0deg 9deg,
-      rgba(255, 255, 255, 0) 9deg 18deg)
-    var(--blue);
-}
-
+/* iOS ALT BANT — KESİN ÇÖZÜM: viewport altındaki OS şeridine ne içerik ne desen çizilebilir,
+   iOS oraya SADECE düz renk basar (tema/zemin mavisi). Bu yüzden ışınlar ekranın altına
+   doğru düz maviye ERİTİLİR (en üst katman fade): desen şeride varmadan düz maviye döner,
+   şerit de aynı mavi olduğundan sınır hiçbir cihazda görünmez. */
 #screen-home::before,
 #screen-final::before,
 #screen-elresult::before,
@@ -688,10 +679,16 @@ html.bg-rays {
   pointer-events: none;
   z-index: 0;
   background:
+    linear-gradient(to bottom, rgba(1, 99, 252, 0) calc(100% - 190px), var(--blue) calc(100% - 60px)),
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 42%),
     repeating-conic-gradient(from 4deg at 50% 50%,
       rgba(255, 255, 255, 0.065) 0deg 9deg,
       rgba(255, 255, 255, 0) 9deg 18deg);
+}
+/* Kart sahnesindeki ışın PNG'si de aynı şekilde alta doğru erisin */
+#card-stage .rays-img {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 190px), transparent calc(100% - 60px));
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 190px), transparent calc(100% - 60px));
 }
 #screen-final .content, #screen-elresult .content { position: relative; z-index: 1; }
 #screen-home .home-wrap { z-index: 1; }
@@ -2393,7 +2390,7 @@ html.bg-rays {
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v97</p>
+        <p class="set-ver" id="app-ver">v98</p>
       </div>
     </div>
 
@@ -6038,12 +6035,9 @@ function avHtml(i) {
 
 const IN_GAME_SCREENS = ["screen-author", "screen-reveal", "screen-round", "screen-vote", "screen-announce", "screen-guess", "screen-elresult"];
 
-// Işınlı zeminli ekranlar: kök arka planı da aynı desene geçer (iOS alt bant kaynaşması)
-const RAY_SCREENS = ["screen-home", "screen-final", "screen-elresult", "screen-reveal"];
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
   $(id).classList.add("active");
-  document.documentElement.classList.toggle("bg-rays", RAY_SCREENS.includes(id));
   $("btn-exit").classList.toggle("hidden", !IN_GAME_SCREENS.includes(id));
   resetViewportScroll();
   // Giriş animasyonu — içinde position:fixed eleman olan ekranlarda transform yasak → sadece fade
@@ -7739,8 +7733,6 @@ function setAppHeight() {
   // h≤200 (gizli sekme vb.): değişkene dokunma — CSS %100 fallback devrede kalır
 }
 setAppHeight();
-// Açılışta home aktif — kök ışın deseni baştan açık olsun
-document.documentElement.classList.add("bg-rays");
 window.addEventListener("resize", setAppHeight);
 window.addEventListener("orientationchange", () => setTimeout(setAppHeight, 250));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) setAppHeight(); });
