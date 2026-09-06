@@ -2362,7 +2362,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v88</p>
+        <p class="set-ver" id="app-ver">v89</p>
       </div>
     </div>
 
@@ -6905,14 +6905,22 @@ function showOralVoteScreen() {
     showScreen("screen-announce");
   fitScreen("screen-announce");
   });
-  // Muhtar varsa eşitlik butonu: sesli oylar eşitse son söz onda
-  $("btn-oral-tie").classList.toggle("hidden", !(state.el.muhtar >= 0 && !state.el.muhtarUsed));
+  // Eşitlik butonu: muhtar varsa son söz onda, yoksa kimse açılmaz — tur yanar
+  $("btn-oral-tie").classList.remove("hidden");
   showScreen("screen-vote");
   fitScreen("screen-vote");
 }
 
 $("btn-oral-tie").addEventListener("click", () => {
-  showTieScreen(orderedActive());
+  const el = state.el;
+  if (el.muhtar >= 0 && !el.muhtarUsed && !el.out.includes(el.muhtar)) {
+    showTieScreen(orderedActive());
+  } else {
+    // Muhtar yok/hakkını kullandı: telefon moduyla aynı kural — köstebek turu atlatır
+    el.groupPick = -1;
+    elRecordRound([]);
+    announceRound(null, t("tieNoElimText"));
+  }
 });
 
 function renderVoteGrid(filterFn, onPick, showCounts) {
