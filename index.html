@@ -264,7 +264,7 @@ body { position: fixed; inset: 0; }
   width: 54%; height: 54%; object-fit: contain;
   pointer-events: none;
 }
-.tool-ico { width: 40px; height: 40px; object-fit: contain; display: block; }
+.tool-ico { width: 48px; height: 48px; object-fit: contain; display: block; }
 .back-ico { width: 50px; height: 50px; object-fit: contain; display: block; margin: auto; }
 .title-ico.ti-sm { width: 52px; height: 52px; vertical-align: -14px; }
 .title-ico { width: 62px; height: 62px; object-fit: contain; vertical-align: -18px; margin-left: 8px; }
@@ -299,7 +299,7 @@ body { position: fixed; inset: 0; }
 .btn:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--ink); }
 .btn-primary { background: var(--lime); color: var(--ink); }
 .btn-ghost { background: var(--cream); color: var(--ink); }
-.btn-big { width: 100%; padding: 17px 24px; font-size: 19px; }
+.btn-big { width: 100%; padding: 17px 24px; font-size: 23px; }
 .btn-with-ico { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
 .btn-ico { width: 34px; height: 34px; object-fit: contain; }
 .btn-ico.bi-sm { width: 28px; height: 28px; }
@@ -322,6 +322,8 @@ body { position: fixed; inset: 0; }
 /* ---------- Üst bar ---------- */
 .topbar { display: flex; align-items: center; gap: 14px; padding: 22px 20px 10px; }
 .topbar h2 {
+  line-height: 1;
+  transform: translateY(-2px);
   font-size: 26px;
   font-weight: 800;
   color: var(--cream);
@@ -1006,7 +1008,7 @@ body { position: fixed; inset: 0; }
 }
 .tool-btn {
   display: flex; align-items: center; justify-content: center;
-  width: 56px; height: 56px;
+  width: 66px; height: 66px;
   border-radius: 50%;
   background: var(--cream);
   border: 3.5px solid var(--ink);
@@ -2142,7 +2144,7 @@ body { position: fixed; inset: 0; }
 .home-wrap .circle-btn {
   width: 46px; height: 46px;
   border-width: 3.5px;
-  top: calc(env(safe-area-inset-top, 0px) + 6px);
+  top: 10px;
 }
 .cb-left { left: 7%; }
 .cb-right { right: 7%; }
@@ -2324,7 +2326,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v79</p>
+        <p class="set-ver" id="app-ver">v80</p>
       </div>
     </div>
 
