@@ -2213,6 +2213,20 @@ body { position: fixed; inset: 0; }
 .home-wrap .how-pill:active { transform: translateX(-50%) translateY(3px); }
 .home-wrap .pill-btn-ico { width: 27px; height: 27px; }
 
+/* Çok-turlu soruşturma: aklanmış oyuncu satırı */
+.speak-item.cleared { opacity: 0.45; }
+.speak-item.cleared .order-num { background: var(--cream); color: var(--ink); }
+.cleared-chip {
+  margin-left: auto;
+  background: #dfe8f5;
+  border: 2.5px solid var(--ink);
+  border-radius: 100px;
+  padding: 2px 10px;
+  font-family: "Baloo 2", sans-serif;
+  font-size: 11px;
+  color: var(--ink);
+}
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2343,7 +2357,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v82</p>
+        <p class="set-ver" id="app-ver">v85</p>
       </div>
     </div>
 
@@ -2379,8 +2393,8 @@ body { position: fixed; inset: 0; }
           </div>
           <p class="setup-hint" id="mode-hint"></p>
           <div class="segment small" id="els-segment">
-            <button class="seg-btn active" data-els="5" data-i18n="els5">5 El</button>
-            <button class="seg-btn" data-els="10" data-i18n="els10">10 El</button>
+            <button class="seg-btn active" data-els="3" data-i18n="els3">3 El</button>
+            <button class="seg-btn" data-els="5" data-i18n="els5">5 El</button>
           </div>
         </div>
         <div class="setup-block">
@@ -2456,6 +2470,16 @@ body { position: fixed; inset: 0; }
             </div>
           </div>
           <button class="toggle" id="toggle-muhtar" role="switch" aria-checked="false"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="setup-block setup-row" id="noelim-block">
+          <div class="role-left">
+            <img class="role-ico" src="data:image/png;base64,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" alt="">
+            <div>
+              <label class="setup-label" data-i18n="noElim">Elemesiz</label>
+              <p class="setup-hint" data-i18n="noElimHint">Aklanan ipucu veremez ama oy vermeye devam eder</p>
+            </div>
+          </div>
+          <button class="toggle" id="toggle-noelim" role="switch" aria-checked="false"><span class="toggle-knob"></span></button>
         </div>
         <div class="setup-block">
           <label class="setup-label" data-i18n="playerNames">Oyuncu İsimleri</label>
@@ -2613,7 +2637,7 @@ body { position: fixed; inset: 0; }
     <!-- TUR / İPUCU -->
     <section id="screen-round" class="screen">
       <header class="topbar">
-        <span class="el-pill"><span data-i18n="el">El</span> <span id="el-number">1</span><span id="el-total"></span></span>
+        <span class="el-pill"><span data-i18n="el">El</span> <span id="el-number">1</span><span id="el-total"></span><span id="el-round"></span></span>
       </header>
       <div class="content">
         <div class="title-wrap">
@@ -5404,6 +5428,7 @@ const I18N = {
     classicMode: "Klasik",
     fastHint: "Belirlenen el sayısı oynanır, en yüksek puan şampiyon olur.",
     classicHint: "Sonsuz el — siz 'bitirelim' diyene kadar sürer.",
+    els3: "3 El",
     els5: "5 El",
     els10: "10 El",
     playerCount: "Oyuncu Sayısı",
@@ -5416,6 +5441,16 @@ const I18N = {
     ikizlerHint: "İki Ahali birbirini bilir",
     muhtar: "Muhtar",
     muhtarHint: "Oylar eşit çıkarsa son söz onda",
+    noElim: "Elemesiz",
+    noElimHint: "Aklanan ipucu veremez ama oy vermeye devam eder",
+    roundPill: (n) => `TUR ${n}`,
+    clearedChip: "AKLANDI",
+    clearedAtRound: (r) => `Tur ${r}'de aklandı`,
+    spectateVote: "Aklandın — bu tur oy hakkın yok, sonucu izle 👀",
+    revealInnocent: (n) => `${n} açıldı — MASUM! Soruşturma sürüyor 🔍`,
+    tieNoElimText: "Oylar eşit kaldı — kimse açılmadı. Köstebek bir turu daha atlattı!",
+    revealNumGood: (n, g) => `${n} meğer NUMARACI'ymış — ve kelimeyi BİLDİ: “${g}”! Soruşturma sürüyor.`,
+    revealNumBad: (n) => `${n} meğer NUMARACI'ymış! Kelimeyi tutturamadı. Soruşturma sürüyor.`,
     oralTieBtn: "Oylar eşit çıktı",
     muhtarExtra: "🗳️ Ayrıca MUHTAR'sın: oylar eşit çıkarsa kararı sen verirsin!",
     tiePass: (n) => `Oylar eşit! 🤯 Telefonu Muhtar ${n} alsın`,
@@ -5538,11 +5573,11 @@ const I18N = {
       <div class="how-card"><span class="how-tag lime"><img class="how-tag-ico" src="${asset("assets/ico-rol-kartlari.png")}" alt=""> ROLLER</span>
       <p><b>Ahali</b> aynı gizli kelimeyi alır. <b>Köstebek</b> benzer ama farklı bir kelime alır — ve kimse hangisi olduğunu bilmez, sen bile! <b>Numaracı</b> hiç kelime almaz, bildiğini bilir ve sallar.</p></div>
       <div class="how-card"><span class="how-tag pink"><img class="how-tag-ico" src="${asset("assets/ico-oynanan-el.png")}" alt=""> BİR EL</span>
-      <p>Telefon elden ele dolaşır, herkes kartını gizlice görür. Sırayla herkes kelimesi hakkında <b>tek ipucu</b> verir (kelimeyi söylemek yasak). Sonra <b>açık oylama</b>: herkes sırayla şüphelisini seçer ve seçim anında ilan edilir!</p></div>
+      <p>Telefon elden ele dolaşır, herkes kartını gizlice görür. Sırayla herkes kelimesi hakkında <b>tek ipucu</b> verir (kelimeyi söylemek yasak). Sonra <b>açık oylama</b>: herkes sırayla şüphelisini seçer ve seçim anında ilan edilir! En çok oyu alan açılır — masumsa <b>aklanır</b>, soruşturma yeni turla sürer. Köstebek son 2 kişiye kalırsa <b>kaçar</b>.</p></div>
       <div class="how-card"><span class="how-tag sun"><img class="how-tag-ico" src="${asset("assets/ico-puan-tablosu.png")}" alt=""> PUANLAR</span>
-      <p>Köstebeğe oy veren Ahali <b>+2</b> (grup doğru bildiyse +1 bonus). Kurtulan Köstebek <b>+4</b>, hiç oy almazsa <b>+6</b>. Numaracı kurtulursa <b>+3</b>, yakalanıp kelimeyi bilirse <b>+4</b>.</p></div>
+      <p>Köstebek atlattığı her tur için <b>+1</b>, kaçarsa <b>+4</b> — hiç oy yememişse <b>+6</b>. Yakalama turunda Köstebeğe oy veren <b>+2</b>, önceki turlarda gösteren her seferinde <b>+1</b> öngörü, grup hep birlikte bildiyse <b>+1</b> bonus. Numaracı kurtulursa <b>+3</b>, yakalanıp kelimeyi bilirse <b>+4</b>.</p></div>
       <div class="how-card"><span class="how-tag blu"><img class="how-tag-ico" src="${asset("assets/award-alkis.png")}" alt=""> KİMSE ELENMEZ</span>
-      <p>Her el yeni kelimeler ve yeni rollerle başlar. Serinin sonunda en yüksek puan şampiyon — ve Moly gecenin ödüllerini dağıtır. 🏆</p></div>`,
+      <p>Aklanan oyuncu ipucu veremez ama masada kalır — <b>Elemesiz</b> özelliği açıksa oy da kullanır. Her el yeni kelimeler ve yeni rollerle başlar. Serinin sonunda en yüksek puan şampiyon — ve Moly gecenin ödüllerini dağıtır. 🏆</p></div>`,
     quips: {
       spyGhost: [
         (n) => `${n} Köstebek'ti ve üstüne TEK oy gelmedi. Aranızda yaşıyor.`,
@@ -5670,6 +5705,7 @@ const I18N = {
     classicMode: "Classic",
     fastHint: "Play a set number of hands; highest score wins.",
     classicHint: "Endless hands — play until the group calls it a night.",
+    els3: "3 Hands",
     els5: "5 Hands",
     els10: "10 Hands",
     playerCount: "Players",
@@ -5682,6 +5718,16 @@ const I18N = {
     ikizlerHint: "Two Townsfolk know each other",
     muhtar: "Mayor",
     muhtarHint: "Breaks the tie if votes are even",
+    noElim: "No Elimination",
+    noElimHint: "Cleared players can't give clues but keep voting",
+    roundPill: (n) => `ROUND ${n}`,
+    clearedChip: "CLEARED",
+    clearedAtRound: (r) => `Cleared in round ${r}`,
+    spectateVote: "You're cleared — no vote this round, watch the result 👀",
+    revealInnocent: (n) => `${n} is revealed — INNOCENT! The hunt continues 🔍`,
+    tieNoElimText: "The vote stayed tied — nobody was revealed. The Mole survives another round!",
+    revealNumGood: (n, g) => `${n} was the FAKER — and NAILED the word: “${g}”! The hunt continues.`,
+    revealNumBad: (n) => `${n} was the FAKER! Missed the word. The hunt continues.`,
     oralTieBtn: "It's a tie",
     muhtarExtra: "🗳️ You're also the MAYOR: if the vote ends in a tie, you decide!",
     tiePass: (n) => `It's a tie! 🤯 Pass the phone to Mayor ${n}`,
@@ -5804,11 +5850,11 @@ const I18N = {
       <div class="how-card"><span class="how-tag lime"><img class="how-tag-ico" src="${asset("assets/ico-rol-kartlari.png")}" alt=""> ROLES</span>
       <p><b>Townsfolk</b> share the same secret word. The <b>Mole</b> gets a similar but different word — and nobody knows which they are, not even you! The <b>Faker</b> gets no word at all.</p></div>
       <div class="how-card"><span class="how-tag pink"><img class="how-tag-ico" src="${asset("assets/ico-oynanan-el.png")}" alt=""> A HAND</span>
-      <p>The phone goes around and everyone secretly sees their card. In turns, everyone gives <b>one clue</b>. Then <b>open voting</b>: each vote is announced the moment it's cast!</p></div>
+      <p>The phone goes around and everyone secretly sees their card. In turns, everyone gives <b>one clue</b>. Then <b>open voting</b>: each vote is announced the moment it's cast! The top suspect is revealed — an innocent is <b>cleared</b> and a new round begins. If the Mole reaches the final 2, they <b>escape</b>.</p></div>
       <div class="how-card"><span class="how-tag sun"><img class="how-tag-ico" src="${asset("assets/ico-puan-tablosu.png")}" alt=""> POINTS</span>
-      <p>Townsfolk voting for the Mole get <b>+2</b> (+1 bonus if the group nails it). A surviving Mole gets <b>+4</b>, <b>+6</b> with zero votes. The Faker gets <b>+3</b> for surviving, <b>+4</b> for guessing the word when caught.</p></div>
+      <p>The Mole gets <b>+1</b> per round survived, <b>+4</b> for escaping — <b>+6</b> with zero votes ever. Voting for the Mole in the catch round is <b>+2</b>, spotting them in earlier rounds <b>+1</b> each time, and <b>+1</b> bonus if the whole group nails it. The Faker gets <b>+3</b> for surviving, <b>+4</b> for guessing the word when caught.</p></div>
       <div class="how-card"><span class="how-tag blu"><img class="how-tag-ico" src="${asset("assets/award-alkis.png")}" alt=""> NOBODY'S OUT</span>
-      <p>Every hand deals new words and roles. Highest score takes the crown — and moly hands out the awards. 🏆</p></div>`,
+      <p>A cleared player can't give clues but stays at the table — with the <b>No-Elimination</b> twist on, they keep voting too. Every hand deals new words and roles. Highest score takes the crown — and Moly hands out the awards. 🏆</p></div>`,
     quips: {
       spyGhost: [
         (n) => `${n} was the Mole and got ZERO votes. They live among you.`,
@@ -5878,7 +5924,7 @@ const I18N = {
 const state = {
   lang: "tr",
   mode: "classic",
-  totalEls: 5,
+  totalEls: 3,
   voteMode: "phone",
   selectedPacks: ["genel"],
   difficulty: "mixed",
@@ -5888,6 +5934,7 @@ const state = {
   withPapagan: false,
   withIkizler: false,
   withMuhtar: false,
+  noElim: false,
   playerAvatars: [],
   customPairs: [],
   authorIndex: 0,
@@ -6234,6 +6281,7 @@ function renderSetup() {
   setToggle("toggle-papagan", state.withPapagan);
   setToggle("toggle-ikizler", state.withIkizler);
   setToggle("toggle-muhtar", state.withMuhtar);
+  setToggle("toggle-noelim", state.noElim);
   $("toggle-muhtar").disabled = false;
   document.querySelector("#muhtar-block .setup-hint").textContent = t("muhtarHint");
   document.querySelectorAll("#mode-segment .seg-btn").forEach((b) => b.classList.toggle("active", b.dataset.mode === state.mode));
@@ -6318,6 +6366,7 @@ $("toggle-numaraci").addEventListener("click", () => { state.withNumaraci = !sta
 $("toggle-papagan").addEventListener("click", () => { state.withPapagan = !state.withPapagan; renderSetup(); });
 $("toggle-ikizler").addEventListener("click", () => { state.withIkizler = !state.withIkizler; renderSetup(); });
 $("toggle-muhtar").addEventListener("click", () => { state.withMuhtar = !state.withMuhtar; renderSetup(); });
+$("toggle-noelim").addEventListener("click", () => { state.noElim = !state.noElim; renderSetup(); });
 document.querySelectorAll("#mode-segment .seg-btn").forEach((b) =>
   b.addEventListener("click", () => { state.mode = b.dataset.mode; renderSetup(); })
 );
@@ -6639,8 +6688,22 @@ function buildElCore() {
     dugHoles: [],
     guess: null, guessCorrect: false,
     points: new Array(n).fill(0),
+    // Çok-turlu soruşturma durumu
+    out: [],            // aklanmış (aday olmaktan çıkmış) oyuncular
+    outRound: {},       // idx -> hangi turda aklandı
+    roundNo: 1,
+    roundVotes: [],     // her turun oy dizisi (puanlama: öngörü bonusu)
+    roundPicks: [],     // sözlü mod: her turun grup kararı
+    spyRounds: 0,       // köstebeğin atlattığı tur sayısı
+    spyEverVoted: false,
+    caught: false, escaped: false, numRevealed: false,
   };
 }
+
+// Aktif (aklanmamış) oyuncular — konuşma sırasına göre
+function orderedActive() { return state.el.order.filter((i) => !state.el.out.includes(i)); }
+// Bu turda oy kullanacaklar: elemesiz özelliği açıksa aklananlar da oy verir
+function voterIdxs() { return state.noElim ? [...state.el.order] : orderedActive(); }
 
 function startEl() {
   state.elNo++;
@@ -6759,11 +6822,19 @@ function startRoundScreen() {
   if (state.el.muhtar >= 0) chips.push(`<span class="role-chip"><img src="${asset("assets/role-muhtar.png")}" alt="">${t("muhtar")}</span>`);
   $("round-roles").innerHTML = chips.join("");
 
+  $("el-round").textContent = ` · ${t("roundPill", state.el.roundNo)}`;
   const playTri = `<svg class="play-tri" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 4 L26 15 L8 26 Z" fill="var(--lime)" stroke="#07153a" stroke-width="3.5" stroke-linejoin="round"/></svg>`;
-  state.el.order.forEach((pIdx, i) => {
+  orderedActive().forEach((pIdx, i) => {
     const div = document.createElement("div");
     div.className = "speak-item" + (i === 0 ? " first" : "");
     div.innerHTML = `<span class="order-num">${i + 1}</span>${avHtml(pIdx)}<span>${escapeHtml(state.players[pIdx].name)}</span>` + (i === 0 ? playTri : "");
+    wrap.appendChild(div);
+  });
+  // Aklananlar: soruşturma dışı ama masada (elemesizde oy da verirler)
+  state.el.out.forEach((pIdx) => {
+    const div = document.createElement("div");
+    div.className = "speak-item cleared";
+    div.innerHTML = `<span class="order-num">✓</span>${avHtml(pIdx)}<span>${escapeHtml(state.players[pIdx].name)}</span><span class="cleared-chip">${t("clearedChip")}</span>`;
     wrap.appendChild(div);
   });
   showScreen("screen-round");
@@ -6773,17 +6844,18 @@ function startRoundScreen() {
 $("btn-to-vote").addEventListener("click", () => {
   stopTimer();
   state.voteIndex = 0;
+  state.voterList = voterIdxs();
   if (state.voteMode === "oral") showOralVoteScreen();
   else showVoteScreen();
 });
 
 // ================= Açık oylama (telefonla) =================
 function showVoteScreen() {
-  const voterIdx = state.el.order[state.voteIndex];
+  const voterIdx = state.voterList[state.voteIndex];
   const voter = state.players[voterIdx];
   $("vote-pass-note").textContent = t("votePassNote", voter.name);
   $("vote-title").innerHTML = `${escapeHtml(t("voteTitle", voter.name))}<img class="title-ico ti-sm" src="${asset("assets/ico-kostebek-kim.png")}" alt="">`;
-  renderVoteGrid((i) => i !== voterIdx, (i) => castVote(voterIdx, i), true);
+  renderVoteGrid((i) => i !== voterIdx && !state.el.out.includes(i), (i) => castVote(voterIdx, i), true);
   $("btn-oral-tie").classList.add("hidden");
   showScreen("screen-vote");
   fitScreen("screen-vote");
@@ -6793,7 +6865,7 @@ function showVoteScreen() {
 function showOralVoteScreen() {
   $("vote-pass-note").textContent = t("oralPassNote");
   $("vote-title").innerHTML = `${escapeHtml(t("oralVoteTitle"))}<img class="title-ico ti-sm" src="${asset("assets/ico-kostebek-kim.png")}" alt="">`;
-  renderVoteGrid(() => true, (i) => {
+  renderVoteGrid((i) => !state.el.out.includes(i), (i) => {
     state.el.groupPick = i;
     setAnnounceVisual(null, i);
     $("announce-text").innerHTML = t("announceGroup", escapeHtml(state.players[i].name), trDative(state.players[i].name));
@@ -6807,7 +6879,7 @@ function showOralVoteScreen() {
 }
 
 $("btn-oral-tie").addEventListener("click", () => {
-  showTieScreen(state.players.map((_, i) => i));
+  showTieScreen(orderedActive());
 });
 
 function renderVoteGrid(filterFn, onPick, showCounts) {
@@ -6850,6 +6922,7 @@ function trSuffix(name, type) {
 function trDative(name) { return trSuffix(name, "dat"); }
 
 function setAnnounceVisual(fromIdx, toIdx) {
+  document.querySelector(".vote-visual-card").classList.remove("hidden");
   if (fromIdx === null) {
     $("vv-from").innerHTML = `<img src="${asset("assets/ico-oy-pusulasi.png")}" alt="">`;
     $("vv-from-name").textContent = t("majorityLabel");
@@ -6871,6 +6944,7 @@ function setAnnounceVisual(fromIdx, toIdx) {
 }
 
 function castVote(voterIdx, targetIdx) {
+  document.querySelector(".vote-visual-card").classList.remove("hidden");
   state.el.votes[voterIdx] = targetIdx;
   setAnnounceVisual(voterIdx, targetIdx);
   $("announce-text").innerHTML = t("announceVote", escapeHtml(state.players[voterIdx].name), escapeHtml(state.players[targetIdx].name), trDative(state.players[targetIdx].name));
@@ -6884,9 +6958,14 @@ $("btn-announce-next").addEventListener("click", () => {
     resolveTopSet([state.el.tiePick]);
     return;
   }
+  if (state.announceAfter === "round") {
+    state.announceAfter = null;
+    afterRoundReveal();
+    return;
+  }
   if (state.voteMode === "oral") { finishVoting(); return; }
   state.voteIndex++;
-  if (state.voteIndex < state.playerCount) showVoteScreen();
+  if (state.voteIndex < state.voterList.length) showVoteScreen();
   else finishVoting();
 });
 
@@ -6907,7 +6986,7 @@ function finishVoting() {
   }
 
   // Eşitlik + Muhtar: son söz onun
-  if (state.voteMode === "phone" && topSet.length > 1 && state.el.muhtar >= 0 && !state.el.muhtarUsed) {
+  if (state.voteMode === "phone" && topSet.length > 1 && state.el.muhtar >= 0 && !state.el.muhtarUsed && !state.el.out.includes(state.el.muhtar)) {
     showTieScreen(topSet);
     return;
   }
@@ -6933,16 +7012,74 @@ function showTieScreen(topSet) {
   fitScreen("screen-vote");
 }
 
+// Turu kayda geçir (puanlama roundVotes üzerinden) — yerel ve online host ortak
+function elRecordRound(topSet) {
+  const el = state.el;
+  el.topSet = topSet;
+  el.roundVotes.push([...el.votes]);
+  el.roundPicks.push(el.groupPick);
+  const counts = voteCounts();
+  if (el.roles.some((r, i) => r === "kostebek" && (state.voteMode === "oral" ? topSet.includes(i) : counts[i] > 0))) {
+    el.spyEverVoted = true;
+  }
+}
+
 function resolveTopSet(topSet) {
-  state.el.topSet = topSet;
-  const numIdx = state.el.roles.indexOf("numaraci");
-  if (numIdx >= 0 && topSet.includes(numIdx)) {
-    $("guess-title").textContent = t("guessTitle", state.players[numIdx].name);
+  const el = state.el;
+  elRecordRound(topSet);
+  if (topSet.length !== 1) {
+    // Eşitlik çözülemedi: kimse açılmaz, köstebek turu atlatır
+    announceRound(null, t("tieNoElimText"));
+    return;
+  }
+  const T = topSet[0];
+  if (el.roles[T] === "kostebek") { el.caught = true; scoreEl(); return; }
+  if (el.roles[T] === "numaraci") {
+    el.numRevealed = true;
+    el.out.push(T);
+    el.outRound[T] = el.roundNo;
+    $("guess-title").textContent = t("guessTitle", state.players[T].name);
     $("guess-input").value = "";
     showScreen("screen-guess");
     return;
   }
-  scoreEl();
+  // Masum açıldı → aklandı
+  el.out.push(T);
+  el.outRound[T] = el.roundNo;
+  announceRound(T, t("revealInnocent", escapeHtml(state.players[T].name)));
+}
+
+// Tur-arası duyuru: hedef varsa görsel kartla, yoksa yalnız metin
+function announceRound(idx, html) {
+  const card = document.querySelector(".vote-visual-card");
+  if (idx === null) {
+    card.classList.add("hidden");
+  } else {
+    card.classList.remove("hidden");
+    setAnnounceVisual(null, idx);
+  }
+  $("announce-text").innerHTML = html;
+  state.announceAfter = "round";
+  showScreen("screen-announce");
+  fitScreen("screen-announce");
+}
+
+// Tur bitti (yakalama yok): kaçış kontrolü ya da yeni tur
+function afterRoundReveal() {
+  const el = state.el;
+  el.spyRounds++; // köstebek bu turu atlattı (+1)
+  const act = orderedActive();
+  const spiesAlive = el.roles.filter((r, i) => r === "kostebek" && !el.out.includes(i)).length;
+  if (spiesAlive > 0 && act.length <= spiesAlive + 1) {
+    el.escaped = true;
+    scoreEl();
+    return;
+  }
+  el.roundNo++;
+  el.votes = new Array(state.playerCount).fill(-1);
+  el.groupPick = -1;
+  el.topSet = [];
+  startRoundScreen();
 }
 
 function normalize(s) {
@@ -6954,7 +7091,9 @@ $("btn-guess").addEventListener("click", () => {
   if (!guess) return;
   state.el.guess = $("guess-input").value.trim();
   state.el.guessCorrect = guess === normalize(state.el.civilWord);
-  scoreEl();
+  const numIdx = state.el.roles.indexOf("numaraci");
+  announceRound(numIdx, t(state.el.guessCorrect ? "revealNumGood" : "revealNumBad",
+    escapeHtml(state.players[numIdx].name), escapeHtml(state.el.guess)));
 });
 
 // ================= Puanlama =================
@@ -6966,40 +7105,47 @@ function scoreEl() {
 // Saf puan hesabı — UI'sız (online ev sahibi de kullanır)
 function computeElPoints() {
   const el = state.el;
-  const counts = voteCounts();
-  const topSet = el.topSet || [];
-  const isSpy = (i) => el.roles[i] !== "ahali";
-  const singleTopIsSpy = topSet.length === 1 && isSpy(topSet[0]);
-
   const oral = state.voteMode === "oral";
+  const isSpy = (i) => el.roles[i] === "kostebek";
+  const catchRound = el.roundVotes.length - 1;
+  const finalVotes = el.roundVotes[catchRound] || [];
+  // Grup bonusu: yakalama turunda oy kullanan HERKES köstebeği gösterdiyse
+  const allRight = el.caught && !oral && finalVotes.some((v, i) => v >= 0 && !isSpy(i)) &&
+    finalVotes.every((v, i) => v < 0 || isSpy(i) || isSpy(v));  // köstebeğin kendi oyu bonusu bozmaz
 
   state.players.forEach((p, i) => {
     const role = el.roles[i];
-    let pts = 0;
     const st = p.stats;
+    let pts = 0;
 
-    if (role === "ahali") {
-      if (oral) {
-        // grup kararı doğruysa tüm Ahali +3 (2 + bonus); bireysel istatistik tutulmaz
-        if (el.groupPick >= 0 && isSpy(el.groupPick)) pts += 3;
-        if (topSet.includes(i)) st.innocentVotesTaken += 1;
-      } else {
-        const votedSpy = el.votes[i] >= 0 && isSpy(el.votes[i]);
-        if (votedSpy) { pts += 2; st.correctVotes++; st.wrongStreak = 0; }
-        else { st.wrongVotes++; st.wrongStreak++; }
-        if (singleTopIsSpy) pts += 1;
-        st.innocentVotesTaken += counts[i];
-      }
-    } else if (role === "kostebek") {
+    if (role === "kostebek") {
       st.spyEls++;
-      if (oral) {
-        if (!topSet.includes(i)) { pts += 4; st.spySurvived++; }
-      } else if (counts[i] === 0) { pts += 6; st.spySurvived++; st.spyGhosts++; }
-      else if (!topSet.includes(i)) { pts += 4; st.spySurvived++; }
+      pts += el.spyRounds;                         // atlattığı her tur +1
+      if (!el.caught) {
+        pts += el.spyEverVoted ? 4 : 6;            // kaçış +4, hiç oy yemeden +6
+        st.spySurvived++;
+        if (!el.spyEverVoted) st.spyGhosts++;
+      }
     } else if (role === "numaraci") {
       st.numaraciEls++;
-      if (!topSet.includes(i)) { pts += 3; st.numaraciSurvived++; }
+      if (!el.numRevealed) { pts += 3; st.numaraciSurvived++; }
       else if (el.guessCorrect) { pts += 4; st.numaraciGuessed++; }
+    } else {
+      if (oral) {
+        if (el.caught) pts += 3;                   // grup köstebeği yakaladı: tüm Ahali +3
+        el.roundPicks.forEach((gp) => { if (gp === i) st.innocentVotesTaken++; });
+      } else {
+        el.roundVotes.forEach((votes, r) => {
+          const v = votes[i];
+          if (v < 0) return;
+          if (isSpy(v)) {
+            st.correctVotes++; st.wrongStreak = 0;
+            pts += (el.caught && r === catchRound) ? 2 : 1;  // yakalama +2, erken öngörü +1
+          } else { st.wrongVotes++; st.wrongStreak++; }
+        });
+        el.roundVotes.forEach((votes) => votes.forEach((v) => { if (v === i) st.innocentVotesTaken++; }));
+        if (allRight) pts += 1;
+      }
     }
     el.points[i] = pts;
     p.score += pts;
@@ -7024,15 +7170,15 @@ function pickQuip() {
   }
   el.roles.forEach((r, i) => {
     const name = state.players[i].name;
-    if (!oral && r === "kostebek" && counts[i] === 0) candidates.push([4, () => pick(q.spyGhost)(name)]);
+    if (!oral && r === "kostebek" && !el.spyEverVoted && !el.caught) candidates.push([4, () => pick(q.spyGhost)(name)]);
     if (r === "ahali" && topSet.includes(i)) candidates.push([3, () => pick(q.innocentTop)(name)]);
     if (r === "numaraci" && !topSet.includes(i)) candidates.push([2, () => pick(q.numaraciSurvived)(name)]);
     if (!oral && r === "ahali" && state.players[i].stats.wrongStreak >= 2) candidates.push([2, () => pick(q.wrongStreak)(name, state.players[i].stats.wrongStreak)]);
     if (oral && r === "kostebek" && !topSet.includes(i)) candidates.push([2, () => pick(q.spyGhost)(name)]);
   });
-  const allCivilsRight = oral
-    ? (el.groupPick >= 0 && el.roles[el.groupPick] !== "ahali")
-    : el.roles.every((r, i) => r !== "ahali" || (el.votes[i] >= 0 && el.roles[el.votes[i]] !== "ahali"));
+  const allCivilsRight = el.caught && (oral
+    ? true
+    : el.roles.every((r, i) => r !== "ahali" || el.votes[i] < 0 || el.roles[el.votes[i]] !== "ahali"));
   if (allCivilsRight) candidates.push([1, () => pick(q.groupSharp)()]);
 
   if (candidates.length === 0) return "";
@@ -7121,9 +7267,11 @@ function showElResult() {
   html += `<div class="whowas-card"><h3>${t("whoWas")}</h3>`;
   state.players.forEach((p, i) => {
     const role = el.roles[i];
-    const voteLabel = oral
-      ? (i === el.groupPick ? t("groupChoice") : "")
-      : t("votesShort", counts[i]);
+    const voteLabel = el.out.includes(i) && role !== "kostebek"
+      ? t("clearedAtRound", el.outRound[i])
+      : (oral
+        ? (i === el.groupPick ? t("groupChoice") : "")
+        : t("votesShort", counts[i]));
     const d = 150 + i * 90; // sahneleme: satırlar sırayla düşer
     html += `<div class="reveal-row" style="animation-delay:${d}ms">
       ${role === "kostebek" ? `<span class="spy-star" style="animation-delay:${150 + state.playerCount * 90 + 250}ms">★</span>` : ""}
@@ -8149,6 +8297,10 @@ function applyPhase(p) {
         game.publicEl = p.pub;
         if (p.per) game.my = p.per[netSelfId()] || game.my;
       }
+      if (state.el) {
+        state.el.out = p.outs || [];
+        state.el.roundNo = p.roundNo || 1;
+      }
       startRoundScreen();
       onlineAdjustRound();
       break;
@@ -8160,6 +8312,12 @@ function applyPhase(p) {
       }
       game.voted = !!(p.resync && p.youVoted);
       game.deadline = p.deadline;
+      if (state.el) state.el.out = p.outs || [];
+      if (p.voters && !p.voters.includes(game.myIdx)) {
+        // aklandın ve elemesiz kapalı: bu tur oy yok, izle
+        showWait("assets/status-berabere.png", t("spectateVote"));
+        break;
+      }
       onlineShowVote(p);
       if (game.voted) {
         document.querySelectorAll("#vote-grid .vote-card").forEach((c) => c.classList.add("locked"));
@@ -8169,6 +8327,14 @@ function applyPhase(p) {
     }
     case "tie": {
       onlineShowTie(p);
+      break;
+    }
+    case "roundend": {
+      if (state.el) {
+        state.el.out = p.outs || [];
+        state.el.roundNo = p.roundNo || 1;
+      }
+      onlineShowRoundEnd(p);
       break;
     }
     case "guess": {
@@ -8312,8 +8478,9 @@ function onlineShowVote(p) {
   $("btn-oral-tie").classList.add("hidden");
   const grid = $("vote-grid");
   grid.innerHTML = "";
+  const outs = (state.el && state.el.out) || [];
   game.roster.forEach((r, i) => {
-    if (i === game.myIdx) return;
+    if (i === game.myIdx || outs.includes(i)) return;
     const btn = document.createElement("button");
     btn.className = "vote-card";
     btn.innerHTML = `${avHtml(i)}<span class="vc-name">${escapeHtml(r.name)}</span>`;
@@ -8374,6 +8541,36 @@ function applyRevealStep(p) {
   showScreen("screen-announce");
   fitScreen("screen-announce");
 }
+
+// ---------- Tur sonu (çok-turlu soruşturma) ----------
+function onlineShowRoundEnd(p) {
+  stopCountdown();
+  const card = document.querySelector(".vote-visual-card");
+  let msg;
+  const name = p.idx !== null && p.idx !== undefined && p.idx >= 0 ? escapeHtml(game.roster[p.idx].name) : "";
+  if (p.kind === "innocent") msg = t("revealInnocent", name);
+  else if (p.kind === "num") msg = t(p.guessOk ? "revealNumGood" : "revealNumBad", name, escapeHtml(p.guess || ""));
+  else msg = t("tieNoElimText");
+  if (p.idx !== null && p.idx !== undefined && p.idx >= 0) {
+    card.classList.remove("hidden");
+    setAnnounceVisual(null, p.idx);
+  } else {
+    card.classList.add("hidden");
+  }
+  $("announce-text").innerHTML = msg;
+  $("btn-announce-next").classList.toggle("hidden", !net.isHost);
+  showScreen("screen-announce");
+  fitScreen("screen-announce");
+}
+
+// Ev sahibi tur-sonu ekranında Devam'a basınca yeni tur (yerel handler'dan önce)
+(function hookAnnounceNext() {
+  $("btn-announce-next").addEventListener("click", (e) => {
+    if (!game.on || !net.isHost || game.phase !== "roundend") return;
+    e.stopImmediatePropagation();
+    hostRoundContinue();
+  }, true);
+})();
 
 // ---------- Muhtar / Numaracı ara fazları ----------
 function onlineShowTie(p) {
@@ -8524,10 +8721,10 @@ function hostOnIntent(m) {
     return;
   }
   if (m.type === "vote" && game.phase === "vote") {
-    if (!game.h.votes.has(m.pid)) {
+    if (!game.h.votes.has(m.pid) && game.h.voters.includes(idx)) {
       game.h.votes.set(m.pid, m.target);
-      pub("prog", { kind: "vote", done: game.h.votes.size, total: game.roster.length });
-      if (game.h.votes.size >= game.roster.length) hostFinishVoting();
+      pub("prog", { kind: "vote", done: game.h.votes.size, total: game.h.voters.length });
+      if (game.h.votes.size >= game.h.voters.length) hostFinishVoting();
     }
     return;
   }
@@ -8540,7 +8737,7 @@ function hostOnIntent(m) {
   if (m.type === "guess" && game.phase === "guess") {
     state.el.guess = m.text;
     state.el.guessCorrect = normalize(m.text) === normalize(state.el.civilWord);
-    hostElResult();
+    hostRoundEnd("num", game.h.lastExtra.numIdx);
     return;
   }
 }
@@ -8549,7 +8746,7 @@ function hostCheckReadyDone(withProg) {
   if (withProg) pub("prog", { kind: "ready", done: game.h.ready.size, total: game.roster.length });
   if (game.h.ready.size >= game.roster.length) {
     game.h.phaseAt = Date.now();
-    pub("st", { phase: "clues", seq: ++game.seq });
+    hostPubClues();
   }
 }
 
@@ -8561,6 +8758,7 @@ function hostSendSync(pid) {
     roster: game.roster, players: state.players,
     elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
     pub: sanitizedEl(state.el), per: buildPerSecrets(state.el),
+    outs: state.el.out, roundNo: state.el.roundNo,
   };
   let ph = game.phase;
   if (ph === "revealing") ph = "vote"; // açılış sırasında dönen: oy ekranında bekler, rv adımları devralır
@@ -8575,13 +8773,16 @@ function hostSendSync(pid) {
       base.phase = "clues";
       break;
     case "vote":
-      Object.assign(base, { phase: "vote", deadline: game.deadline, youVoted: game.h.votes.has(pid) });
+      Object.assign(base, { phase: "vote", deadline: game.deadline, youVoted: game.h.votes.has(pid), voters: game.h.voters });
       break;
     case "tie":
       Object.assign(base, { phase: "tie" }, game.h.lastExtra || {});
       break;
     case "guess":
       Object.assign(base, { phase: "guess" }, game.h.lastExtra || {});
+      break;
+    case "roundend":
+      Object.assign(base, { phase: "roundend" }, game.h.lastExtra || {});
       break;
     case "elresult":
       Object.assign(base, { phase: "elresult", el: state.el });
@@ -8606,12 +8807,22 @@ function hostSendSync(pid) {
   }, true);
 })();
 
+// Yeni ipucu turu yayını: aklananlar + tur no her cihaza gider
+function hostPubClues() {
+  game.h.phaseAt = Date.now();
+  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo });
+}
+
 function hostStartVote() {
   game.h.votes = new Map();
-  // atılmış (bu el kadroda kalan) oyuncular baştan boş oy sayılır — kimse onları beklemez
-  game.h.kicked.forEach((pid) => { if (game.roster.some((r) => r.id === pid)) game.h.votes.set(pid, -1); });
+  game.h.voters = voterIdxs(); // bu turda oy kullanacaklar (elemesizde aklananlar dahil)
+  // atılmış oyuncular baştan boş oy sayılır — kimse onları beklemez
+  game.h.kicked.forEach((pid) => {
+    const gi = game.roster.findIndex((r) => r.id === pid);
+    if (gi >= 0 && game.h.voters.includes(gi)) game.h.votes.set(pid, -1);
+  });
   game.deadline = Date.now() + VOTE_SECONDS * 1000;
-  pub("st", { phase: "vote", seq: ++game.seq, deadline: game.deadline });
+  pub("st", { phase: "vote", seq: ++game.seq, deadline: game.deadline, voters: game.h.voters, outs: state.el.out });
   game.h.voteTimeout = setTimeout(() => {
     if (game.phase === "vote") hostFinishVoting();
   }, VOTE_SECONDS * 1000 + 800);
@@ -8626,8 +8837,8 @@ function hostFinishVoting() {
   game.roster.forEach((r, i) => {
     if (game.h.votes.has(r.id)) state.el.votes[i] = game.h.votes.get(r.id);
   });
-  // açılış sekansı: konuşma sırasına göre adım adım yayınla
-  const steps = state.el.order.map((i) => ({
+  // açılış sekansı: konuşma sırasına göre, yalnız bu turun oycuları
+  const steps = state.el.order.filter((i) => game.h.voters.includes(i)).map((i) => ({
     voter: i,
     target: state.el.votes[i],
     abstain: state.el.votes[i] < 0,
@@ -8649,7 +8860,7 @@ function hostAfterReveal() {
   const counts = voteCounts();
   const max = Math.max(...counts);
   const topSet = counts.map((c, i) => (c === max && c > 0 ? i : -1)).filter((i) => i >= 0);
-  if (topSet.length > 1 && state.el.muhtar >= 0 && !state.el.muhtarUsed) {
+  if (topSet.length > 1 && state.el.muhtar >= 0 && !state.el.muhtarUsed && !state.el.out.includes(state.el.muhtar)) {
     game.phase = "tie";
     game.h.phaseAt = Date.now();
     game.h.lastExtra = { cands: topSet, muhtarIdx: state.el.muhtar };
@@ -8660,16 +8871,51 @@ function hostAfterReveal() {
 }
 
 function hostResolveTopSet(topSet) {
-  state.el.topSet = topSet;
-  const numIdx = state.el.roles.indexOf("numaraci");
-  if (numIdx >= 0 && topSet.includes(numIdx) && state.el.guess === null) {
+  const el = state.el;
+  elRecordRound(topSet); // tur kaydı (öngörü puanları)
+  if (topSet.length !== 1) { hostRoundEnd("tie", null); return; }
+  const T = topSet[0];
+  if (el.roles[T] === "kostebek") { el.caught = true; hostElResult(); return; }
+  if (el.roles[T] === "numaraci" && el.guess === null) {
+    el.numRevealed = true;
+    el.out.push(T);
+    el.outRound[T] = el.roundNo;
     game.phase = "guess";
     game.h.phaseAt = Date.now();
-    game.h.lastExtra = { numIdx };
-    pub("st", { phase: "guess", seq: ++game.seq, numIdx });
+    game.h.lastExtra = { numIdx: T };
+    pub("st", { phase: "guess", seq: ++game.seq, numIdx: T });
     return;
   }
-  hostElResult();
+  el.out.push(T);
+  el.outRound[T] = el.roundNo;
+  hostRoundEnd("innocent", T);
+}
+
+// Tur sonu duyurusu: herkes görür, ev sahibi Devam'la yeni turu başlatır
+function hostRoundEnd(kind, idx) {
+  game.phase = "roundend";
+  game.h.phaseAt = Date.now();
+  game.h.lastExtra = { kind, idx, guessOk: state.el.guessCorrect, guess: state.el.guess };
+  pub("st", { phase: "roundend", seq: ++game.seq, kind, idx,
+    guessOk: state.el.guessCorrect, guess: state.el.guess, outs: state.el.out, roundNo: state.el.roundNo });
+}
+
+function hostRoundContinue() {
+  const el = state.el;
+  el.spyRounds++;
+  const act = el.order.filter((i) => !el.out.includes(i));
+  const spiesAlive = el.roles.filter((r, i) => r === "kostebek" && !el.out.includes(i)).length;
+  if (spiesAlive > 0 && act.length <= spiesAlive + 1) {
+    el.escaped = true;
+    hostElResult();
+    return;
+  }
+  el.roundNo++;
+  el.votes = new Array(game.roster.length).fill(-1);
+  el.groupPick = -1;
+  el.topSet = [];
+  game.h.votes = new Map();
+  hostPubClues();
 }
 
 function hostElResult() {
