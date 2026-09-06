@@ -320,7 +320,9 @@ body { position: fixed; inset: 0; }
 .btn:disabled { opacity: 0.5; pointer-events: none; }
 
 /* ---------- Üst bar ---------- */
-.topbar { display: flex; align-items: center; gap: 14px; padding: 22px 20px 10px; }
+.topbar { display: flex; align-items: center; gap: 14px; padding: 10px 20px 10px; }
+/* Geri butonu başlıkla tam merkez hizasında (gölge butonu optik olarak aşağı çekiyor) */
+.topbar .btn-back { transform: translateY(-3px); }
 .topbar h2 {
   line-height: 1;
   transform: translateY(-2px);
@@ -2366,7 +2368,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v94</p>
+        <p class="set-ver" id="app-ver">v95</p>
       </div>
     </div>
 
