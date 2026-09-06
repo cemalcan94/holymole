@@ -1104,6 +1104,8 @@ body { position: fixed; inset: 0; }
   filter: drop-shadow(0 4px 0 rgba(19, 26, 60, 0.5));
 }
 #screen-vote .content { padding-top: 60px; }
+/* Uzun oylama başlıkları (muhtar beraberliği vb.) dar ekranda taşmasın: sar ve dengele */
+#vote-title { white-space: normal; text-wrap: balance; max-width: calc(100vw - 44px); }
 .vote-grid { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-top: 6px; }
 .vote-card {
   background: var(--cream);
@@ -2364,7 +2366,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v90</p>
+        <p class="set-ver" id="app-ver">v91</p>
       </div>
     </div>
 
