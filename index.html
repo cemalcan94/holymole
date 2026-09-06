@@ -2366,7 +2366,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v91</p>
+        <p class="set-ver" id="app-ver">v92</p>
       </div>
     </div>
 
@@ -5452,7 +5452,7 @@ const I18N = {
     ikizler: "İkizler",
     ikizlerHint: "İki Ahali birbirini bilir",
     muhtar: "Muhtar",
-    muhtarHint: "Oylar eşit çıkarsa son söz onda",
+    muhtarHint: "Oylar eşit çıkarsa son söz onda — dikkat, Muhtar da Köstebek çıkabilir!",
     noElim: "Elemesiz",
     noElimHint: "Aklanan ipucu veremez ama oy vermeye devam eder",
     features: "Özellikler",
@@ -5474,8 +5474,7 @@ const I18N = {
     spectateVote: "Aklandın — bu tur oy hakkın yok, sonucu izle 👀",
     revealInnocent: (n) => `${n} açıldı — MASUM! Soruşturma sürüyor 🔍`,
     tieNoElimText: "Oylar eşit kaldı — kimse açılmadı. Köstebek bir turu daha atlattı!",
-    revealNumGood: (n, g) => `${n} meğer NUMARACI'ymış — ve kelimeyi BİLDİ: “${g}”! Soruşturma sürüyor.`,
-    revealNumBad: (n) => `${n} meğer NUMARACI'ymış! Kelimeyi tutturamadı. Soruşturma sürüyor.`,
+    revealNumSealed: (n) => `${n} meğer NUMARACI'ymış! Tahminini gizlice yazdı — sonucu el sonunda göreceğiz. Soruşturma sürüyor.`,
     oralTieBtn: "Oylar eşit çıktı",
     muhtarExtra: "🗳️ Ayrıca MUHTAR'sın: oylar eşit çıkarsa kararı sen verirsin!",
     tiePass: (n) => `Oylar eşit! 🤯 Telefonu Muhtar ${n} alsın`,
@@ -5596,7 +5595,7 @@ const I18N = {
     rolesInGame: (a, k, n) => `Bu elde: <b>${a} Ahali</b>, <b>${k} Köstebek</b>${n ? ", <b>1 Numaracı</b>" : ""}`,
     howHtml: () => `
       <div class="how-card"><span class="how-tag lime"><img class="how-tag-ico" src="${asset("assets/ico-rol-kartlari.png")}" alt=""> ROLLER</span>
-      <p><b>Ahali</b> aynı gizli kelimeyi alır. <b>Köstebek</b> benzer ama farklı bir kelime alır — ve kimse hangisi olduğunu bilmez, sen bile! <b>Numaracı</b> hiç kelime almaz, bildiğini bilir ve sallar.</p></div>
+      <p><b>Ahali</b> aynı gizli kelimeyi alır. <b>Köstebek</b> benzer ama farklı bir kelime alır — ve kimse hangisi olduğunu bilmez, sen bile! <b>Numaracı</b> hiç kelime almaz, bildiğini bilir ve sallar; yakalanırsa kelimeyi <b>gizlice yazarak</b> tahmin eder, sonuç el sonunda açıklanır. <b>Muhtar</b> rozeti herkese çıkabilir — Köstebek'e bile!</p></div>
       <div class="how-card"><span class="how-tag pink"><img class="how-tag-ico" src="${asset("assets/ico-oynanan-el.png")}" alt=""> BİR EL</span>
       <p>Telefon elden ele dolaşır, herkes kartını gizlice görür. Sırayla herkes kelimesi hakkında <b>tek ipucu</b> verir (kelimeyi söylemek yasak). Çoğunluk emin değilse oylamaya geçmeden <b>bir tur daha ipucu</b> dönebilirsiniz. Sonra <b>açık oylama</b>: herkes sırayla şüphelisini seçer ve seçim anında ilan edilir! En çok oyu alan açılır — masumsa <b>aklanır</b>, soruşturma yeni turla sürer. Köstebek son 2 kişiye kalırsa <b>kaçar</b>.</p></div>
       <div class="how-card"><span class="how-tag sun"><img class="how-tag-ico" src="${asset("assets/ico-puan-tablosu.png")}" alt=""> PUANLAR</span>
@@ -5742,7 +5741,7 @@ const I18N = {
     ikizler: "Twins",
     ikizlerHint: "Two Townsfolk know each other",
     muhtar: "Mayor",
-    muhtarHint: "Breaks the tie if votes are even",
+    muhtarHint: "Breaks the tie if votes are even — careful, the Mayor can be the Mole!",
     noElim: "No Elimination",
     noElimHint: "Cleared players can't give clues but keep voting",
     features: "Twists",
@@ -5764,8 +5763,7 @@ const I18N = {
     spectateVote: "You're cleared — no vote this round, watch the result 👀",
     revealInnocent: (n) => `${n} is revealed — INNOCENT! The hunt continues 🔍`,
     tieNoElimText: "The vote stayed tied — nobody was revealed. The Mole survives another round!",
-    revealNumGood: (n, g) => `${n} was the FAKER — and NAILED the word: “${g}”! The hunt continues.`,
-    revealNumBad: (n) => `${n} was the FAKER! Missed the word. The hunt continues.`,
+    revealNumSealed: (n) => `${n} was the FAKER! Their guess is sealed until the end of the hand. The hunt continues.`,
     oralTieBtn: "It's a tie",
     muhtarExtra: "🗳️ You're also the MAYOR: if the vote ends in a tie, you decide!",
     tiePass: (n) => `It's a tie! 🤯 Pass the phone to Mayor ${n}`,
@@ -5886,7 +5884,7 @@ const I18N = {
     rolesInGame: (a, k, n) => `This hand: <b>${a} Townsfolk</b>, <b>${k} Mole${k > 1 ? "s" : ""}</b>${n ? ", <b>1 Faker</b>" : ""}`,
     howHtml: () => `
       <div class="how-card"><span class="how-tag lime"><img class="how-tag-ico" src="${asset("assets/ico-rol-kartlari.png")}" alt=""> ROLES</span>
-      <p><b>Townsfolk</b> share the same secret word. The <b>Mole</b> gets a similar but different word — and nobody knows which they are, not even you! The <b>Faker</b> gets no word at all.</p></div>
+      <p><b>Townsfolk</b> share the same secret word. The <b>Mole</b> gets a similar but different word — and nobody knows which they are, not even you! The <b>Faker</b> gets no word at all; if caught, they guess the word <b>by typing it secretly</b>, revealed at the end of the hand. The <b>Mayor</b> badge can land on anyone — even the Mole!</p></div>
       <div class="how-card"><span class="how-tag pink"><img class="how-tag-ico" src="${asset("assets/ico-oynanan-el.png")}" alt=""> A HAND</span>
       <p>The phone goes around and everyone secretly sees their card. In turns, everyone gives <b>one clue</b>. If most of the group isn't sure yet, do <b>another round of clues</b> before voting. Then <b>open voting</b>: each vote is announced the moment it's cast! The top suspect is revealed — an innocent is <b>cleared</b> and a new round begins. If the Mole reaches the final 2, they <b>escape</b>.</p></div>
       <div class="how-card"><span class="how-tag sun"><img class="how-tag-ico" src="${asset("assets/ico-puan-tablosu.png")}" alt=""> POINTS</span>
@@ -6712,7 +6710,8 @@ function buildElCore() {
   let c2 = 0;
   if (state.withIkizler && civIdxs.length >= 2) { twinA = civIdxs[c2++]; twinB = civIdxs[c2++]; }
   if (state.withPapagan && civIdxs.length > c2) { papagan = civIdxs[c2++]; }
-  if (state.withMuhtar && civIdxs.length > c2) { muhtar = civIdxs[c2++]; }
+  // Muhtar rozeti HERKESE çıkabilir (Köstebek dahil) — sadece-ahali olsaydı rozet masumiyet sızdırırdı
+  if (state.withMuhtar) { muhtar = shuffle(roles.map((_, i) => i))[0]; }
 
   // Konuşma sırası: her el kaydırılır; Numaracı ilk konuşmasın
   let startIdx = (state.elNo - 1) % n;
@@ -7150,8 +7149,8 @@ $("btn-guess").addEventListener("click", () => {
   state.el.guess = $("guess-input").value.trim();
   state.el.guessCorrect = guess === normalize(state.el.civilWord);
   const numIdx = state.el.roles.indexOf("numaraci");
-  announceRound(numIdx, t(state.el.guessCorrect ? "revealNumGood" : "revealNumBad",
-    escapeHtml(state.players[numIdx].name), escapeHtml(state.el.guess)));
+  // Tahmin ve sonucu el sonuna dek GİZLİ — köstebek kelimeyi öğrenmesin
+  announceRound(numIdx, t("revealNumSealed", escapeHtml(state.players[numIdx].name)));
 });
 
 // ================= Puanlama =================
@@ -8629,7 +8628,7 @@ function onlineShowRoundEnd(p) {
   let msg;
   const name = p.idx !== null && p.idx !== undefined && p.idx >= 0 ? escapeHtml(game.roster[p.idx].name) : "";
   if (p.kind === "innocent") msg = t("revealInnocent", name);
-  else if (p.kind === "num") msg = t(p.guessOk ? "revealNumGood" : "revealNumBad", name, escapeHtml(p.guess || ""));
+  else if (p.kind === "num") msg = t("revealNumSealed", name);
   else msg = t("tieNoElimText");
   if (p.idx !== null && p.idx !== undefined && p.idx >= 0) {
     card.classList.remove("hidden");
@@ -8976,9 +8975,9 @@ function hostResolveTopSet(topSet) {
 function hostRoundEnd(kind, idx) {
   game.phase = "roundend";
   game.h.phaseAt = Date.now();
-  game.h.lastExtra = { kind, idx, guessOk: state.el.guessCorrect, guess: state.el.guess };
-  pub("st", { phase: "roundend", seq: ++game.seq, kind, idx,
-    guessOk: state.el.guessCorrect, guess: state.el.guess, outs: state.el.out, roundNo: state.el.roundNo });
+  // Numaracı tahmini el sonuna dek yayına ÇIKMAZ — köstebek kelimeyi öğrenmesin
+  game.h.lastExtra = { kind, idx };
+  pub("st", { phase: "roundend", seq: ++game.seq, kind, idx, outs: state.el.out, roundNo: state.el.roundNo });
 }
 
 function hostRoundContinue() {
