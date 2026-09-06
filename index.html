@@ -666,26 +666,22 @@ body { position: fixed; inset: 0; }
   z-index: 0;
 }
 /* Sonuç sayfaları zemini: CSS ışın patlaması — merkezi HER ekranda sayfanın tam ortası */
-/* iOS ALT BANT — KESİN ÇÖZÜM: viewport altındaki OS şeridine ne içerik ne desen çizilebilir,
-   iOS oraya SADECE düz renk basar (tema/zemin mavisi). Bu yüzden ışınlar ekranın altına
-   doğru düz maviye ERİTİLİR (en üst katman fade): desen şeride varmadan düz maviye döner,
-   şerit de aynı mavi olduğundan sınır hiçbir cihazda görünmez. */
-#screen-home::before,
-#screen-final::before,
-#screen-elresult::before,
-#screen-reveal::before {
-  content: "";
+/* IŞIN ZEMİNİ — BAĞIMSIZ KATMAN: body'nin doğrudan çocuğu, hiçbir ekranın/zoom'un/transformun
+   İÇİNDE DEĞİL. fitScreen'in .content zoom'u ya da ekran kutuları bunu asla ölçekleyemez;
+   katman her zaman viewport'un tamamını (--app-h) kaplar. Ekranlara göre JS aç/kapar. */
+#bg-rays {
   position: fixed;
-  inset: 0;
-  height: var(--app-h, 100lvh);
+  top: 0; left: 0; right: 0;
+  height: var(--app-h, 100%);
   pointer-events: none;
-  z-index: 0;
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 42%),
     repeating-conic-gradient(from 4deg at 50% 50%,
       rgba(255, 255, 255, 0.065) 0deg 9deg,
       rgba(255, 255, 255, 0) 9deg 18deg);
 }
+/* Kart PNG ışını da zoom'a takılıyordu — artık tek kaynak #bg-rays */
+#card-stage .rays-img { display: none !important; }
 #screen-final .content, #screen-elresult .content { position: relative; z-index: 1; }
 #screen-home .home-wrap { z-index: 1; }
 #card-stage > *:not(.rays-img):not(.player-pill) { position: relative; z-index: 1; }
@@ -2280,6 +2276,7 @@ body { position: fixed; inset: 0; }
     </symbol>
   </svg>
 
+  <div id="bg-rays" class="hidden" aria-hidden="true"></div>
   <div id="app">
 
     <div id="toast" class="hidden" role="status"></div>
@@ -2386,7 +2383,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v100</p>
+        <p class="set-ver" id="app-ver">v101</p>
       </div>
     </div>
 
@@ -6031,9 +6028,12 @@ function avHtml(i) {
 
 const IN_GAME_SCREENS = ["screen-author", "screen-reveal", "screen-round", "screen-vote", "screen-announce", "screen-guess", "screen-elresult"];
 
+// Işınlı zeminli ekranlar — bağımsız #bg-rays katmanı bunlara göre açılır
+const RAY_SCREENS = ["screen-home", "screen-final", "screen-elresult", "screen-reveal"];
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
   $(id).classList.add("active");
+  $("bg-rays").classList.toggle("hidden", !RAY_SCREENS.includes(id));
   $("btn-exit").classList.toggle("hidden", !IN_GAME_SCREENS.includes(id));
   resetViewportScroll();
   // Giriş animasyonu — içinde position:fixed eleman olan ekranlarda transform yasak → sadece fade
@@ -7694,6 +7694,7 @@ function toggleDebugHud() {
       `docH     ${document.documentElement.clientHeight}\n` +
       `vvH      ${vv ? Math.round(vv.height) : "-"}  ofs ${vv ? Math.round(vv.offsetTop) : "-"}\n` +
       `appBot   ${Math.round($("app").getBoundingClientRect().bottom)}\n` +
+      `bgBot    ${Math.round($("bg-rays").getBoundingClientRect().bottom)} ${$("bg-rays").classList.contains("hidden") ? "(gizli)" : "(açık)"}\n` +
       `scrBot   ${scr ? Math.round(scr.getBoundingClientRect().bottom) : "-"}\n` +
       `scrollY  ${Math.round(window.scrollY)}\n` +
       `safeBot  ${getComputedStyle(probe).paddingBottom}\n` +
@@ -7729,7 +7730,7 @@ function setAppHeight() {
   // h≤200 (gizli sekme vb.): değişkene dokunma — CSS %100 fallback devrede kalır
 }
 setAppHeight();
-// iOS ana ekrana eklenmiş PWA: OS alt şeridi içeriğin üzerini örter → kabuğa alt boşluk
+$("bg-rays").classList.remove("hidden"); // açılışta home aktif
 if (navigator.standalone === true) document.documentElement.classList.add("ios-pwa");
 window.addEventListener("resize", setAppHeight);
 window.addEventListener("orientationchange", () => setTimeout(setAppHeight, 250));
