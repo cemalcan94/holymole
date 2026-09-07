@@ -2427,7 +2427,8 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   #how-content { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
   /* LOBİ: kod/QR ve oyuncular yan yana */
   #screen-lobby .content { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
-  #screen-lobby .content > button, #screen-lobby .content > p { grid-column: 1 / -1; }
+  #screen-lobby .content > button, #screen-lobby .content > p,
+  #screen-lobby .content > .title-wrap, #screen-lobby .content > h2 { grid-column: 1 / -1; }
 }
 
 
@@ -2454,6 +2455,47 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   .home-wrap .mode-btn { font-size: 27px; padding: 24px 12px; }
   .home-wrap .how-pill { font-size: 21px; padding: 15px 30px; margin-top: 4px; }
   .home-wrap .how-pill:active { transform: translateY(3px); }
+}
+
+/* ---- ≥1200px: kalan ekranların masaüstü düzenleri ---- */
+@media (min-width: 1200px) {
+  /* TUR: ipucu kartı ↔ konuşma sırası yan yana */
+  #screen-round .content {
+    max-width: 1060px;
+    display: grid; grid-template-columns: 1fr 1.15fr; gap: 18px; align-items: start;
+    grid-template-areas: "rtitle rtitle" "rhint rorder" "rgo rgo" "rtools rtools";
+  }
+  #screen-round .title-wrap { grid-area: rtitle; justify-self: center; }
+  #screen-round .hint-card { grid-area: rhint; }
+  #screen-round .order-card { grid-area: rorder; }
+  #screen-round #btn-to-vote { grid-area: rgo; width: 100%; max-width: 640px; justify-self: center; }
+  #screen-round .round-tools { grid-area: rtools; justify-self: center; }
+
+  /* ONLINE GİRİŞ: üç seçenek yan yana büyük kartlar */
+  #screen-online-entry .content {
+    max-width: 1000px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; align-items: stretch;
+  }
+  #screen-online-entry .content > .pass-note,
+  #screen-online-entry .content > #join-form,
+  #screen-online-entry .content > #online-err,
+  #screen-online-entry .content > #btn-resume-room { grid-column: 1 / -1; }
+  #screen-online-entry .content > .pass-note { justify-self: center; align-self: center; width: auto; }
+  #screen-online-entry .online-big {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; margin: 0; padding: 32px 16px; font-size: 24px; min-height: 158px;
+  }
+  #screen-online-entry .online-big .btn-ico { width: 54px; height: 54px; }
+  #join-form { width: 100%; max-width: 560px; justify-self: center; }
+
+  /* OYLAMA: uyarlanır sütunlar, geniş sahne */
+  #screen-vote .content { max-width: 940px; }
+  .vote-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+  /* SONUÇ / FİNAL / DUYURU: daha geniş nefes */
+  #screen-elresult .content, #screen-final .content, #screen-announce .content { max-width: 880px; }
+  /* Kart kazma: yuvalar geniş yayılır */
+  #hole-grid { max-width: 900px; margin-left: auto; margin-right: auto; }
 }
 
 </style>
@@ -2587,7 +2629,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v113</p>
+        <p class="set-ver" id="app-ver">v114</p>
       </div>
     </div>
 
