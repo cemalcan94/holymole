@@ -1,0 +1,20 @@
+# Supabase ücretsiz projeler 1 hafta hareketsizlikte otomatik DURAKLATILIR — duraklarsa
+# HolyMole'un online modu tamamen çalışmaz olur. Bu iş haftada iki kez veritabanına hafif
+# bir istek atarak projeyi "aktif" tutar. (Anon key kasıtlı olarak açık: istemci paketinde
+# zaten gömülü, gizli service key ASLA burada kullanılmaz.)
+name: Supabase keep-alive
+on:
+  schedule:
+    - cron: "17 9 * * 1,4"   # Pazartesi + Perşembe 09:17 UTC
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://uauihsubsycizagblehm.supabase.co/rest/v1/" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdWloc3Vic3ljaXphZ2JsZWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTIyODgsImV4cCI6MjEwNDE4ODI4OH0.g1v2rjVaFokr5oawgYk51nR3T3WhgZXR1PC4sAk_ZQ4")
+          echo "HTTP $code"
+          test "$code" = "200"
