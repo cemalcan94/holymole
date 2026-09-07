@@ -2266,7 +2266,8 @@ html.stage-wide #app { max-width: none; }
   display: flex; align-items: center; gap: 18px;
   padding: calc(env(safe-area-inset-top, 0px) + 14px) 28px 10px;
 }
-.stage-logo-img { height: 52px; width: auto; }
+.stage-logo-img { height: 52px; width: auto; cursor: pointer; transition: transform .12s ease; }
+.stage-logo-img:hover { transform: scale(1.06); }
 .stage-el {
   font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 18px;
   background: var(--cream); color: var(--ink); border: 3px solid var(--ink);
@@ -2629,7 +2630,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v114</p>
+        <p class="set-ver" id="app-ver">v115</p>
       </div>
     </div>
 
@@ -9813,5 +9814,11 @@ $("btn-stage-join").addEventListener("click", () => {
   if (!m) return;
   setTimeout(() => { m[1] ? stageJoinRoom(m[1].toUpperCase()) : stageCreateRoom(); }, 600);
 })();
+
+// Sahnede geri dönüş: logoya tıkla → odadan sessizce ayrıl, ana sayfa
+$("screen-stage").querySelector(".stage-logo-img").addEventListener("click", async () => {
+  await leaveRoom(true);
+  showScreen("screen-home");
+});
 
 </script>
