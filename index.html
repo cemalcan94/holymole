@@ -60,8 +60,9 @@ body { position: fixed; inset: 0; }
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
 }
 .screen.active { display: flex; }
-/* iOS PWA tam ekran (black-translucent): webview ekranın TAMAMINI kaplar, OS şeridi yoktur.
-   Üst/alt güvenli alanlar .screen'in env() padding'iyle karşılanır. */
+/* iOS PWA: fitScreen bir sebeple yetişemezse içerik KIRPILMAK yerine kaydırılabilir olsun —
+   alt butonlara her koşulda erişilir (kesik buton garantili biter) */
+html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
 .hidden { display: none !important; }
 
 .baloo, h1, h2, .stepper-value, .card-word, .announce-text, .vote-title { font-family: "Baloo 2", "Nunito", sans-serif; }
@@ -2383,7 +2384,7 @@ body { position: fixed; inset: 0; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v102</p>
+        <p class="set-ver" id="app-ver">v103</p>
       </div>
     </div>
 
@@ -7329,9 +7330,12 @@ function fitScreen(id) {
     let z = 1;
     c.style.zoom = "";
     // zoom küçüldükçe layout genişleyip uzayabilir → birkaç adımda yakınsa
+    // ÖNEMLİ: ekranın alt güvenli boşluğu (env safe-area) kullanılabilir alandan DÜŞÜLÜR —
+    // yoksa içerik o kadar taşar ve alt buton kırpılır (iOS'ta görülen "kesik buton")
+    const padBot = parseFloat(getComputedStyle(scr).paddingBottom) || 0;
     for (let i = 0; i < 4; i++) {
       const cTop = c.getBoundingClientRect().top - scr.getBoundingClientRect().top;
-      const avail = scr.clientHeight - cTop;
+      const avail = scr.clientHeight - padBot - cTop;
       const needVis = c.scrollHeight * z;
       if (avail <= 0 || needVis <= avail + 2 || z <= 0.5) break;
       z = Math.max(0.5, z * (avail / needVis));
@@ -7340,6 +7344,7 @@ function fitScreen(id) {
   };
   apply();
   setTimeout(apply, 200); // görseller geç yüklenirse ikinci ölçüm
+  setTimeout(apply, 650); // fontlar/ikonlar geç otururса son düzeltme
 }
 
 function showElResult() {
