@@ -2373,6 +2373,18 @@ html.stage-wide #app { max-width: none; }
 }
 #join-form #btn-stage-join { font-size: 16px; padding: 10px 16px; }
 
+/* ================= MASAÜSTÜ = BÜYÜK EKRAN SUNUMU =================
+   Geniş ekranda oyun dar telefon şeridi gibi durmasın: ışın zemini HER ekranda
+   tam perde + uygulama kolonu zoom'la büyütülür (yükseklik zoom'a bölünerek
+   telafi edilir — görsel yükseklik yine tam viewport). Sahne kendi düzenini korur. */
+@media (min-width: 900px) {
+  #bg-rays { display: block !important; }
+}
+#app { zoom: var(--app-zoom, 1); height: calc(var(--app-h, 100%) / var(--app-zoom, 1)); }
+.screen { height: calc(var(--app-h, 100%) / var(--app-zoom, 1)); }
+html.stage-wide #app { zoom: 1 !important; height: var(--app-h, 100%) !important; }
+html.stage-wide .screen { height: var(--app-h, 100%) !important; }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2504,7 +2516,7 @@ html.stage-wide #app { max-width: none; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v109</p>
+        <p class="set-ver" id="app-ver">v110</p>
       </div>
     </div>
 
@@ -7901,6 +7913,10 @@ function setAppHeight() {
   const h = window.innerHeight;
   if (h > 200) document.documentElement.style.setProperty("--app-h", h + "px");
   // h≤200 (gizli sekme vb.): değişkene dokunma — CSS %100 fallback devrede kalır
+  // MASAÜSTÜ BÜYÜK EKRAN SUNUMU: geniş ekranda kolon zoom'la büyür; eşdeğer tasarım
+  // yüksekliği ~760px'te sabitlenir (her monitörde aynı düzen, mockup güvenli)
+  const z = window.innerWidth >= 900 ? Math.max(1, Math.min(1.5, h / 760)) : 1;
+  document.documentElement.style.setProperty("--app-zoom", z.toFixed(3));
 }
 setAppHeight();
 $("bg-rays").classList.remove("hidden"); // açılışta home aktif
