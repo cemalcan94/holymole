@@ -2385,6 +2385,18 @@ html.stage-wide #app { max-width: none; }
 html.stage-wide #app { zoom: 1 !important; height: var(--app-h, 100%) !important; }
 html.stage-wide .screen { height: var(--app-h, 100%) !important; }
 
+/* ---- Masaüstü GERÇEK geniş düzen: kolon 480 → 760px, içerikler akar ---- */
+@media (min-width: 900px) {
+  #app { max-width: 760px; }
+  /* Ana sayfa %'lik mutlak düzeni 480px tasarımına ayarlı — masaüstünde aynen o genişlikte,
+     ortalanmış "poster" olarak kalır (zoom + tam perde ışınlar büyük ekran hissini verir) */
+  .home-wrap { width: 480px; margin: 0 auto; }
+  /* Oylama kartları iki sütun */
+  .vote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  /* Kurulum/lobi kartları geniş nefes alsın */
+  .content { padding-left: 40px; padding-right: 40px; }
+}
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2516,7 +2528,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v110</p>
+        <p class="set-ver" id="app-ver">v111</p>
       </div>
     </div>
 
