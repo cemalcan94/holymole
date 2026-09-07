@@ -2397,6 +2397,28 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   .content { padding-left: 40px; padding-right: 40px; }
 }
 
+/* ---- ≥1200px: GERÇEK masaüstü düzeni — çok sütunlu ızgaralar ---- */
+@media (min-width: 1200px) {
+  #app { max-width: 1100px; }
+  /* Liste tipi ekranlar (tur, oylama, sonuç…) 760'ta ortalanmış kalır */
+  .content { max-width: 760px; margin-left: auto; margin-right: auto; width: 100%; }
+  /* KURULUM: iki sütunlu ızgara */
+  #screen-setup .content {
+    max-width: 1060px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;
+  }
+  #screen-setup .setup-block:has(#pack-chips),
+  #screen-setup .setup-block:has(#name-inputs),
+  #screen-setup .content > p,
+  #screen-setup .content > button { grid-column: 1 / -1; }
+  #name-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+  /* NASIL OYNANIR: kartlar 2x2 */
+  #how-content { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  /* LOBİ: kod/QR ve oyuncular yan yana */
+  #screen-lobby .content { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  #screen-lobby .content > button, #screen-lobby .content > p { grid-column: 1 / -1; }
+}
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2528,7 +2550,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v111</p>
+        <p class="set-ver" id="app-ver">v112</p>
       </div>
     </div>
 
