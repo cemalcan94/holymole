@@ -1961,6 +1961,8 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
 .code-label { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 12.5px; letter-spacing: 1.5px; color: #6a6450; }
 .code-big { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 46px; line-height: 1; letter-spacing: 0.14em; color: var(--blue); }
 .code-hint { font-size: 12.5px; font-weight: 700; color: #6a6450; }
+.room-lang { margin-top: 4px; color: var(--blue); }
+.room-lang:empty { display: none; }
 .qr-box {
   background: #fff;
   border: 3px solid var(--ink);
@@ -2388,7 +2390,7 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v104</p>
+        <p class="set-ver" id="app-ver">v105</p>
       </div>
     </div>
 
@@ -2622,6 +2624,7 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
             <span class="code-label" data-i18n="roomCodeLabel">ODA KODU</span>
             <span class="code-big" id="lobby-code">····</span>
             <p class="code-hint" data-i18n="scanQr">QR'ı okut ya da kodu söyle</p>
+            <p class="code-hint room-lang" id="lobby-lang"></p>
           </div>
           <div class="qr-box" id="lobby-qr"></div>
         </div>
@@ -5479,6 +5482,9 @@ const I18N = {
     noElim: "Elemesiz",
     noElimHint: "Aklanan ipucu veremez ama oy vermeye devam eder",
     features: "Özellikler",
+    langNameTr: "🇹🇷 Türkçe",
+    langNameEn: "🇬🇧 English",
+    roomLangInfo: (a) => `Oda dili: ${a} — kelimeler bu dilde gelir`,
     launchBadge: "AÇILIŞA ÖZEL",
     launchFreeHint: "Genel dışındaki paketler açılış dönemine özel ücretsiz! 🎉",
     rElNo: (n) => `${n}. El`,
@@ -5770,6 +5776,9 @@ const I18N = {
     noElim: "No Elimination",
     noElimHint: "Cleared players can't give clues but keep voting",
     features: "Twists",
+    langNameTr: "🇹🇷 Türkçe",
+    langNameEn: "🇬🇧 English",
+    roomLangInfo: (a) => `Room language: ${a} — words come in this language`,
     launchBadge: "LAUNCH SPECIAL",
     launchFreeHint: "All packs beyond General are free for the launch period! 🎉",
     rElNo: (n) => `Hand ${n}`,
@@ -7926,6 +7935,7 @@ async function joinRoomOnce(code, asHost) {
   ch.on("broadcast", { event: "roster" }, ({ payload }) => {
     if (!payload || !payload.players) return;
     net.players = payload.players;
+    if (payload.lang) net.roomLang = payload.lang;
     net.gotRoster = true;
     renderLobby();
   });
@@ -7977,7 +7987,7 @@ function pubRoster() {
   if (!net.channel) return;
   net.players = Object.assign({}, net.lobbyRoster);
   renderLobby();
-  net.channel.send({ type: "broadcast", event: "roster", payload: { players: net.lobbyRoster } });
+  net.channel.send({ type: "broadcast", event: "roster", payload: { players: net.lobbyRoster, lang: state.lang } });
 }
 
 // Kendini duyur (katılan roster'da görünene kadar tekrarlar; isim/avatar değişince de çağrılır)
@@ -8105,6 +8115,10 @@ function enterLobby() {
 }
 
 function renderLobby() {
+  // Oda dili rozeti: kelimeler ev sahibinin dilinden gelir — katılan baştan bilsin
+  const rl = net.isHost ? state.lang : net.roomLang;
+  const rlEl = $("lobby-lang");
+  if (rlEl) rlEl.textContent = rl ? t("roomLangInfo", t(rl === "tr" ? "langNameTr" : "langNameEn")) : "";
   if (!$("screen-lobby").classList.contains("active") && !$("screen-online-wip").classList.contains("active")) {
     // lobi ekranda değilse sadece durumu tut
   }
@@ -8376,15 +8390,18 @@ function buildPerSecrets(el) {
   const per = {};
   game.roster.forEach((r, i) => {
     const role = el.roles[i];
+    // Kelime oda (ev sahibi) dilinde gider; TALİMAT metinleri ise ANAHTAR olarak gider ki
+    // her istemci kendi dilinde çevirsin (word/extra alanları eski sürüm istemciler için dolu kalır)
     let word = role === "kostebek" ? el.spyWord : el.civilWord;
+    let wordKey = null;
     let label = "cardLabelWord";
-    if (role === "numaraci") { word = t("numaraciWord"); label = "cardLabelRole"; }
-    let extra = "";
-    if (i === el.papagan) extra = t("papaganExtra");
-    if (i === el.twinA) extra = t("ikizExtra", state.players[el.twinB].name);
-    if (i === el.twinB) extra = t("ikizExtra", state.players[el.twinA].name);
-    if (i === el.muhtar) extra = t("muhtarExtra");
-    per[r.id] = { role, word, label, extra };
+    if (role === "numaraci") { word = t("numaraciWord"); wordKey = "numaraciWord"; label = "cardLabelRole"; }
+    let extra = "", extraKey = null, extraArg = null;
+    if (i === el.papagan) { extra = t("papaganExtra"); extraKey = "papaganExtra"; }
+    if (i === el.twinA) { extraArg = state.players[el.twinB].name; extra = t("ikizExtra", extraArg); extraKey = "ikizExtra"; }
+    if (i === el.twinB) { extraArg = state.players[el.twinA].name; extra = t("ikizExtra", extraArg); extraKey = "ikizExtra"; }
+    if (i === el.muhtar) { extra = t("muhtarExtra"); extraKey = "muhtarExtra"; }
+    per[r.id] = { role, word, wordKey, label, extra, extraKey, extraArg };
   });
   return per;
 }
@@ -8586,11 +8603,12 @@ function onlineDig(btn) {
     const me = game.roster[game.myIdx];
     $("card-player-name").textContent = me.name;
     $("only-look").textContent = t("onlyLook", me.name);
+    const kelime = game.my.wordKey ? t(game.my.wordKey) : game.my.word;
     $("card-label").textContent = t(game.my.label);
-    $("card-word").textContent = game.my.word;
-    $("card-word").classList.toggle("longw", game.my.word.length >= 9);
+    $("card-word").textContent = kelime;
+    $("card-word").classList.toggle("longw", kelime.length >= 9);
     $("card-sub").textContent = game.my.role === "numaraci" ? t("numaraciSub") : t("dontShow");
-    $("card-extra").textContent = game.my.extra || "";
+    $("card-extra").textContent = game.my.extraKey ? t(game.my.extraKey, game.my.extraArg) : (game.my.extra || "");
     $("next-btn-text").textContent = t("imReady");
     $("card-stage").classList.remove("hidden");
     const cardWrap = document.querySelector(".card-wrap");
@@ -8620,9 +8638,10 @@ function onlineAdjustRound() {
 function onlineSelfPeek() {
   $("peek-grid").classList.add("hidden");
   $("peek-title").textContent = t("peekOnly", game.roster[game.myIdx].name);
+  const kelime = game.my.wordKey ? t(game.my.wordKey) : game.my.word;
   $("peek-label").textContent = t(game.my.label);
-  $("peek-word").textContent = game.my.word;
-  $("peek-word").classList.toggle("longw", game.my.word.length >= 9);
+  $("peek-word").textContent = kelime;
+  $("peek-word").classList.toggle("longw", kelime.length >= 9);
   $("peek-word-box").classList.remove("hidden");
   $("peek-modal").classList.remove("hidden");
 }
