@@ -2259,6 +2259,121 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
 #screen-round .btn-big, #screen-elresult .btn-big { font-size: 26px; }
 #screen-round .speak-item .order-num { width: 35px; height: 35px; font-size: 15px; }
 
+/* ================= BÜYÜK EKRAN (SAHNE) ================= */
+html.stage-wide #app { max-width: none; }
+#screen-stage { padding: 0; }
+.stage-top {
+  display: flex; align-items: center; gap: 18px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 28px 10px;
+}
+.stage-logo { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 30px; color: #fff; }
+.stage-logo-o { color: var(--lime); }
+.stage-el {
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 18px;
+  background: var(--cream); color: var(--ink); border: 3px solid var(--ink);
+  border-radius: 100px; padding: 4px 16px; box-shadow: 0 3px 0 var(--ink);
+}
+.stage-code-pill {
+  margin-left: auto; font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 16px;
+  background: var(--ink); color: var(--cream); border-radius: 100px; padding: 6px 18px;
+  letter-spacing: 1px;
+}
+.stage-code-pill b { color: var(--lime); font-size: 19px; letter-spacing: 4px; margin-left: 6px; }
+.stage-main {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px; padding: 10px 40px; overflow: hidden; position: relative; z-index: 1;
+}
+.stage-h {
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 44px; color: var(--cream);
+  -webkit-text-stroke: 8px var(--ink); paint-order: stroke fill;
+  filter: drop-shadow(0 4px 0 rgba(19, 26, 60, .5)); text-align: center;
+}
+.stage-lobby { display: flex; align-items: center; gap: 56px; }
+.stage-code-big {
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: min(120px, 11vw); line-height: 1;
+  color: var(--lime); -webkit-text-stroke: 10px var(--ink); paint-order: stroke fill;
+  letter-spacing: 14px; filter: drop-shadow(0 6px 0 rgba(19, 26, 60, .5));
+}
+.stage-hint { font-size: 21px; font-weight: 800; color: var(--cream); margin-top: 14px; }
+.stage-hint.dim { color: #cfe0ff; font-size: 17px; margin-top: 6px; }
+.stage-qr { background: var(--cream); border: 5px solid var(--ink); border-radius: 22px; padding: 16px; box-shadow: var(--hard); }
+.stage-qr svg { width: 240px; height: 240px; display: block; }
+.stage-chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 90%; }
+.stage-chips.center { margin-top: 6px; }
+.stage-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--cream); color: var(--ink); border: 3px solid var(--ink);
+  border-radius: 100px; padding: 8px 18px 8px 10px;
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 18px;
+  box-shadow: 0 3px 0 var(--ink); opacity: .55;
+}
+.stage-chip.on, .stage-chip.big { opacity: 1; }
+.stage-chip img { width: 42px; height: 42px; border-radius: 50%; }
+.stage-chip.big { font-size: 22px; padding: 10px 22px 10px 12px; }
+.stage-chip.big img { width: 52px; height: 52px; }
+.stage-chip.first { background: var(--lime); }
+.stage-chip.cleared { opacity: .6; }
+.stage-cchip { background: var(--sun); border: 2px solid var(--ink); border-radius: 8px; font-size: 12px; padding: 2px 8px; }
+.stage-num {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: var(--cream);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.stage-center { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.stage-big-msg {
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 38px; text-align: center;
+  color: var(--cream); -webkit-text-stroke: 7px var(--ink); paint-order: stroke fill;
+  filter: drop-shadow(0 4px 0 rgba(19, 26, 60, .5)); max-width: 900px;
+}
+.stage-ico { width: 110px; height: 110px; }
+.stage-av { width: 72px; height: 72px; border-radius: 50%; border: 4px solid var(--ink); background: var(--cream); }
+.stage-av.mid { width: 88px; height: 88px; }
+.stage-av.big { width: 150px; height: 150px; border-width: 6px; box-shadow: 0 6px 0 var(--ink); }
+.stage-avrow { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.stage-counter {
+  font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 54px; color: var(--lime);
+  -webkit-text-stroke: 7px var(--ink); paint-order: stroke fill;
+}
+.stage-reveal { display: flex; align-items: center; gap: 34px; }
+.stage-arrow { font-size: 64px; color: var(--sun); -webkit-text-stroke: 4px var(--ink); }
+.stage-big-msg.center { margin-top: 8px; }
+.stage-words { display: flex; gap: 26px; }
+.stage-word {
+  background: var(--cream); border: 4px solid var(--ink); border-radius: 18px;
+  padding: 12px 30px; text-align: center; box-shadow: var(--hard);
+  font-family: "Baloo 2", sans-serif; font-weight: 800;
+}
+.stage-word span { display: block; font-size: 15px; letter-spacing: 2px; color: var(--ink); }
+.stage-word b { font-size: 34px; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; }
+.stage-word.sun b { color: var(--sun); }
+.stage-word.pink b { color: var(--pink); }
+.stage-rows { display: flex; flex-direction: column; gap: 8px; width: min(860px, 92%); }
+.stage-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--cream); color: var(--ink); border: 3px solid var(--ink);
+  border-radius: 16px; padding: 8px 18px; box-shadow: 0 3px 0 var(--ink);
+  font-family: "Baloo 2", sans-serif;
+}
+.stage-row .stage-av { width: 50px; height: 50px; border-width: 3px; }
+.stage-row-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.stage-row-mid b { font-size: 21px; }
+.stage-why { font-family: "Nunito", sans-serif; font-size: 14px; font-weight: 700; color: #6a6450; }
+.stage-pts { font-weight: 800; font-size: 22px; color: var(--blue); white-space: nowrap; }
+.stage-row.champ { background: var(--lime); }
+.stage-row .role-badge { font-size: 15px; }
+.stage-dim { color: #cfe0ff; font-size: 20px; font-weight: 800; }
+.stage-moly {
+  display: flex; align-items: center; gap: 14px;
+  margin: 0 28px calc(env(safe-area-inset-bottom, 0px) + 18px);
+  background: var(--cream); color: var(--ink); border: 4px solid var(--ink);
+  border-radius: 18px; padding: 12px 20px; box-shadow: var(--hard);
+  font-weight: 800; font-size: 19px;
+}
+.stage-moly .q-from {
+  background: var(--lime); border: 3px solid var(--ink); border-radius: 100px;
+  padding: 3px 14px; font-family: "Baloo 2", sans-serif; font-size: 15px; flex-shrink: 0;
+}
+#join-form #btn-stage-join { font-size: 16px; padding: 10px 16px; }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2390,7 +2505,7 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v107</p>
+        <p class="set-ver" id="app-ver">v108</p>
       </div>
     </div>
 
@@ -2606,8 +2721,24 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
         <div class="join-form hidden" id="join-form">
           <input type="text" id="room-code-input" class="guess-input code-input" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="KAZI">
           <button class="btn btn-primary btn-big btn-with-ico" id="btn-join-room"><span data-i18n="joinBtn">Katıl</span><img class="btn-ico" src="data:image/png;base64,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" alt=""></button>
+          <button class="btn btn-ghost" id="btn-stage-join" data-i18n="stageJoin">📺 Sahneyi Bağla</button>
         </div>
+        <button class="btn btn-ghost btn-big online-big btn-with-ico" id="btn-stage-create"><span data-i18n="stageCreate">📺 Büyük Ekran (TV)</span></button>
         <p class="author-warn hidden" id="online-err"></p>
+      </div>
+    </section>
+
+    <!-- BÜYÜK EKRAN (SAHNE): TV/monitör — oyuncu değil, odanın kamusal gösterimi -->
+    <section id="screen-stage" class="screen">
+      <header class="stage-top">
+        <span class="stage-logo">h<span class="stage-logo-o">o</span>lymole</span>
+        <span class="stage-el hidden" id="stage-el"></span>
+        <span class="stage-code-pill hidden" id="stage-code-pill"><span data-i18n="roomCodeLabel">ODA KODU</span> <b id="stage-code"></b></span>
+      </header>
+      <div class="stage-main" id="stage-main"></div>
+      <div class="stage-moly hidden" id="stage-moly">
+        <span class="q-from" data-i18n="molySays">moly diyor ki</span>
+        <span id="stage-moly-text"></span>
       </div>
     </section>
 
@@ -5485,6 +5616,18 @@ const I18N = {
     langNameTr: "🇹🇷 Türkçe",
     langNameEn: "🇬🇧 English",
     roomLangInfo: (a) => `Oda dili: ${a} — kelimeler bu dilde gelir`,
+    stageCreate: "📺 Büyük Ekran (TV)",
+    stageJoin: "Sahneyi Bağla",
+    stageScan: "Telefonunla QR'u okut ya da kodu gir",
+    stageFirstHost: "İlk kaydolan Ev Sahibi olur 👑",
+    stageWaiting: "Oyuncular bekleniyor…",
+    stageDealing: (n, tt) => `Kartlar kazılıyor… ${n}/${tt}`,
+    stageWriting: (n, tt) => `Kelimeler gizlice yazılıyor… ${n}/${tt}`,
+    stageVoting: (n, tt) => `Oylar gizlice veriliyor… ${n}/${tt}`,
+    stageTie: (n) => `Oylar eşit! Muhtar ${n} karar veriyor 🗳️`,
+    stageGuess: (n) => `${n} yakalandı — tahminini gizlice yazıyor… 🎭`,
+    stageCluesHint: "Sırayla ipucu verin, sonra telefonlardan oylayın!",
+    stageConfig: "Ev sahibi oyunu kuruyor…",
     launchBadge: "AÇILIŞA ÖZEL",
     launchFreeHint: "Genel dışındaki paketler açılış dönemine özel ücretsiz! 🎉",
     rElNo: (n) => `${n}. El`,
@@ -5779,6 +5922,18 @@ const I18N = {
     langNameTr: "🇹🇷 Türkçe",
     langNameEn: "🇬🇧 English",
     roomLangInfo: (a) => `Room language: ${a} — words come in this language`,
+    stageCreate: "📺 Big Screen (TV)",
+    stageJoin: "Connect Stage",
+    stageScan: "Scan the QR with your phone or enter the code",
+    stageFirstHost: "First to register becomes the Host 👑",
+    stageWaiting: "Waiting for players…",
+    stageDealing: (n, tt) => `Digging up cards… ${n}/${tt}`,
+    stageWriting: (n, tt) => `Writing secret words… ${n}/${tt}`,
+    stageVoting: (n, tt) => `Votes coming in secretly… ${n}/${tt}`,
+    stageTie: (n) => `It's a tie! Mayor ${n} decides 🗳️`,
+    stageGuess: (n) => `${n} got busted — typing a secret guess… 🎭`,
+    stageCluesHint: "Give clues in turn, then vote on your phones!",
+    stageConfig: "Host is setting up the game…",
     launchBadge: "LAUNCH SPECIAL",
     launchFreeHint: "All packs beyond General are free for the launch period! 🎉",
     rElNo: (n) => `Hand ${n}`,
@@ -6043,11 +6198,12 @@ function avHtml(i) {
 const IN_GAME_SCREENS = ["screen-author", "screen-reveal", "screen-round", "screen-vote", "screen-announce", "screen-guess", "screen-elresult"];
 
 // Işınlı zeminli ekranlar — bağımsız #bg-rays katmanı bunlara göre açılır
-const RAY_SCREENS = ["screen-home", "screen-final", "screen-elresult", "screen-reveal"];
+const RAY_SCREENS = ["screen-home", "screen-final", "screen-elresult", "screen-reveal", "screen-stage"];
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
   $(id).classList.add("active");
   $("bg-rays").classList.toggle("hidden", !RAY_SCREENS.includes(id));
+  document.documentElement.classList.toggle("stage-wide", id === "screen-stage");
   $("btn-exit").classList.toggle("hidden", !IN_GAME_SCREENS.includes(id));
   resetViewportScroll();
   // Giriş animasyonu — içinde position:fixed eleman olan ekranlarda transform yasak → sadece fade
@@ -7896,6 +8052,7 @@ async function joinRoomOnce(code, asHost) {
 
   // ÜYELİK = kendi broadcast protokolümüz (Supabase presence güvenilmez çıktı — Faz B notu)
   ch.on("broadcast", { event: "hello" }, ({ payload }) => {
+    if (net.isStage) { stageMaybeClaim(payload); return; }
     if (!net.isHost || !payload || !payload.pid) return;
     // Kimlik remap — YALNIZ oyun sürerken: app'i kapatıp açan oyuncu eski pid'ini "prev" ile
     // bildirir; eski kayıt roster'da, HOST DEĞİL ve gerçekten sessizse yeni pid'e taşınır.
@@ -7937,14 +8094,20 @@ async function joinRoomOnce(code, asHost) {
     net.players = payload.players;
     if (payload.lang) net.roomLang = payload.lang;
     net.gotRoster = true;
+    if (net.isStage) { stageOnRoster(); return; }
     renderLobby();
   });
   ch.on("broadcast", { event: "start" }, ({ payload }) => {
+    if (net.isStage) { stageOnStart(payload && payload.roster); return; }
     onGameStarting(payload && payload.roster);
   });
-  ch.on("broadcast", { event: "st" }, ({ payload }) => applyPhase(payload));
-  ch.on("broadcast", { event: "rv" }, ({ payload }) => applyRevealStep(payload));
-  ch.on("broadcast", { event: "prog" }, ({ payload }) => applyProgress(payload));
+  ch.on("broadcast", { event: "st" }, ({ payload }) => { if (net.isStage) stageApplyPhase(payload); else applyPhase(payload); });
+  ch.on("broadcast", { event: "rv" }, ({ payload }) => { if (net.isStage) stageRevealStep(payload); else applyRevealStep(payload); });
+  ch.on("broadcast", { event: "prog" }, ({ payload }) => { if (net.isStage) stageProgress(payload); else applyProgress(payload); });
+  // B-lite el sıkışması: sahnenin kurduğu odada İLK kaydolan telefon Ev Sahibi olur
+  ch.on("broadcast", { event: "claim" }, ({ payload }) => {
+    if (!net.isStage && !net.isHost && payload && payload.to === netSelfId()) becomeHostFromClaim();
+  });
   ch.on("broadcast", { event: "in" }, ({ payload }) => { if (net.isHost) hostOnIntent(payload); });
   ch.on("broadcast", { event: "hb" }, ({ payload }) => {
     if (net.isHost && game.on && game.h && payload && payload.pid) game.h.seen[payload.pid] = Date.now();
@@ -7992,7 +8155,7 @@ function pubRoster() {
 
 // Kendini duyur (katılan roster'da görünene kadar tekrarlar; isim/avatar değişince de çağrılır)
 function sendHello() {
-  if (!net.channel) return;
+  if (!net.channel || net.isStage) return; // sahne kadroya girmez
   net.channel.send({
     type: "broadcast", event: "hello",
     payload: { pid: netSelfId(), name: net.name, avatar: net.avatar, ready: net.ready, prev: prevRoomPid(net.code), t: Date.now() },
@@ -8012,6 +8175,8 @@ async function leaveRoom(silent) {
   net.channel = null;
   net.code = null;
   net.isHost = false;
+  net.isStage = false;
+  net.stageClaim = null;
   net.players = {};
   net.lobbyRoster = {};
   net.gotRoster = false;
@@ -9164,7 +9329,7 @@ var HB_MS = 8000;      // istemci "yaşıyorum" aralığı
 var DEAD_MS = 25000;   // bu kadar sessiz kalan oyuncu "kopmuş" sayılır
 
 setInterval(() => {
-  if (game.on && net.channel) pub("hb", { pid: netSelfId() });
+  if (game.on && net.channel && !net.isStage) pub("hb", { pid: netSelfId() });
 }, HB_MS);
 
 // Ev sahibi: kopan oyuncu oyunu KİLİTLEYEMEZ — sessiz kalanların adımı otomatik tamamlanır
@@ -9262,5 +9427,263 @@ async function resumeHostedRoom() {
   }
   setLobbyBusy(false);
 }
+
+// ================= BÜYÜK EKRAN (SAHNE) =================
+// TV/monitör: oyuncu değil, odanın kamusal gösterimi. Beyin DAİMA bir telefonda kalır —
+// sahnenin kurduğu odada İLK kaydolan telefon "claim" el sıkışmasıyla Ev Sahibi olur.
+// Sahne kadroya girmez (hello/hb göndermez), yalnızca yayınları dinleyip sahneler.
+
+var stg = { roster: [], players: [], pub: null, elNo: 0, totalEls: 0, roundNo: 1, outs: [], phase: "" };
+
+function stageName(i) { return stg.roster[i] ? escapeHtml(stg.roster[i].name) : "?"; }
+function stageAv(i, cls) {
+  const a = (stg.players[i] && stg.players[i].avatar) || (stg.roster[i] && stg.roster[i].avatar) || 1;
+  return `<img class="stage-av ${cls || ""}" src="${avatarSrc(a)}" alt="">`;
+}
+function stageMoly(text) {
+  const box = $("stage-moly");
+  if (!text) { box.classList.add("hidden"); return; }
+  box.classList.remove("hidden");
+  $("stage-moly-text").textContent = text;
+}
+function stageSet(html, opts) {
+  opts = opts || {};
+  $("stage-main").innerHTML = html;
+  $("stage-code-pill").classList.toggle("hidden", !net.code);
+  $("stage-code").textContent = net.code || "";
+  const elPill = $("stage-el");
+  if (opts.el) { elPill.classList.remove("hidden"); elPill.textContent = opts.el; }
+  else elPill.classList.add("hidden");
+  stageMoly(opts.moly || "");
+  if (!$("screen-stage").classList.contains("active")) showScreen("screen-stage");
+}
+
+// ---- Giriş ----
+async function stageCreateRoom() {
+  const code = genRoomCode();
+  setLobbyBusy(true);
+  try {
+    net.isStage = true;
+    await joinRoomChannel(code, false);
+    net.isStage = true; // leaveRoom sıfırlar — kanal kurulduktan sonra garanti et
+    stageLobby();
+    track("stage_created", { lang: state.lang });
+  } catch (e) {
+    net.isStage = false;
+    showToastError(t("netFail"));
+  }
+  setLobbyBusy(false);
+}
+
+async function stageJoinRoom(code) {
+  if (!/^[A-Z]{4}$/.test(code)) { showToastError(t("badCode")); return; }
+  setLobbyBusy(true);
+  try {
+    net.isStage = true;
+    await joinRoomChannel(code, false);
+    net.isStage = true;
+    stageLobby();
+    setTimeout(() => { if (net.channel) sendIntent("need_state"); }, 900);
+    track("stage_joined", { lang: state.lang });
+  } catch (e) {
+    net.isStage = false;
+    showToastError(t("netFail"));
+  }
+  setLobbyBusy(false);
+}
+
+// ---- B-lite: ilk kaydolana ev sahipliği ver ----
+function stageMaybeClaim(p) {
+  if (!p || !p.pid || net.gotRoster) return;
+  if (net.stageClaim && Date.now() - net.stageClaim.at < 5000) return; // cevap bekleniyor
+  net.stageClaim = { pid: p.pid, at: Date.now() };
+  net.channel.send({ type: "broadcast", event: "claim", payload: { to: p.pid } });
+}
+
+function becomeHostFromClaim() {
+  if (net.isHost) return;
+  net.isHost = true;
+  net.lobbyRoster = {};
+  net.lobbyRoster[netSelfId()] = { name: net.name, avatar: net.avatar, ready: net.ready, host: true, t: Date.now() };
+  pubRoster();
+  if (net.rosterTimer) clearInterval(net.rosterTimer);
+  net.rosterTimer = setInterval(() => { if (net.isHost && net.channel) pubRoster(); }, 6000);
+}
+
+// ---- Sahne görünümleri ----
+function stageLobby() {
+  stg.phase = "lobby";
+  let qrHtml = "";
+  try {
+    const qr = qrcode(0, "M");
+    qr.addData(roomUrl(net.code));
+    qr.make();
+    qrHtml = qr.createSvgTag({ cellSize: 5, margin: 0 });
+  } catch (e) { /* qr olmadan da yaşarız */ }
+  const list = netPlayerList();
+  const oyuncular = list.length
+    ? list.map((p) => `<div class="stage-chip ${p.ready ? "on" : ""}">${p.avatar ? `<img src="${avatarSrc(p.avatar)}" alt="">` : ""}<span>${escapeHtml(p.name || "…")}</span>${p.host ? " 👑" : ""}</div>`).join("")
+    : `<p class="stage-dim">${t("stageWaiting")}</p>`;
+  stageSet(`
+    <div class="stage-lobby">
+      <div class="stage-lobby-left">
+        <div class="stage-code-big">${net.code}</div>
+        <p class="stage-hint">${t("stageScan")}</p>
+        <p class="stage-hint dim">${t("stageFirstHost")}</p>
+      </div>
+      <div class="stage-qr">${qrHtml}</div>
+    </div>
+    <div class="stage-chips">${oyuncular}</div>
+  `);
+}
+
+function stageOnRoster() {
+  if (stg.phase === "lobby" || stg.phase === "") stageLobby();
+}
+
+function stageOnStart(rosterList) {
+  stg.roster = (rosterList || netPlayerList()).map((p) => ({ id: p.id, name: p.name || "?", avatar: p.avatar || 1 }));
+  stg.phase = "config";
+  stageSet(`<div class="stage-center"><p class="stage-big-msg">${t("stageConfig")}</p></div>`);
+}
+
+function stageCounter(kind, done, total) {
+  return `<div class="stage-counter" data-kind="${kind}"><span class="sc-done">${done}</span>/<span class="sc-total">${total}</span></div>`;
+}
+
+function stageElLabel() {
+  return `${t("el")} ${stg.elNo}${stg.totalEls ? "/" + stg.totalEls : ""} · ${t("roundPill", stg.roundNo)}`;
+}
+
+function stageApplyPhase(p) {
+  if (!p || !p.phase) return;
+  stg.phase = p.phase;
+  switch (p.phase) {
+    case "deal": {
+      if (p.roster) stg.roster = p.roster;
+      if (p.players) stg.players = p.players;
+      stg.pub = p.pub || stg.pub;
+      stg.elNo = p.elNo || stg.elNo;
+      stg.totalEls = p.mode === "fast" ? (p.totalEls || 0) : 0; // klasikte "El 1/3" yazmasın
+      stg.roundNo = 1; stg.outs = [];
+      const avs = stg.roster.map((r, i) => stageAv(i, "mid")).join("");
+      stageSet(`<div class="stage-center"><div class="stage-avrow">${avs}</div>
+        <p class="stage-big-msg">${t("stageDealing", 0, stg.roster.length)}</p></div>`, { el: stageElLabel() });
+      break;
+    }
+    case "write": {
+      stageSet(`<div class="stage-center"><p class="stage-big-msg">${t("stageWriting", 0, stg.roster.length)}</p></div>`, { el: stageElLabel() });
+      break;
+    }
+    case "clues": {
+      stg.outs = p.outs || [];
+      stg.roundNo = p.roundNo || 1;
+      const order = (stg.pub && stg.pub.order) || stg.roster.map((_, i) => i);
+      const aktif = order.filter((i) => !stg.outs.includes(i));
+      const sira = aktif.map((i, k) => `<div class="stage-chip big ${k === 0 ? "first" : ""}"><span class="stage-num">${k + 1}</span>${stageAv(i)}<span>${stageName(i)}</span></div>`).join("");
+      const aklanan = stg.outs.map((i) => `<div class="stage-chip big cleared">${stageAv(i)}<span>${stageName(i)}</span><span class="stage-cchip">${t(i === (p.numOut ?? -1) ? "exposedChip" : "clearedChip")}</span></div>`).join("");
+      stageSet(`<h2 class="stage-h">${t("roundTitle")}</h2>
+        <div class="stage-chips center">${sira}${aklanan}</div>`, { el: stageElLabel(), moly: t("stageCluesHint") });
+      break;
+    }
+    case "vote": {
+      stg.outs = p.outs || stg.outs;
+      const total = (p.voters && p.voters.length) || stg.roster.length;
+      stageSet(`<div class="stage-center"><img class="stage-ico" src="${asset("assets/ico-oy-pusulasi.png")}" alt="">
+        <p class="stage-big-msg">${t("stageVoting", 0, total)}</p>${stageCounter("vote", 0, total)}</div>`, { el: stageElLabel() });
+      break;
+    }
+    case "tie": {
+      const ad = stageName(p.muhtarIdx);
+      stageSet(`<div class="stage-center">${stageAv(p.muhtarIdx, "big")}<p class="stage-big-msg">${t("stageTie", ad)}</p></div>`, { el: stageElLabel() });
+      break;
+    }
+    case "guess": {
+      const ad = stageName(p.numIdx);
+      stageSet(`<div class="stage-center">${stageAv(p.numIdx, "big")}<p class="stage-big-msg">${t("stageGuess", ad)}</p></div>`, { el: stageElLabel() });
+      break;
+    }
+    case "roundend": {
+      stg.outs = p.outs || stg.outs;
+      stg.roundNo = p.roundNo || stg.roundNo;
+      let msg;
+      if (p.kind === "innocent") msg = t("revealInnocent", stageName(p.idx));
+      else if (p.kind === "num") msg = t("revealNumSealed", stageName(p.idx));
+      else msg = t("tieNoElimText");
+      const gorsel = (p.idx !== null && p.idx !== undefined && p.idx >= 0) ? stageAv(p.idx, "big") : "";
+      SFX.card();
+      stageSet(`<div class="stage-center">${gorsel}<p class="stage-big-msg">${msg}</p></div>`, { el: stageElLabel() });
+      break;
+    }
+    case "elresult": {
+      state.players = p.players; state.el = p.el;
+      state.elNo = p.elNo; state.totalEls = p.totalEls; state.mode = p.mode;
+      stg.players = p.players;
+      const el = p.el;
+      const caught = (el.topSet || []).some((k) => el.roles[k] === "kostebek");
+      const roleKey = { ahali: "roleAhali", kostebek: "roleKostebek", numaraci: "roleNumaraci" };
+      const rows = stg.roster.map((r, i) => {
+        const role = el.roles[i];
+        const rs = (el.reasons && el.reasons[i]) || [];
+        return `<div class="stage-row">${stageAv(i)}
+          <div class="stage-row-mid"><b>${stageName(i)}</b>${rs.length ? `<span class="stage-why">${rs.map((x) => `${escapeHtml(t(x.k, x.n))} +${x.p}`).join(" · ")}</span>` : ""}</div>
+          <span class="role-badge ${role}">${t(roleKey[role])}</span>
+          <span class="stage-pts">${el.points[i] > 0 ? "+" + el.points[i] : "0"} · ${p.players[i].score}</span></div>`;
+      }).join("");
+      SFX.reveal();
+      stageSet(`<h2 class="stage-h">${caught ? t("bigRevealCaught") : t("bigRevealEscaped")}</h2>
+        <div class="stage-words"><div class="stage-word sun"><span>${t("roleAhali")}</span><b>${escapeHtml(el.civilWord)}</b></div>
+        <div class="stage-word pink"><span>${t("roleKostebek")}</span><b>${escapeHtml(el.spyWord)}</b></div></div>
+        <div class="stage-rows">${rows}</div>`, { el: stageElLabel(), moly: pickQuip() || "" });
+      break;
+    }
+    case "final": {
+      const ps = (p.players || []).map((q, i) => ({ ...q, i })).sort((a, b) => b.score - a.score);
+      const rows = ps.map((q, rank) => `<div class="stage-row ${rank === 0 ? "champ" : ""}"><span class="stage-num">${rank + 1}</span><img class="stage-av" src="${avatarSrc(q.avatar)}" alt=""><div class="stage-row-mid"><b>${escapeHtml(q.name)}${rank === 0 ? " 👑" : ""}</b></div><span class="stage-pts">${q.score}</span></div>`).join("");
+      SFX.fanfare();
+      stageSet(`<h2 class="stage-h">🏆 ${escapeHtml((ps[0] && ps[0].name) || "")} — ${t("champion")}</h2>
+        <div class="stage-rows">${rows}</div>`);
+      break;
+    }
+    case "lobby": {
+      stageLobby();
+      break;
+    }
+  }
+}
+
+function stageRevealStep(p) {
+  if (!p) return;
+  stg.phase = "revealing";
+  if (p.players) stg.players = p.players;
+  const msg = p.abstain
+    ? t("noVote", stageName(p.voter))
+    : t("announceVote", stageName(p.voter), stageName(p.target), trDative((stg.roster[p.target] || {}).name || ""));
+  SFX.vote();
+  stageSet(`<div class="stage-reveal">${stageAv(p.voter, "big")}<span class="stage-arrow">➜</span>${p.abstain ? "" : stageAv(p.target, "big")}</div>
+    <p class="stage-big-msg center">${msg}</p>`, { el: stageElLabel() });
+}
+
+function stageProgress(p) {
+  if (!p) return;
+  const c = document.querySelector(`#stage-main .stage-counter[data-kind="${p.kind}"]`);
+  if (c) { c.querySelector(".sc-done").textContent = p.done; c.querySelector(".sc-total").textContent = p.total; }
+  const map = { ready: "stageDealing", write: "stageWriting", vote: "stageVoting" };
+  const msgEl = document.querySelector("#stage-main .stage-big-msg");
+  if (msgEl && map[p.kind] && (stg.phase === "deal" && p.kind === "ready" || stg.phase === "write" && p.kind === "write" || stg.phase === "vote" && p.kind === "vote")) {
+    msgEl.textContent = t(map[p.kind], p.done, p.total);
+  }
+}
+
+// ---- Buton bağları + doğrudan bağlantı (#tv / #tv=KOD) ----
+$("btn-stage-create").addEventListener("click", () => { SFX.start(); stageCreateRoom(); });
+$("btn-stage-join").addEventListener("click", () => {
+  stageJoinRoom($("room-code-input").value.trim().toUpperCase());
+});
+(function stageHashEntry() {
+  const m = (location.hash || "").match(/#tv(?:=([A-Za-z]{4}))?$/);
+  if (!m) return;
+  setTimeout(() => { m[1] ? stageJoinRoom(m[1].toUpperCase()) : stageCreateRoom(); }, 600);
+})();
 
 </script>
