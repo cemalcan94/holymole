@@ -11,10 +11,10 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST
+      - name: Ping Supabase (auth health)
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://uauihsubsycizagblehm.supabase.co/rest/v1/" \
+            "https://uauihsubsycizagblehm.supabase.co/auth/v1/health" \
             -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdWloc3Vic3ljaXphZ2JsZWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTIyODgsImV4cCI6MjEwNDE4ODI4OH0.g1v2rjVaFokr5oawgYk51nR3T3WhgZXR1PC4sAk_ZQ4")
           echo "HTTP $code"
           test "$code" = "200"
