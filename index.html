@@ -2402,21 +2402,58 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   #app { max-width: 1100px; }
   /* Liste tipi ekranlar (tur, oylama, sonuç…) 760'ta ortalanmış kalır */
   .content { max-width: 760px; margin-left: auto; margin-right: auto; width: 100%; }
-  /* KURULUM: iki sütunlu ızgara */
+  /* KURULUM: dengeli alan haritası — İsimler ↔ Özellikler yan yana, boş hücre yok */
   #screen-setup .content {
     max-width: 1060px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch;
+    grid-template-areas:
+      "mode  vote"
+      "packs packs"
+      "pcnt  kcnt"
+      "names feat"
+      "sum   sum"
+      "go    go";
   }
-  #screen-setup .setup-block:has(#pack-chips),
-  #screen-setup .setup-block:has(#name-inputs),
-  #screen-setup .content > p,
-  #screen-setup .content > button { grid-column: 1 / -1; }
-  #name-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+  #screen-setup .setup-block:has(#mode-segment)  { grid-area: mode; }
+  #screen-setup .setup-block:has(#vote-segment)  { grid-area: vote; }
+  #screen-setup .setup-block:has(#pack-chips)    { grid-area: packs; }
+  #screen-setup .setup-block:has(#players-minus) { grid-area: pcnt; }
+  #screen-setup .setup-block:has(#ks-minus)      { grid-area: kcnt; }
+  #screen-setup .setup-block:has(.feature-row)   { grid-area: feat; }
+  #screen-setup .setup-block:has(#name-inputs)   { grid-area: names; }
+  #screen-setup .content > p      { grid-area: sum; }
+  #screen-setup .content > button { grid-area: go; }
   /* NASIL OYNANIR: kartlar 2x2 */
   #how-content { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
   /* LOBİ: kod/QR ve oyuncular yan yana */
   #screen-lobby .content { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
   #screen-lobby .content > button, #screen-lobby .content > p { grid-column: 1 / -1; }
+}
+
+
+/* ---- ≥1100px: ANA SAYFA HERO — masaüstü açılışı ---- */
+@media (min-width: 1100px) {
+  /* Mockup'ın mutlak %-düzeni telefona özel — masaüstünde öğeler AKIŞA alınır */
+  .home-wrap {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; max-width: 1160px; padding: 30px 22px 26px; gap: 24px;
+  }
+  .home-wrap .logo-img,
+  .home-wrap .tagline,
+  .home-wrap .mode-card,
+  .home-wrap .how-pill { position: static; transform: none; }
+  .home-wrap .logo-img { width: 470px; margin-top: 0; }
+  .home-wrap .tagline { font-size: 32px; margin-top: -8px; }
+  .home-wrap > .peek-moly { position: static; transform: none; margin: 0 auto -40px; width: 88px; }
+  .home-wrap .mode-card {
+    width: 780px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    padding: 30px 30px 28px;
+  }
+  .home-wrap .mode-title { grid-column: 1 / -1; font-size: 33px; }
+  .home-wrap .mode-btn { font-size: 27px; padding: 24px 12px; }
+  .home-wrap .how-pill { font-size: 21px; padding: 15px 30px; margin-top: 4px; }
+  .home-wrap .how-pill:active { transform: translateY(3px); }
 }
 
 </style>
@@ -2550,7 +2587,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v112</p>
+        <p class="set-ver" id="app-ver">v113</p>
       </div>
     </div>
 
