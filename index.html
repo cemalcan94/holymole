@@ -2499,6 +2499,35 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   #hole-grid { max-width: 900px; margin-left: auto; margin-right: auto; }
 }
 
+/* ================= EKRAN YÖNÜ UYARILARI (v116) =================
+   Kural: oyun telefonda DİKEY kilitli, sahne modu YATAY ister.
+   - Sahne + dikey telefon → "yatay çevir" örtüsü
+   - Sahne dışı + yatay telefon → "dik tut" örtüsü
+   Desktop muaf: koşullar coarse pointer (dokunmatik) ister; dik-tut ayrıca
+   kısa yükseklik (≤520px) ister ki yatay tabletler de muaf kalsın. */
+.orient-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 2000;
+  background: var(--blue);
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; text-align: center; padding: 32px;
+  color: var(--cream);
+}
+.orient-overlay h2 { font-size: 30px; }
+.orient-overlay p { font-size: 17px; font-weight: 700; opacity: .85; }
+.orient-ico { font-size: 64px; margin-bottom: 6px; }
+#rotate-stage .orient-ico { animation: orient-to-wide 1.4s ease-in-out infinite alternate; }
+#rotate-portrait .orient-ico { animation: orient-to-tall 1.4s ease-in-out infinite alternate; }
+@keyframes orient-to-wide { from { transform: rotate(0deg); } to { transform: rotate(90deg); } }
+@keyframes orient-to-tall { from { transform: rotate(90deg); } to { transform: rotate(0deg); } }
+
+@media (orientation: portrait) and (pointer: coarse) {
+  html.stage-wide #rotate-stage { display: flex; }
+}
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 520px) {
+  html:not(.stage-wide) #rotate-portrait { display: flex; }
+}
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2524,6 +2553,18 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   </svg>
 
   <div id="bg-rays" class="hidden" aria-hidden="true"></div>
+
+  <!-- EKRAN YÖNÜ UYARILARI: telefonda sahne dikeyse / normal oyun yataysa tam ekran örtü (CSS gösterir) -->
+  <div id="rotate-stage" class="orient-overlay" aria-hidden="true">
+    <span class="orient-ico">📱</span>
+    <h2 data-i18n="stageRotateTitle">Telefonu yatay çevir</h2>
+    <p data-i18n="stageRotateBody">Sahne modu yatay ekranda çalışır.</p>
+  </div>
+  <div id="rotate-portrait" class="orient-overlay" aria-hidden="true">
+    <span class="orient-ico">📱</span>
+    <h2 data-i18n="portraitTitle">Telefonu dik tut</h2>
+    <p data-i18n="portraitBody">HolyMole dikey oynanır.</p>
+  </div>
   <div id="app">
 
     <div id="toast" class="hidden" role="status"></div>
@@ -2630,7 +2671,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v115</p>
+        <p class="set-ver" id="app-ver">v116</p>
       </div>
     </div>
 
@@ -5753,6 +5794,10 @@ const I18N = {
     stageGuess: (n) => `${n} yakalandı — tahminini gizlice yazıyor… 🎭`,
     stageCluesHint: "Sırayla ipucu verin, sonra telefonlardan oylayın!",
     stageConfig: "Ev sahibi oyunu kuruyor…",
+    stageRotateTitle: "Telefonu yatay çevir",
+    stageRotateBody: "Sahne modu yatay ekranda çalışır.",
+    portraitTitle: "Telefonu dik tut",
+    portraitBody: "HolyMole dikey oynanır.",
     launchBadge: "AÇILIŞA ÖZEL",
     launchFreeHint: "Genel dışındaki paketler açılış dönemine özel ücretsiz! 🎉",
     rElNo: (n) => `${n}. El`,
@@ -6059,6 +6104,10 @@ const I18N = {
     stageGuess: (n) => `${n} got busted — typing a secret guess… 🎭`,
     stageCluesHint: "Give clues in turn, then vote on your phones!",
     stageConfig: "Host is setting up the game…",
+    stageRotateTitle: "Turn your phone sideways",
+    stageRotateBody: "Stage mode works in landscape.",
+    portraitTitle: "Hold your phone upright",
+    portraitBody: "HolyMole is played in portrait.",
     launchBadge: "LAUNCH SPECIAL",
     launchFreeHint: "All packs beyond General are free for the launch period! 🎉",
     rElNo: (n) => `Hand ${n}`,
@@ -6328,7 +6377,16 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
   $(id).classList.add("active");
   $("bg-rays").classList.toggle("hidden", !RAY_SCREENS.includes(id));
-  document.documentElement.classList.toggle("stage-wide", id === "screen-stage");
+  const isStageScr = id === "screen-stage";
+  const wasStageScr = document.documentElement.classList.contains("stage-wide");
+  document.documentElement.classList.toggle("stage-wide", isStageScr);
+  // Android PWA manifest'le dikeye kilitli — sahnede yataya izin ver, çıkınca kilide dön (iOS lock desteklemez, CSS örtüsü devrede)
+  if (isStageScr !== wasStageScr && screen.orientation && screen.orientation.lock) {
+    try {
+      if (isStageScr) screen.orientation.lock("landscape").catch(() => {});
+      else screen.orientation.unlock();
+    } catch (_) {}
+  }
   $("btn-exit").classList.toggle("hidden", !IN_GAME_SCREENS.includes(id));
   resetViewportScroll();
   // Giriş animasyonu — içinde position:fixed eleman olan ekranlarda transform yasak → sadece fade
