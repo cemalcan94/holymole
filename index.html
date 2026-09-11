@@ -2243,8 +2243,9 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
 
 /* Çok-turlu soruşturma: aklanmış oyuncu satırı */
 .speak-item.cleared { opacity: 0.45; }
+.speak-item.cleared.caught { opacity: 0.7; } /* yakalanan köstebek soluk değil, vurgulu kalır */
 .speak-item.cleared .order-num { background: var(--cream); color: var(--ink); }
-.cleared-chip {
+.cleared-chip, .caught-chip {
   margin-left: auto;
   background: #dfe8f5;
   border: 2.5px solid var(--ink);
@@ -2254,6 +2255,7 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
   font-size: 11px;
   color: var(--ink);
 }
+.caught-chip { background: var(--pink); color: #fff; } /* yakalanan köstebek: pembe rozet */
 
 /* İpucu ve sonuç sayfalarındaki aksiyon butonları daha okunur */
 #screen-round .btn-big, #screen-elresult .btn-big { font-size: 26px; }
@@ -2631,6 +2633,9 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
 .duel-banner span { color: #fff; font-weight: 800; font-size: 13.5px; line-height: 1.35; }
 @keyframes duel-pop { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(-1.2deg); opacity: 1; } }
 
+/* v122: sahnede yakalanan köstebek çipi pembe */
+.stage-chip.caught .stage-cchip { background: var(--pink); color: #fff; }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2786,7 +2791,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v121</p>
+        <p class="set-ver" id="app-ver">v122</p>
       </div>
     </div>
 
@@ -6010,6 +6015,8 @@ const I18N = {
     escGhostTitles: ["HAYALET KAÇIŞ!", "İZ BİLE BIRAKMADI!", "GÖRÜNMEDEN KAÇTI!"],
     escapeReason: (n) => `Sadece ${n} kişi kaldı — çoğunluk kurulamazdı.`,
     escapeReasonNoElim: "Tüm Ahali aklandı — Köstebek sona kadar dayandı!",
+    moleCaught: (n) => `Köstebek yakalandı! Ama aranızda hâlâ ${n} köstebek var — soruşturma sürüyor!`,
+    caughtChip: "yakalandı",
     duelTitle: "SON DÜELLO!",
     duelHint: "Son şans: aklananlar dahil herkes oylayacak. Köstebeği bulun — yoksa kaçacak!",
     rFinaleBonus: "Son Düello'ya kaldı",
@@ -6339,6 +6346,8 @@ const I18N = {
     escGhostTitles: ["GHOST ESCAPE!", "NOT EVEN A TRACE!", "NEVER SEEN, NEVER CAUGHT!"],
     escapeReason: (n) => `Only ${n} players remained — a majority was impossible.`,
     escapeReasonNoElim: "Every Villager was cleared — the Mole outlasted them all!",
+    moleCaught: (n) => `A Mole is caught! But ${n} more ${n > 1 ? "moles are" : "mole is"} still among you — the hunt goes on!`,
+    caughtChip: "caught",
     duelTitle: "FINAL SHOWDOWN!",
     duelHint: "Last chance: everyone votes, cleared players included. Find the Mole — or it escapes!",
     rFinaleBonus: "reached the Showdown",
@@ -7274,6 +7283,7 @@ function buildElCore() {
     roundPicks: [],     // sözlü mod: her turun grup kararı
     spyRounds: 0,       // köstebeğin atlattığı tur sayısı
     spyEverVoted: false,
+    caughtMoles: [],    // yakalanan köstebekler (çok köstebekli: her biri ayrı yakalanır, el son köstebekte biter)
     caught: false, escaped: false, numRevealed: false, numOut: -1,
   };
 }
@@ -7412,8 +7422,11 @@ function startRoundScreen() {
   // Aklananlar: soruşturma dışı ama masada (elemesizde oy da verirler)
   state.el.out.forEach((pIdx) => {
     const div = document.createElement("div");
-    div.className = "speak-item cleared";
-    div.innerHTML = `<span class="order-num">✓</span>${avHtml(pIdx)}<span>${escapeHtml(state.players[pIdx].name)}</span><span class="cleared-chip">${t(pIdx === (state.el.numOut ?? -1) ? "exposedChip" : "clearedChip")}</span>`;
+    const isCaughtMole = (state.el.caughtMoles || []).includes(pIdx);
+    div.className = "speak-item cleared" + (isCaughtMole ? " caught" : "");
+    const chipCls = isCaughtMole ? "caught-chip" : "cleared-chip";
+    const chipKey = isCaughtMole ? "caughtChip" : (pIdx === (state.el.numOut ?? -1) ? "exposedChip" : "clearedChip");
+    div.innerHTML = `<span class="order-num">${isCaughtMole ? "🕳️" : "✓"}</span>${avHtml(pIdx)}<span>${escapeHtml(state.players[pIdx].name)}</span><span class="${chipCls}">${t(chipKey)}</span>`;
     wrap.appendChild(div);
   });
   showScreen("screen-round");
@@ -7623,7 +7636,15 @@ function resolveTopSet(topSet) {
     return;
   }
   const T = topSet[0];
-  if (el.roles[T] === "kostebek") { el.caught = true; scoreEl(); return; }
+  if (el.roles[T] === "kostebek") {
+    el.out.push(T);
+    el.outRound[T] = el.roundNo;
+    el.caughtMoles.push(T);
+    const molesAlive = el.roles.filter((r, i) => r === "kostebek" && !el.out.includes(i)).length;
+    if (molesAlive === 0) { el.caught = true; scoreEl(); return; } // son köstebek → el biter, kelimeler açılır
+    announceRound(T, t("moleCaught", molesAlive)); // ara-zafer: rol açık, kelime gizli, av sürer
+    return;
+  }
   if (el.roles[T] === "numaraci") {
     el.numRevealed = true;
     el.numOut = T;
@@ -7728,17 +7749,21 @@ function computeElPoints() {
 
     if (role === "kostebek") {
       st.spyEls++;
-      pts += el.spyRounds;                         // atlattığı her tur +1
-      if (el.spyRounds > 0) rs.push({ k: "rSpyRounds", n: el.spyRounds, p: el.spyRounds });
+      // Çok köstebekli: her köstebek bağımsız puanlanır. Yakalanan, yakalandığı tura kadarki turları
+      // atlatmış sayılır; hayatta kalan tüm turları atlatır ve kaçış/hayalet bonusu alır.
+      const caughtHere = el.caughtMoles.includes(i);
+      const survived = caughtHere ? (el.outRound[i] - 1) : el.roundVotes.length;
+      if (survived > 0) { pts += survived; rs.push({ k: "rSpyRounds", n: survived, p: survived }); }
       if (el.finaleMoles && el.finaleMoles.includes(i)) {
         pts += 2;                                  // Son Düello'ya kalma garantisi (yakalansa bile)
         rs.push({ k: "rFinaleBonus", p: 2 });
       }
-      if (!el.caught) {
-        pts += el.spyEverVoted ? 4 : 6;            // kaçış +4, hiç oy yemeden +6
-        rs.push(el.spyEverVoted ? { k: "rSpyEscape", p: 4 } : { k: "rSpyGhost", p: 6 });
+      if (!caughtHere) {
+        const everVoted = el.roundVotes.some((votes) => votes.some((v) => v === i));
+        pts += everVoted ? 4 : 6;                  // kaçış +4, hiç oy yemeden +6 (köstebek başına)
+        rs.push(everVoted ? { k: "rSpyEscape", p: 4 } : { k: "rSpyGhost", p: 6 });
         st.spySurvived++;
-        if (!el.spyEverVoted) st.spyGhosts++;
+        if (!everVoted) st.spyGhosts++;
       }
     } else if (role === "numaraci") {
       st.numaraciEls++;
@@ -7755,8 +7780,9 @@ function computeElPoints() {
           if (v < 0) return;
           if (isSpy(v)) {
             st.correctVotes++; st.wrongStreak = 0;
-            if (el.caught && r === catchRound) { pts += 2; catchPts += 2; }  // yakalama +2
-            else { pts += 1; fores++; }                                     // erken öngörü +1
+            // Bir köstebeğe, TAM yakalandığı turda oy verdiysen +2; daha erken gösterdiysen +1 öngörü
+            if (el.caughtMoles.includes(v) && el.outRound[v] === r + 1) { pts += 2; catchPts += 2; }
+            else { pts += 1; fores++; }
           } else { st.wrongVotes++; st.wrongStreak++; }
         });
         if (fores) rs.push({ k: "rForesight", n: fores, p: fores });
@@ -7879,7 +7905,7 @@ function showElResult() {
   const roleKey = { ahali: "roleAhali", kostebek: "roleKostebek", numaraci: "roleNumaraci" };
   const U = (s) => s.toLocaleUpperCase(state.lang === "tr" ? "tr-TR" : "en-US");
   const wcls = (w) => `w-word${w.length >= 9 ? " longw" : ""}`;
-  const caught = (el.topSet || []).some((k) => el.roles[k] === "kostebek");
+  const caught = !!el.caught; // tüm köstebekler yakalandıysa true; kaçan varsa false (kaçış perdesi açılır)
 
   let html = `<div class="title-wrap">
       <span class="doodle" style="left:-28px; top:8px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
@@ -7955,8 +7981,11 @@ function showElResult() {
 function playEscapeIntro(el) {
   const box = $("escape-intro");
   if (!box) return;
-  const ghost = !el.spyEverVoted;
-  const moles = el.roles.map((r, i) => (r === "kostebek" ? i : -1)).filter((i) => i >= 0);
+  // Kaçan (yakalanmayan) köstebek(ler) kutlanır; çok köstebekli elde yakalananlar hariç tutulur
+  const allMoles = el.roles.map((r, i) => (r === "kostebek" ? i : -1)).filter((i) => i >= 0);
+  const survivors = allMoles.filter((i) => !(el.caughtMoles || []).includes(i));
+  const moles = survivors.length ? survivors : allMoles;
+  const ghost = moles.every((i) => !el.roundVotes.some((votes) => votes.some((v) => v === i)));
   // avatar seçilmemişse (yerel oyunda sık) boş çember yerine köstebek rol görseli
   $("ei-avatars").innerHTML = moles.slice(0, 3).map((i) =>
     (state.players[i] && state.players[i].avatar)
@@ -9043,6 +9072,7 @@ function applyPhase(p) {
         state.el.roundNo = p.roundNo || 1;
         state.el.numOut = p.numOut ?? -1;
         state.el.finale = !!p.finale;
+        state.el.caughtMoles = p.caughtMoles || []; // yakalanan köstebek çipi için
       }
       startRoundScreen();
       onlineAdjustRound();
@@ -9295,6 +9325,7 @@ function onlineShowRoundEnd(p) {
   const name = p.idx !== null && p.idx !== undefined && p.idx >= 0 ? escapeHtml(game.roster[p.idx].name) : "";
   if (p.kind === "innocent") msg = t("revealInnocent", name);
   else if (p.kind === "num") msg = t("revealNumSealed", name);
+  else if (p.kind === "mole") msg = t("moleCaught", p.remain);
   else msg = t("tieNoElimText");
   if (p.idx !== null && p.idx !== undefined && p.idx >= 0) {
     card.classList.remove("hidden");
@@ -9504,7 +9535,7 @@ function hostSendSync(pid) {
     elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
     pub: sanitizedEl(state.el), per: buildPerSecrets(state.el),
     outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1,
-    finale: !!state.el.finale,
+    finale: !!state.el.finale, caughtMoles: state.el.caughtMoles || [],
   };
   let ph = game.phase;
   if (ph === "revealing") ph = "vote"; // açılış sırasında dönen: oy ekranında bekler, rv adımları devralır
@@ -9556,7 +9587,7 @@ function hostSendSync(pid) {
 // Yeni ipucu turu yayını: aklananlar + tur no her cihaza gider
 function hostPubClues() {
   game.h.phaseAt = Date.now();
-  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1, finale: !!state.el.finale });
+  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1, finale: !!state.el.finale, caughtMoles: state.el.caughtMoles || [] });
 }
 
 function hostStartVote() {
@@ -9621,7 +9652,15 @@ function hostResolveTopSet(topSet) {
   elRecordRound(topSet); // tur kaydı (öngörü puanları)
   if (topSet.length !== 1) { hostRoundEnd("tie", null); return; }
   const T = topSet[0];
-  if (el.roles[T] === "kostebek") { el.caught = true; hostElResult(); return; }
+  if (el.roles[T] === "kostebek") {
+    el.out.push(T);
+    el.outRound[T] = el.roundNo;
+    (el.caughtMoles = el.caughtMoles || []).push(T);
+    const molesAlive = el.roles.filter((r, i) => r === "kostebek" && !el.out.includes(i)).length;
+    if (molesAlive === 0) { el.caught = true; hostElResult(); return; } // son köstebek → el biter
+    hostRoundEnd("mole", T, molesAlive); // ara-zafer: rol açık, kelime gizli, av sürer
+    return;
+  }
   if (el.roles[T] === "numaraci" && el.guess === null) {
     el.numRevealed = true;
     el.numOut = T;
@@ -9639,12 +9678,12 @@ function hostResolveTopSet(topSet) {
 }
 
 // Tur sonu duyurusu: herkes görür, ev sahibi Devam'la yeni turu başlatır
-function hostRoundEnd(kind, idx) {
+function hostRoundEnd(kind, idx, remain) {
   game.phase = "roundend";
   game.h.phaseAt = Date.now();
   // Numaracı tahmini el sonuna dek yayına ÇIKMAZ — köstebek kelimeyi öğrenmesin
-  game.h.lastExtra = { kind, idx };
-  pub("st", { phase: "roundend", seq: ++game.seq, kind, idx, outs: state.el.out, roundNo: state.el.roundNo });
+  game.h.lastExtra = { kind, idx, remain };
+  pub("st", { phase: "roundend", seq: ++game.seq, kind, idx, remain, outs: state.el.out, roundNo: state.el.roundNo, caughtMoles: state.el.caughtMoles });
 }
 
 function hostRoundContinue() {
@@ -9995,7 +10034,12 @@ function stageApplyPhase(p) {
       const order = (stg.pub && stg.pub.order) || stg.roster.map((_, i) => i);
       const aktif = order.filter((i) => !stg.outs.includes(i));
       const sira = aktif.map((i, k) => `<div class="stage-chip big ${k === 0 ? "first" : ""}"><span class="stage-num">${k + 1}</span>${stageAv(i)}<span>${stageName(i)}</span></div>`).join("");
-      const aklanan = stg.outs.map((i) => `<div class="stage-chip big cleared">${stageAv(i)}<span>${stageName(i)}</span><span class="stage-cchip">${t(i === (p.numOut ?? -1) ? "exposedChip" : "clearedChip")}</span></div>`).join("");
+      const cm = p.caughtMoles || [];
+      const aklanan = stg.outs.map((i) => {
+        const isCaught = cm.includes(i);
+        const key = isCaught ? "caughtChip" : (i === (p.numOut ?? -1) ? "exposedChip" : "clearedChip");
+        return `<div class="stage-chip big cleared${isCaught ? " caught" : ""}">${stageAv(i)}<span>${stageName(i)}</span><span class="stage-cchip">${t(key)}</span></div>`;
+      }).join("");
       stageSet(`<h2 class="stage-h">${p.finale ? t("duelTitle") : t("roundTitle")}</h2>
         <div class="stage-chips center">${sira}${aklanan}</div>`, { el: stageElLabel(), moly: p.finale ? t("duelHint") : t("stageCluesHint") });
       break;
@@ -10023,6 +10067,7 @@ function stageApplyPhase(p) {
       let msg;
       if (p.kind === "innocent") msg = t("revealInnocent", stageName(p.idx));
       else if (p.kind === "num") msg = t("revealNumSealed", stageName(p.idx));
+      else if (p.kind === "mole") msg = t("moleCaught", p.remain);
       else msg = t("tieNoElimText");
       const gorsel = (p.idx !== null && p.idx !== undefined && p.idx >= 0) ? stageAv(p.idx, "big") : "";
       SFX.card();
