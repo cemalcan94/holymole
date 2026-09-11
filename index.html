@@ -2766,7 +2766,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v119</p>
+        <p class="set-ver" id="app-ver">v120</p>
       </div>
     </div>
 
@@ -5982,8 +5982,8 @@ const I18N = {
     whoWas: "Kim kimmiş?",
     bigRevealCaught: "Köstebek Yakalandı!",
     bigRevealEscaped: "Köstebek Kaçtı!",
-    escapeIntroTitle: "KÖSTEBEK KAÇTI!",
-    escapeGhostTitle: "HAYALET KAÇIŞ!",
+    escTitles: ["KÖSTEBEK KAÇTI!", "TÜYDÜ GİTTİ!", "SIVIŞTI!", "ELİNİZDEN KAÇTI!"],
+    escGhostTitles: ["HAYALET KAÇIŞ!", "İZ BİLE BIRAKMADI!", "GÖRÜNMEDEN KAÇTI!"],
     escapeReason: (n) => `Sadece ${n} kişi kaldı — çoğunluk kurulamazdı.`,
     escQuips: [
       "Cebinde kelime, yüzünde gülümseme — buhar oldu! 💨",
@@ -6307,8 +6307,8 @@ const I18N = {
     whoWas: "Who was who?",
     bigRevealCaught: "Mole Busted!",
     bigRevealEscaped: "The Mole Got Away!",
-    escapeIntroTitle: "THE MOLE ESCAPED!",
-    escapeGhostTitle: "GHOST ESCAPE!",
+    escTitles: ["THE MOLE ESCAPED!", "SLIPPED AWAY!", "GONE, JUST GONE!", "OUT OF YOUR HANDS!"],
+    escGhostTitles: ["GHOST ESCAPE!", "NOT EVEN A TRACE!", "NEVER SEEN, NEVER CAUGHT!"],
     escapeReason: (n) => `Only ${n} players remained — a majority was impossible.`,
     escQuips: [
       "Word in pocket, grin on face — gone in a puff! 💨",
@@ -7916,9 +7916,9 @@ function playEscapeIntro(el) {
       ? avHtml(i)
       : `<span class="avc"><img src="${asset("assets/role-kostebek.png")}" alt=""></span>`).join("") +
     (ghost ? `<img class="ei-ghost" src="${asset("assets/ico-hayalet.png")}" alt="">` : "");
-  $("ei-title").textContent = t(ghost ? "escapeGhostTitle" : "escapeIntroTitle");
-  const qs = t(ghost ? "escGhostQuips" : "escQuips");
-  $("ei-quip").textContent = qs[Math.floor(Math.random() * qs.length)];
+  const pickRand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  $("ei-title").textContent = pickRand(t(ghost ? "escGhostTitles" : "escTitles"));
+  $("ei-quip").textContent = pickRand(t(ghost ? "escGhostQuips" : "escQuips"));
   $("ei-reason").textContent = t("escapeReason", state.players.length - (el.out || []).length);
   // Dokunulana kadar ekranda kalır; yalnız sahne (TV) dokunulamadığı için uzun otomatik kapanma
   // !! şart: undefined kalırsa classList.toggle(force) düz toggle'a düşer ve sınıfı YANLIŞ ekler
@@ -7926,8 +7926,13 @@ function playEscapeIntro(el) {
   $("ei-tap").classList.toggle("hidden", isStage);
   box.classList.remove("hidden", "closing");
   clearTimeout(state._eiTimer);
-  if (isStage) state._eiTimer = setTimeout(closeEscapeIntro, 7000);
-  box.onclick = () => { clearTimeout(state._eiTimer); closeEscapeIntro(); };
+  if (isStage) state._eiTimer = setTimeout(closeEscapeIntro, 20000); // yedek: asıl kapatma ev sahibinden gelir
+  box.onclick = () => {
+    clearTimeout(state._eiTimer);
+    closeEscapeIntro();
+    // Online ev sahibi kapatınca sahne (TV) de kapansın
+    if (typeof notifyEscapeIntroClosed === "function") notifyEscapeIntroClosed();
+  };
 }
 
 function closeEscapeIntro() {
@@ -8455,6 +8460,7 @@ async function joinRoomOnce(code, asHost) {
   ch.on("broadcast", { event: "st" }, ({ payload }) => { if (net.isStage) stageApplyPhase(payload); else applyPhase(payload); });
   ch.on("broadcast", { event: "rv" }, ({ payload }) => { if (net.isStage) stageRevealStep(payload); else applyRevealStep(payload); });
   ch.on("broadcast", { event: "prog" }, ({ payload }) => { if (net.isStage) stageProgress(payload); else applyProgress(payload); });
+  ch.on("broadcast", { event: "eic" }, () => { if (net.isStage) closeEscapeIntro(); }); // ev sahibi kaçış kartını kapattı → TV de kapatsın
   // B-lite el sıkışması: sahnenin kurduğu odada İLK kaydolan telefon Ev Sahibi olur
   ch.on("broadcast", { event: "claim" }, ({ payload }) => {
     if (!net.isStage && !net.isHost && payload && payload.to === netSelfId()) becomeHostFromClaim();
@@ -10044,5 +10050,11 @@ $("screen-stage").querySelector(".stage-logo-img").addEventListener("click", asy
   await leaveRoom(true);
   showScreen("screen-home");
 });
+
+// Ev sahibi kaçış pop-up'ını kapattı: sahne(ler) de kapatsın (app.js box.onclick çağırır)
+function notifyEscapeIntroClosed() {
+  if (!game.on || !net.isHost || !net.channel) return;
+  try { net.channel.send({ type: "broadcast", event: "eic", payload: {} }); } catch (_) {}
+}
 
 </script>
