@@ -2603,6 +2603,14 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   font-size: 15px; opacity: .92; margin: -4px 0 2px;
 }
 
+/* v119: pop-up dokunulana kadar kalır — dokunma ipucu */
+.ei-tap {
+  color: var(--blue); font-weight: 900; font-size: 13px;
+  letter-spacing: .05em; text-transform: uppercase;
+  animation: ei-tap-pulse 1.5s ease-in-out .9s infinite both;
+}
+@keyframes ei-tap-pulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2649,6 +2657,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
       <h2 class="ei-title" id="ei-title">KÖSTEBEK KAÇTI!</h2>
       <p class="ei-quip" id="ei-quip"></p>
       <p class="ei-reason" id="ei-reason"></p>
+      <p class="ei-tap" id="ei-tap" data-i18n="tapToContinue">Devam etmek için dokun</p>
     </div>
   </div>
   <div id="app">
@@ -2757,7 +2766,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v118</p>
+        <p class="set-ver" id="app-ver">v119</p>
       </div>
     </div>
 
@@ -5987,6 +5996,7 @@ const I18N = {
       "Radara hiç yakalanmadı. Efsane sıvışma! 🛸",
       "Kimsenin aklına bile gelmedi. Buz gibi soğukkanlılık! 🧊",
     ],
+    tapToContinue: "Devam etmek için dokun",
     tipPill: "MOLY'DEN TÜYO",
     tipSmallTitle: "Az kişi, çok ipucu!",
     tipSmallBody: "Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir. Dikkat: yanlış kişiyi elerseniz Köstebek anında kazanır!",
@@ -6311,6 +6321,7 @@ const I18N = {
       "Never even blipped on the radar. Legendary! 🛸",
       "Nobody ever suspected. Ice cold! 🧊",
     ],
+    tapToContinue: "Tap to continue",
     tipPill: "TIP FROM MOLY",
     tipSmallTitle: "Few players, more clues!",
     tipSmallBody: "With a small group, give 2–3 rounds of clues before the first vote so enough suspicion builds up. Careful: clear the wrong person and the Mole instantly wins!",
@@ -6490,6 +6501,7 @@ const RAY_SCREENS = ["screen-home", "screen-final", "screen-elresult", "screen-r
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
   $(id).classList.add("active");
+  closeEscapeIntro(); // ekran değişince kaçış pop-up'ı açık kalmasın (showElResult sonra yeniden açar)
   $("bg-rays").classList.toggle("hidden", !RAY_SCREENS.includes(id));
   const isStageScr = id === "screen-stage";
   const wasStageScr = document.documentElement.classList.contains("stage-wide");
@@ -7908,11 +7920,22 @@ function playEscapeIntro(el) {
   const qs = t(ghost ? "escGhostQuips" : "escQuips");
   $("ei-quip").textContent = qs[Math.floor(Math.random() * qs.length)];
   $("ei-reason").textContent = t("escapeReason", state.players.length - (el.out || []).length);
+  // Dokunulana kadar ekranda kalır; yalnız sahne (TV) dokunulamadığı için uzun otomatik kapanma
+  // !! şart: undefined kalırsa classList.toggle(force) düz toggle'a düşer ve sınıfı YANLIŞ ekler
+  const isStage = !!(typeof net !== "undefined" && net.isStage);
+  $("ei-tap").classList.toggle("hidden", isStage);
   box.classList.remove("hidden", "closing");
-  const close = () => { box.classList.add("closing"); setTimeout(() => box.classList.add("hidden"), 380); };
   clearTimeout(state._eiTimer);
-  state._eiTimer = setTimeout(close, 3200);
-  box.onclick = () => { clearTimeout(state._eiTimer); close(); };
+  if (isStage) state._eiTimer = setTimeout(closeEscapeIntro, 7000);
+  box.onclick = () => { clearTimeout(state._eiTimer); closeEscapeIntro(); };
+}
+
+function closeEscapeIntro() {
+  const box = $("escape-intro");
+  if (!box || box.classList.contains("hidden")) return;
+  box.classList.add("closing");
+  // arada yeniden açıldıysa (closing kalktıysa) gizleme — showScreen→playEscapeIntro yarışına karşı
+  setTimeout(() => { if (box.classList.contains("closing")) box.classList.add("hidden"); }, 380);
 }
 
 // ================= Final =================
@@ -9886,6 +9909,7 @@ function stageElLabel() {
 function stageApplyPhase(p) {
   if (!p || !p.phase) return;
   stg.phase = p.phase;
+  if (p.phase !== "elresult") closeEscapeIntro(); // ev sahibi ilerleyince TV'deki kaçış kartı kapanır
   switch (p.phase) {
     case "deal": {
       if (p.roster) stg.roster = p.roster;
