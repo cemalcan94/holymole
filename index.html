@@ -2528,55 +2528,74 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   html:not(.stage-wide) #rotate-portrait { display: flex; }
 }
 
-/* ================= KÖSTEBEK KAÇTI PERDESİ (v117) =================
-   El köstebeğin kaçışıyla bitince sonuç sayfasının önünde ~2.5 sn'lik
-   zafer sahnesi: lacivert zemin + dönen pembe ışınlar + köstebek avatarı
-   + çarpan başlık + kaçış gerekçesi. Dokununca erken kapanır. */
+/* ================= KÖSTEBEK KAÇTI POP-UP'I (v118) =================
+   El köstebeğin kaçışıyla bitince sonuç sayfasının önünde enerjik kutlama
+   kartı: hafif mavi fon + zıplayan krem kart + konfeti patlaması +
+   sallanan köstebek avatarı + espirili Moly cümlesi. Dokununca kapanır. */
 #escape-intro {
   position: fixed; inset: 0; z-index: 1900;
-  background: var(--ink);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 14px; text-align: center; padding: 32px; overflow: hidden;
-  cursor: pointer;
-  animation: ei-in .25s ease-out;
+  background: rgba(1, 79, 208, .45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; cursor: pointer;
+  animation: ei-in .2s ease-out;
 }
-#escape-intro.closing { animation: ei-out .38s ease-in forwards; }
+#escape-intro.closing { animation: ei-out .32s ease-in forwards; }
 @keyframes ei-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes ei-out { from { opacity: 1; } to { opacity: 0; } }
-.ei-rays {
-  position: absolute; inset: -60%;
-  background: repeating-conic-gradient(from 0deg, rgba(255, 77, 154, .3) 0deg 9deg, transparent 9deg 24deg);
-  animation: ei-spin 16s linear infinite;
-}
-@keyframes ei-spin { to { transform: rotate(360deg); } }
-.ei-avatars {
-  position: relative; display: flex; gap: 12px; align-items: center;
-  animation: ei-pop .55s cubic-bezier(.2, 2.2, .4, 1) both .15s;
-}
-.ei-avatars .avc {
-  width: 104px; height: 104px;
-  border: 5px solid var(--pink);
-  box-shadow: 0 8px 0 rgba(0, 0, 0, .4);
-  background: var(--cream);
-}
-.ei-avatars .avc img { width: 100%; height: 100%; }
-.ei-ghost { width: 64px; align-self: flex-start; margin-left: -26px; margin-top: -14px; transform: rotate(12deg); }
-.ei-title {
+.ei-card {
   position: relative;
+  background: var(--cream);
+  border: var(--bw) solid var(--ink);
+  border-radius: 26px;
+  box-shadow: 0 8px 0 var(--ink);
+  padding: 26px 24px 20px;
+  max-width: 350px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-align: center;
+  animation: ei-card-pop .55s cubic-bezier(.2, 2.1, .4, 1) both;
+}
+@keyframes ei-card-pop { from { transform: scale(.2) rotate(-14deg); opacity: 0; } to { transform: scale(1) rotate(-2deg); opacity: 1; } }
+.ei-avatars { position: relative; display: flex; gap: 10px; align-items: center; animation: ei-wiggle 1.1s ease-in-out .5s infinite; }
+.ei-avatars .avc { width: 92px; height: 92px; border: 4px solid var(--pink); background: #fff; box-shadow: 0 5px 0 var(--ink); }
+.ei-avatars .avc img { width: 100%; height: 100%; }
+.ei-ghost { width: 54px; position: absolute; right: -30px; top: -16px; transform: rotate(14deg); }
+@keyframes ei-wiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+.ei-title {
   font-family: "Baloo 2", "Nunito", sans-serif; font-weight: 800;
-  font-size: clamp(38px, 9vw, 64px); line-height: 1.05;
-  color: var(--pink);
-  text-shadow: 0 5px 0 #6d0a39;
-  transform: rotate(-2deg);
-  animation: ei-slam .5s cubic-bezier(.2, 2, .3, 1) both .32s;
+  font-size: 34px; line-height: 1.02; color: var(--pink);
+  text-shadow: 0 3px 0 var(--ink);
+  animation: ei-slam .45s cubic-bezier(.2, 2, .3, 1) both .18s;
 }
-.ei-reason {
-  position: relative; color: var(--cream); font-weight: 800;
-  font-size: 17px; max-width: 380px;
-  animation: ei-pop .4s ease-out both .7s;
+@keyframes ei-slam { from { transform: scale(2.2) rotate(6deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+.ei-quip { color: var(--ink); font-weight: 800; font-size: 16.5px; line-height: 1.4; animation: ei-pop .35s ease-out both .5s; }
+.ei-reason { color: var(--grey); font-weight: 800; font-size: 13px; animation: ei-pop .35s ease-out both .65s; }
+@keyframes ei-pop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* Konfeti patlaması: kartın merkezinden dışarı savrulan parçalar */
+.ei-confetti { position: absolute; inset: 0; pointer-events: none; }
+.ei-confetti span {
+  position: absolute; left: 50%; top: 42%;
+  width: 11px; height: 15px; border-radius: 3px;
+  border: 2.5px solid var(--ink);
+  opacity: 0;
+  animation: cf-burst .95s cubic-bezier(.15, .8, .3, 1) both;
 }
-@keyframes ei-slam { from { transform: scale(2.6) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(-2deg); opacity: 1; } }
-@keyframes ei-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes cf-burst {
+  0% { transform: translate(-50%, -50%) scale(.3) rotate(0deg); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1) rotate(var(--rr)); opacity: 0; }
+}
+.ei-confetti span:nth-child(1)  { background: var(--sun);  --tx: -150px; --ty: -120px; --rr: 460deg;  animation-delay: .30s; }
+.ei-confetti span:nth-child(2)  { background: var(--pink); --tx: 150px;  --ty: -135px; --rr: -380deg; animation-delay: .34s; }
+.ei-confetti span:nth-child(3)  { background: var(--lime); --tx: -185px; --ty: -20px;  --rr: 320deg;  animation-delay: .32s; }
+.ei-confetti span:nth-child(4)  { background: var(--blue); --tx: 185px;  --ty: -30px;  --rr: -300deg; animation-delay: .36s; }
+.ei-confetti span:nth-child(5)  { background: var(--pink); --tx: -140px; --ty: 120px;  --rr: 420deg;  animation-delay: .38s; }
+.ei-confetti span:nth-child(6)  { background: var(--sun);  --tx: 145px;  --ty: 110px;  --rr: -340deg; animation-delay: .35s; }
+.ei-confetti span:nth-child(7)  { background: var(--lime); --tx: -70px;  --ty: -175px; --rr: 380deg;  animation-delay: .40s; }
+.ei-confetti span:nth-child(8)  { background: var(--blue); --tx: 75px;   --ty: -180px; --rr: -420deg; animation-delay: .42s; }
+.ei-confetti span:nth-child(9)  { background: var(--sun);  --tx: -55px;  --ty: 160px;  --rr: 300deg;  animation-delay: .44s; }
+.ei-confetti span:nth-child(10) { background: var(--pink); --tx: 60px;   --ty: 170px;  --rr: -360deg; animation-delay: .41s; }
+.ei-confetti span:nth-child(11) { background: var(--lime); --tx: 210px;  --ty: 60px;   --rr: 340deg;  animation-delay: .46s; }
+.ei-confetti span:nth-child(12) { background: var(--blue); --tx: -215px; --ty: 70px;   --rr: -320deg; animation-delay: .48s; }
 
 /* Büyük Açılış: kaçış gerekçesi satırı (başlığın altında kalıcı) */
 .esc-reason {
@@ -2622,12 +2641,15 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
     <p data-i18n="portraitBody">HolyMole dikey oynanır.</p>
   </div>
 
-  <!-- KÖSTEBEK KAÇTI PERDESİ: el kaçışla bitince sonuç sayfası açılırken kısa zafer sahnesi -->
+  <!-- KÖSTEBEK KAÇTI POP-UP'I: el kaçışla bitince konfetili kutlama kartı -->
   <div id="escape-intro" class="hidden" aria-hidden="true">
-    <div class="ei-rays"></div>
-    <div class="ei-avatars" id="ei-avatars"></div>
-    <h2 class="ei-title" id="ei-title">KÖSTEBEK KAÇTI!</h2>
-    <p class="ei-reason" id="ei-reason"></p>
+    <div class="ei-card">
+      <div class="ei-confetti" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="ei-avatars" id="ei-avatars"></div>
+      <h2 class="ei-title" id="ei-title">KÖSTEBEK KAÇTI!</h2>
+      <p class="ei-quip" id="ei-quip"></p>
+      <p class="ei-reason" id="ei-reason"></p>
+    </div>
   </div>
   <div id="app">
 
@@ -2735,7 +2757,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v117</p>
+        <p class="set-ver" id="app-ver">v118</p>
       </div>
     </div>
 
@@ -5954,6 +5976,17 @@ const I18N = {
     escapeIntroTitle: "KÖSTEBEK KAÇTI!",
     escapeGhostTitle: "HAYALET KAÇIŞ!",
     escapeReason: (n) => `Sadece ${n} kişi kaldı — çoğunluk kurulamazdı.`,
+    escQuips: [
+      "Cebinde kelime, yüzünde gülümseme — buhar oldu! 💨",
+      "El sıkıştı, o sıvıştı. Şapka çıkarılır! 🎩",
+      "Siz birbirinizi kazarken o çoktan otobüse bindi. 🚌",
+      "Burnunuzun dibinden geçti gitti! 🕳️",
+    ],
+    escGhostQuips: [
+      "Tek oy bile yemedi — hayalet gibi süzüldü gitti! 👻",
+      "Radara hiç yakalanmadı. Efsane sıvışma! 🛸",
+      "Kimsenin aklına bile gelmedi. Buz gibi soğukkanlılık! 🧊",
+    ],
     tipPill: "MOLY'DEN TÜYO",
     tipSmallTitle: "Az kişi, çok ipucu!",
     tipSmallBody: "Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir. Dikkat: yanlış kişiyi elerseniz Köstebek anında kazanır!",
@@ -6267,6 +6300,17 @@ const I18N = {
     escapeIntroTitle: "THE MOLE ESCAPED!",
     escapeGhostTitle: "GHOST ESCAPE!",
     escapeReason: (n) => `Only ${n} players remained — a majority was impossible.`,
+    escQuips: [
+      "Word in pocket, grin on face — gone in a puff! 💨",
+      "The table argued, the Mole moonwalked out. 🎩",
+      "While you dug each other up, the Mole caught the bus. 🚌",
+      "Slipped away right under your noses! 🕳️",
+    ],
+    escGhostQuips: [
+      "Not a single vote — floated away like a ghost! 👻",
+      "Never even blipped on the radar. Legendary! 🛸",
+      "Nobody ever suspected. Ice cold! 🧊",
+    ],
     tipPill: "TIP FROM MOLY",
     tipSmallTitle: "Few players, more clues!",
     tipSmallBody: "With a small group, give 2–3 rounds of clues before the first vote so enough suspicion builds up. Careful: clear the wrong person and the Mole instantly wins!",
@@ -7861,11 +7905,13 @@ function playEscapeIntro(el) {
       : `<span class="avc"><img src="${asset("assets/role-kostebek.png")}" alt=""></span>`).join("") +
     (ghost ? `<img class="ei-ghost" src="${asset("assets/ico-hayalet.png")}" alt="">` : "");
   $("ei-title").textContent = t(ghost ? "escapeGhostTitle" : "escapeIntroTitle");
+  const qs = t(ghost ? "escGhostQuips" : "escQuips");
+  $("ei-quip").textContent = qs[Math.floor(Math.random() * qs.length)];
   $("ei-reason").textContent = t("escapeReason", state.players.length - (el.out || []).length);
   box.classList.remove("hidden", "closing");
   const close = () => { box.classList.add("closing"); setTimeout(() => box.classList.add("hidden"), 380); };
   clearTimeout(state._eiTimer);
-  state._eiTimer = setTimeout(close, 2600);
+  state._eiTimer = setTimeout(close, 3200);
   box.onclick = () => { clearTimeout(state._eiTimer); close(); };
 }
 
