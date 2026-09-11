@@ -2611,6 +2611,26 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
 }
 @keyframes ei-tap-pulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
 
+/* v121: Elemesiz SON DÜELLO afişi (tur ekranı) */
+.duel-banner {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--pink);
+  border: var(--bw) solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 5px 0 var(--ink);
+  padding: 10px 16px;
+  text-align: center;
+  transform: rotate(-1.2deg);
+  animation: duel-pop .5s cubic-bezier(.2, 1.9, .4, 1) both;
+}
+.duel-banner b {
+  font-family: "Baloo 2", "Nunito", sans-serif; font-weight: 800;
+  font-size: 24px; color: #fff; letter-spacing: .02em;
+  text-shadow: 0 2.5px 0 var(--ink);
+}
+.duel-banner span { color: #fff; font-weight: 800; font-size: 13.5px; line-height: 1.35; }
+@keyframes duel-pop { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(-1.2deg); opacity: 1; } }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2766,7 +2786,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v120</p>
+        <p class="set-ver" id="app-ver">v121</p>
       </div>
     </div>
 
@@ -3076,6 +3096,10 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           <span class="dash" style="right:-24px; top:4px; transform:rotate(-62deg)"></span>
           <span class="dash" style="right:-32px; top:20px; width:10px; transform:rotate(-24deg)"></span>
           <h2 class="page-title" data-i18n="roundTitle">İpucu Sırası</h2>
+        </div>
+        <div class="duel-banner hidden" id="duel-banner">
+          <b data-i18n="duelTitle">SON DÜELLO!</b>
+          <span data-i18n="duelHint">Son şans: aklananlar dahil herkes oylayacak. Köstebeği bulun — yoksa kaçacak!</span>
         </div>
         <div class="hint-card">
           <div class="tur-badge"><b>2</b><span data-i18n="turWord">TUR</span></div>
@@ -5985,6 +6009,10 @@ const I18N = {
     escTitles: ["KÖSTEBEK KAÇTI!", "TÜYDÜ GİTTİ!", "SIVIŞTI!", "ELİNİZDEN KAÇTI!"],
     escGhostTitles: ["HAYALET KAÇIŞ!", "İZ BİLE BIRAKMADI!", "GÖRÜNMEDEN KAÇTI!"],
     escapeReason: (n) => `Sadece ${n} kişi kaldı — çoğunluk kurulamazdı.`,
+    escapeReasonNoElim: "Tüm Ahali aklandı — Köstebek sona kadar dayandı!",
+    duelTitle: "SON DÜELLO!",
+    duelHint: "Son şans: aklananlar dahil herkes oylayacak. Köstebeği bulun — yoksa kaçacak!",
+    rFinaleBonus: "Son Düello'ya kaldı",
     escQuips: [
       "Cebinde kelime, yüzünde gülümseme — buhar oldu! 💨",
       "El sıkıştı, o sıvıştı. Şapka çıkarılır! 🎩",
@@ -6051,9 +6079,9 @@ const I18N = {
       <div class="how-card"><span class="how-tag lime"><img class="how-tag-ico" src="${asset("assets/ico-rol-kartlari.png")}" alt=""> ROLLER</span>
       <p><b>Ahali</b> aynı gizli kelimeyi alır. <b>Köstebek</b> benzer ama farklı bir kelime alır — ve kimse hangisi olduğunu bilmez, sen bile! <b>Numaracı</b> hiç kelime almaz, bildiğini bilir ve sallar; yakalanırsa kelimeyi <b>gizlice yazarak</b> tahmin eder, sonuç el sonunda açıklanır. <b>Muhtar</b> rozeti herkese çıkabilir — Köstebek'e bile!</p></div>
       <div class="how-card"><span class="how-tag pink"><img class="how-tag-ico" src="${asset("assets/ico-oynanan-el.png")}" alt=""> BİR EL</span>
-      <p>Telefon elden ele dolaşır, herkes kartını gizlice görür. Sırayla herkes kelimesi hakkında <b>tek ipucu</b> verir (kelimeyi söylemek yasak). Çoğunluk emin değilse oylamaya geçmeden <b>bir tur daha ipucu</b> dönebilirsiniz. Sonra <b>açık oylama</b>: herkes sırayla şüphelisini seçer ve seçim anında ilan edilir! En çok oyu alan açılır — masumsa <b>aklanır</b>, soruşturma yeni turla sürer. Köstebek son 2 kişiye kalırsa <b>kaçar</b>.</p></div>
+      <p>Telefon elden ele dolaşır, herkes kartını gizlice görür. Sırayla herkes kelimesi hakkında <b>tek ipucu</b> verir (kelimeyi söylemek yasak). Çoğunluk emin değilse oylamaya geçmeden <b>bir tur daha ipucu</b> dönebilirsiniz. Sonra <b>açık oylama</b>: herkes sırayla şüphelisini seçer ve seçim anında ilan edilir! En çok oyu alan açılır — masumsa <b>aklanır</b>, soruşturma yeni turla sürer. Köstebek son 2 kişiye kalırsa <b>kaçar</b>. Elemesiz oyunlarda ise bir <b>Son Düello</b> daha oynanır: aklananlar dahil herkes son kez oylar — Köstebek yine bulunamazsa kaçar.</p></div>
       <div class="how-card"><span class="how-tag sun"><img class="how-tag-ico" src="${asset("assets/ico-puan-tablosu.png")}" alt=""> PUANLAR</span>
-      <p>Köstebek atlattığı her tur için <b>+1</b>, kaçarsa <b>+4</b> — hiç oy yememişse <b>+6</b>. Yakalama turunda Köstebeğe oy veren <b>+2</b>, önceki turlarda gösteren her seferinde <b>+1</b> öngörü, grup hep birlikte bildiyse <b>+1</b> bonus. Numaracı kurtulursa <b>+3</b>, yakalanıp kelimeyi bilirse <b>+4</b>.</p></div>
+      <p>Köstebek atlattığı her tur için <b>+1</b> alır. El bitene kadar yakalanmazsa <b>Kaçış +4</b>; bütün el boyunca üzerine <b>tek oy bile gelmediyse</b> bu <b>Hayalet Kaçış</b> sayılır ve +4 yerine <b>+6</b> alır. Elemesiz'de Son Düello'ya kalan Köstebek, düelloyu kaybetse bile <b>+2 finale bonusu</b> kazanır. Yakalama turunda Köstebeğe oy veren <b>+2</b>, önceki turlarda gösteren her seferinde <b>+1</b> öngörü, grup hep birlikte bildiyse <b>+1</b> bonus. Numaracı kurtulursa <b>+3</b>, yakalanıp kelimeyi bilirse <b>+4</b>.</p></div>
       <div class="how-card"><span class="how-tag blu"><img class="how-tag-ico" src="${asset("assets/award-alkis.png")}" alt=""> KİMSE ELENMEZ</span>
       <p>Aklanan oyuncu ipucu veremez ama masada kalır — <b>Elemesiz</b> özelliği açıksa oy da kullanır. Her el yeni kelimeler ve yeni rollerle başlar. Serinin sonunda en yüksek puan şampiyon — ve Moly gecenin ödüllerini dağıtır. 🏆</p></div>`,
     quips: {
@@ -6310,6 +6338,10 @@ const I18N = {
     escTitles: ["THE MOLE ESCAPED!", "SLIPPED AWAY!", "GONE, JUST GONE!", "OUT OF YOUR HANDS!"],
     escGhostTitles: ["GHOST ESCAPE!", "NOT EVEN A TRACE!", "NEVER SEEN, NEVER CAUGHT!"],
     escapeReason: (n) => `Only ${n} players remained — a majority was impossible.`,
+    escapeReasonNoElim: "Every Villager was cleared — the Mole outlasted them all!",
+    duelTitle: "FINAL SHOWDOWN!",
+    duelHint: "Last chance: everyone votes, cleared players included. Find the Mole — or it escapes!",
+    rFinaleBonus: "reached the Showdown",
     escQuips: [
       "Word in pocket, grin on face — gone in a puff! 💨",
       "The table argued, the Mole moonwalked out. 🎩",
@@ -6376,9 +6408,9 @@ const I18N = {
       <div class="how-card"><span class="how-tag lime"><img class="how-tag-ico" src="${asset("assets/ico-rol-kartlari.png")}" alt=""> ROLES</span>
       <p><b>Townsfolk</b> share the same secret word. The <b>Mole</b> gets a similar but different word — and nobody knows which they are, not even you! The <b>Faker</b> gets no word at all; if caught, they guess the word <b>by typing it secretly</b>, revealed at the end of the hand. The <b>Mayor</b> badge can land on anyone — even the Mole!</p></div>
       <div class="how-card"><span class="how-tag pink"><img class="how-tag-ico" src="${asset("assets/ico-oynanan-el.png")}" alt=""> A HAND</span>
-      <p>The phone goes around and everyone secretly sees their card. In turns, everyone gives <b>one clue</b>. If most of the group isn't sure yet, do <b>another round of clues</b> before voting. Then <b>open voting</b>: each vote is announced the moment it's cast! The top suspect is revealed — an innocent is <b>cleared</b> and a new round begins. If the Mole reaches the final 2, they <b>escape</b>.</p></div>
+      <p>The phone goes around and everyone secretly sees their card. In turns, everyone gives <b>one clue</b>. If most of the group isn't sure yet, do <b>another round of clues</b> before voting. Then <b>open voting</b>: each vote is announced the moment it's cast! The top suspect is revealed — an innocent is <b>cleared</b> and a new round begins. If the Mole reaches the final 2, they <b>escape</b>. In No-Elimination games there is one <b>Final Showdown</b>: everyone votes one last time, cleared players included — if the Mole still isn't found, it escapes.</p></div>
       <div class="how-card"><span class="how-tag sun"><img class="how-tag-ico" src="${asset("assets/ico-puan-tablosu.png")}" alt=""> POINTS</span>
-      <p>The Mole gets <b>+1</b> per round survived, <b>+4</b> for escaping — <b>+6</b> with zero votes ever. Voting for the Mole in the catch round is <b>+2</b>, spotting them in earlier rounds <b>+1</b> each time, and <b>+1</b> bonus if the whole group nails it. The Faker gets <b>+3</b> for surviving, <b>+4</b> for guessing the word when caught.</p></div>
+      <p>The Mole gets <b>+1</b> per round survived. Surviving the whole hand is an <b>Escape +4</b>; if they never received <b>a single vote</b> all hand, it counts as a <b>Ghost Escape</b> worth <b>+6</b> instead of +4. In No-Elimination, a Mole reaching the Final Showdown banks a <b>+2 finale bonus</b> even if caught there. Voting for the Mole in the catch round is <b>+2</b>, spotting them in earlier rounds <b>+1</b> each time, and <b>+1</b> bonus if the whole group nails it. The Faker gets <b>+3</b> for surviving, <b>+4</b> for guessing the word when caught.</p></div>
       <div class="how-card"><span class="how-tag blu"><img class="how-tag-ico" src="${asset("assets/award-alkis.png")}" alt=""> NOBODY'S OUT</span>
       <p>A cleared player can't give clues but stays at the table — with the <b>No-Elimination</b> twist on, they keep voting too. Every hand deals new words and roles. Highest score takes the crown — and Moly hands out the awards. 🏆</p></div>`,
     quips: {
@@ -7369,6 +7401,7 @@ function startRoundScreen() {
   $("round-roles").innerHTML = chips.join("");
 
   $("el-round").textContent = ` · ${t("roundPill", state.el.roundNo)}`;
+  $("duel-banner").classList.toggle("hidden", !state.el.finale); // Elemesiz Son Düello vurgusu
   const playTri = `<svg class="play-tri" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 4 L26 15 L8 26 Z" fill="var(--lime)" stroke="#07153a" stroke-width="3.5" stroke-linejoin="round"/></svg>`;
   orderedActive().forEach((pIdx, i) => {
     const div = document.createElement("div");
@@ -7507,6 +7540,9 @@ function castVote(voterIdx, targetIdx) {
 }
 
 $("btn-announce-next").addEventListener("click", () => {
+  // Online akışı bu butonu online.js'teki capture handler'ıyla yönetir; yerel oy-geçiş
+  // dalı (voterList) online'da geçersizdir — yanlış fazda tetiklenirse çökmesin.
+  if (typeof game !== "undefined" && game.on) return;
   if (state.announceAfter === "tie") {
     state.announceAfter = null;
     resolveTopSet([state.el.tiePick]);
@@ -7519,7 +7555,7 @@ $("btn-announce-next").addEventListener("click", () => {
   }
   if (state.voteMode === "oral") { finishVoting(); return; }
   state.voteIndex++;
-  if (state.voteIndex < state.voterList.length) showVoteScreen();
+  if (state.voteIndex < (state.voterList ? state.voterList.length : 0)) showVoteScreen();
   else finishVoting();
 });
 
@@ -7625,10 +7661,17 @@ function afterRoundReveal() {
   el.spyRounds++; // köstebek bu turu atlattı (+1)
   const act = orderedActive();
   const spiesAlive = el.roles.filter((r, i) => r === "kostebek" && !el.out.includes(i)).length;
-  if (spiesAlive > 0 && act.length <= spiesAlive + 1) {
+  // Elemesiz'de aklananlar oy vermeye devam eder → el, TÜM ahali aklanana dek sürer (Son Düello);
+  // klasikte son 2'de çoğunluk imkânsız olduğundan el orada biter.
+  const limit = state.noElim ? spiesAlive : spiesAlive + 1;
+  if (spiesAlive > 0 && act.length <= limit) {
     el.escaped = true;
     scoreEl();
     return;
+  }
+  if (state.noElim && spiesAlive > 0 && act.length === spiesAlive + 1 && !el.finale) {
+    el.finale = true; // SON DÜELLO başlıyor — hayattaki köstebekler finale bonusunu garantiledi
+    el.finaleMoles = el.roles.map((r, i) => (r === "kostebek" && !el.out.includes(i) ? i : -1)).filter((i) => i >= 0);
   }
   el.roundNo++;
   el.votes = new Array(state.playerCount).fill(-1);
@@ -7687,6 +7730,10 @@ function computeElPoints() {
       st.spyEls++;
       pts += el.spyRounds;                         // atlattığı her tur +1
       if (el.spyRounds > 0) rs.push({ k: "rSpyRounds", n: el.spyRounds, p: el.spyRounds });
+      if (el.finaleMoles && el.finaleMoles.includes(i)) {
+        pts += 2;                                  // Son Düello'ya kalma garantisi (yakalansa bile)
+        rs.push({ k: "rFinaleBonus", p: 2 });
+      }
       if (!el.caught) {
         pts += el.spyEverVoted ? 4 : 6;            // kaçış +4, hiç oy yemeden +6
         rs.push(el.spyEverVoted ? { k: "rSpyEscape", p: 4 } : { k: "rSpyGhost", p: 6 });
@@ -7841,7 +7888,7 @@ function showElResult() {
       <span class="dash" style="right:-32px; top:22px; width:10px; transform:rotate(-24deg)"></span>
       <h2 class="page-title pt-sm title-bounce">${caught ? `${t("bigRevealCaught")}<img class="title-ico" src="${asset("assets/ico-kostebek-yakalandi.png")}" alt="">` : `${t("bigRevealEscaped")}<img class="title-ico" src="${asset("assets/ico-kostebek-kacisi.png")}" alt="">`}</h2>
     </div>
-    ${caught ? "" : `<p class="esc-reason">${escapeHtml(t("escapeReason", state.players.length - (el.out || []).length))}</p>`}
+    ${caught ? "" : `<p class="esc-reason">${escapeHtml(el.finale ? t("escapeReasonNoElim") : t("escapeReason", state.players.length - (el.out || []).length))}</p>`}
     <div class="words-row">
       <div class="word-card"><span class="w-label">${U(t("roleAhali"))}</span><span class="${wcls(el.civilWord)} sun">${escapeHtml(U(el.civilWord))}</span></div>
       <div class="word-card"><span class="w-label">${U(t("roleKostebek"))}</span><span class="${wcls(el.spyWord)} pink">${escapeHtml(U(el.spyWord))}</span></div>
@@ -7919,7 +7966,7 @@ function playEscapeIntro(el) {
   const pickRand = (arr) => arr[Math.floor(Math.random() * arr.length)];
   $("ei-title").textContent = pickRand(t(ghost ? "escGhostTitles" : "escTitles"));
   $("ei-quip").textContent = pickRand(t(ghost ? "escGhostQuips" : "escQuips"));
-  $("ei-reason").textContent = t("escapeReason", state.players.length - (el.out || []).length);
+  $("ei-reason").textContent = el.finale ? t("escapeReasonNoElim") : t("escapeReason", state.players.length - (el.out || []).length);
   // Dokunulana kadar ekranda kalır; yalnız sahne (TV) dokunulamadığı için uzun otomatik kapanma
   // !! şart: undefined kalırsa classList.toggle(force) düz toggle'a düşer ve sınıfı YANLIŞ ekler
   const isStage = !!(typeof net !== "undefined" && net.isStage);
@@ -8387,12 +8434,13 @@ function netPlayerList() {
     .sort((a, b) => (b.host ? 1 : 0) - (a.host ? 1 : 0) || a.t - b.t);
 }
 
-async function joinRoomChannel(code, asHost) {
-  return joinRoomOnce(code, asHost);
+async function joinRoomChannel(code, asHost, asStage) {
+  return joinRoomOnce(code, asHost, asStage);
 }
 
-async function joinRoomOnce(code, asHost) {
+async function joinRoomOnce(code, asHost, asStage) {
   await leaveRoom(true);
+  net.isStage = !!asStage; // leaveRoom isStage'i sıfırlar — sahne bilgisini burada geri koy (satır sonundaki sendHello sahne için ateşlenmesin)
   const rc = netClient().realtime;
   try { rc.connect(); } catch (e) {}
   for (let i = 0; i < 30 && !rc.isConnected(); i++) {
@@ -8994,6 +9042,7 @@ function applyPhase(p) {
         state.el.out = p.outs || [];
         state.el.roundNo = p.roundNo || 1;
         state.el.numOut = p.numOut ?? -1;
+        state.el.finale = !!p.finale;
       }
       startRoundScreen();
       onlineAdjustRound();
@@ -9455,6 +9504,7 @@ function hostSendSync(pid) {
     elNo: state.elNo, totalEls: state.totalEls, mode: state.mode,
     pub: sanitizedEl(state.el), per: buildPerSecrets(state.el),
     outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1,
+    finale: !!state.el.finale,
   };
   let ph = game.phase;
   if (ph === "revealing") ph = "vote"; // açılış sırasında dönen: oy ekranında bekler, rv adımları devralır
@@ -9506,7 +9556,7 @@ function hostSendSync(pid) {
 // Yeni ipucu turu yayını: aklananlar + tur no her cihaza gider
 function hostPubClues() {
   game.h.phaseAt = Date.now();
-  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1 });
+  pub("st", { phase: "clues", seq: ++game.seq, outs: state.el.out, roundNo: state.el.roundNo, numOut: state.el.numOut ?? -1, finale: !!state.el.finale });
 }
 
 function hostStartVote() {
@@ -9602,10 +9652,16 @@ function hostRoundContinue() {
   el.spyRounds++;
   const act = el.order.filter((i) => !el.out.includes(i));
   const spiesAlive = el.roles.filter((r, i) => r === "kostebek" && !el.out.includes(i)).length;
-  if (spiesAlive > 0 && act.length <= spiesAlive + 1) {
+  // Elemesiz: el TÜM ahali aklanana dek sürer (Son Düello) — yerel afterRoundReveal ile aynı kural
+  const limit = state.noElim ? spiesAlive : spiesAlive + 1;
+  if (spiesAlive > 0 && act.length <= limit) {
     el.escaped = true;
     hostElResult();
     return;
+  }
+  if (state.noElim && spiesAlive > 0 && act.length === spiesAlive + 1 && !el.finale) {
+    el.finale = true;
+    el.finaleMoles = el.roles.map((r, i) => (r === "kostebek" && !el.out.includes(i) ? i : -1)).filter((i) => i >= 0);
   }
   el.roundNo++;
   el.votes = new Array(game.roster.length).fill(-1);
@@ -9821,7 +9877,7 @@ async function stageCreateRoom() {
   setLobbyBusy(true);
   try {
     net.isStage = true;
-    await joinRoomChannel(code, false);
+    await joinRoomChannel(code, false, true);
     net.isStage = true; // leaveRoom sıfırlar — kanal kurulduktan sonra garanti et
     stageLobby();
     track("stage_created", { lang: state.lang });
@@ -9837,7 +9893,7 @@ async function stageJoinRoom(code) {
   setLobbyBusy(true);
   try {
     net.isStage = true;
-    await joinRoomChannel(code, false);
+    await joinRoomChannel(code, false, true);
     net.isStage = true;
     stageLobby();
     setTimeout(() => { if (net.channel) sendIntent("need_state"); }, 900);
@@ -9940,8 +9996,8 @@ function stageApplyPhase(p) {
       const aktif = order.filter((i) => !stg.outs.includes(i));
       const sira = aktif.map((i, k) => `<div class="stage-chip big ${k === 0 ? "first" : ""}"><span class="stage-num">${k + 1}</span>${stageAv(i)}<span>${stageName(i)}</span></div>`).join("");
       const aklanan = stg.outs.map((i) => `<div class="stage-chip big cleared">${stageAv(i)}<span>${stageName(i)}</span><span class="stage-cchip">${t(i === (p.numOut ?? -1) ? "exposedChip" : "clearedChip")}</span></div>`).join("");
-      stageSet(`<h2 class="stage-h">${t("roundTitle")}</h2>
-        <div class="stage-chips center">${sira}${aklanan}</div>`, { el: stageElLabel(), moly: t("stageCluesHint") });
+      stageSet(`<h2 class="stage-h">${p.finale ? t("duelTitle") : t("roundTitle")}</h2>
+        <div class="stage-chips center">${sira}${aklanan}</div>`, { el: stageElLabel(), moly: p.finale ? t("duelHint") : t("stageCluesHint") });
       break;
     }
     case "vote": {
