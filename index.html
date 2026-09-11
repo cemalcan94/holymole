@@ -2528,6 +2528,62 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
   html:not(.stage-wide) #rotate-portrait { display: flex; }
 }
 
+/* ================= KÖSTEBEK KAÇTI PERDESİ (v117) =================
+   El köstebeğin kaçışıyla bitince sonuç sayfasının önünde ~2.5 sn'lik
+   zafer sahnesi: lacivert zemin + dönen pembe ışınlar + köstebek avatarı
+   + çarpan başlık + kaçış gerekçesi. Dokununca erken kapanır. */
+#escape-intro {
+  position: fixed; inset: 0; z-index: 1900;
+  background: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; text-align: center; padding: 32px; overflow: hidden;
+  cursor: pointer;
+  animation: ei-in .25s ease-out;
+}
+#escape-intro.closing { animation: ei-out .38s ease-in forwards; }
+@keyframes ei-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ei-out { from { opacity: 1; } to { opacity: 0; } }
+.ei-rays {
+  position: absolute; inset: -60%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 77, 154, .3) 0deg 9deg, transparent 9deg 24deg);
+  animation: ei-spin 16s linear infinite;
+}
+@keyframes ei-spin { to { transform: rotate(360deg); } }
+.ei-avatars {
+  position: relative; display: flex; gap: 12px; align-items: center;
+  animation: ei-pop .55s cubic-bezier(.2, 2.2, .4, 1) both .15s;
+}
+.ei-avatars .avc {
+  width: 104px; height: 104px;
+  border: 5px solid var(--pink);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, .4);
+  background: var(--cream);
+}
+.ei-avatars .avc img { width: 100%; height: 100%; }
+.ei-ghost { width: 64px; align-self: flex-start; margin-left: -26px; margin-top: -14px; transform: rotate(12deg); }
+.ei-title {
+  position: relative;
+  font-family: "Baloo 2", "Nunito", sans-serif; font-weight: 800;
+  font-size: clamp(38px, 9vw, 64px); line-height: 1.05;
+  color: var(--pink);
+  text-shadow: 0 5px 0 #6d0a39;
+  transform: rotate(-2deg);
+  animation: ei-slam .5s cubic-bezier(.2, 2, .3, 1) both .32s;
+}
+.ei-reason {
+  position: relative; color: var(--cream); font-weight: 800;
+  font-size: 17px; max-width: 380px;
+  animation: ei-pop .4s ease-out both .7s;
+}
+@keyframes ei-slam { from { transform: scale(2.6) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(-2deg); opacity: 1; } }
+@keyframes ei-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Büyük Açılış: kaçış gerekçesi satırı (başlığın altında kalıcı) */
+.esc-reason {
+  text-align: center; color: var(--cream); font-weight: 800;
+  font-size: 15px; opacity: .92; margin: -4px 0 2px;
+}
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2565,6 +2621,14 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
     <h2 data-i18n="portraitTitle">Telefonu dik tut</h2>
     <p data-i18n="portraitBody">HolyMole dikey oynanır.</p>
   </div>
+
+  <!-- KÖSTEBEK KAÇTI PERDESİ: el kaçışla bitince sonuç sayfası açılırken kısa zafer sahnesi -->
+  <div id="escape-intro" class="hidden" aria-hidden="true">
+    <div class="ei-rays"></div>
+    <div class="ei-avatars" id="ei-avatars"></div>
+    <h2 class="ei-title" id="ei-title">KÖSTEBEK KAÇTI!</h2>
+    <p class="ei-reason" id="ei-reason"></p>
+  </div>
   <div id="app">
 
     <div id="toast" class="hidden" role="status"></div>
@@ -2590,7 +2654,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
         <span class="doodle" style="right:16px; top:30px; color:var(--pink); font-size:22px; transform:rotate(55deg)">〰︎</span>
         <span class="tip-pill" data-i18n="tipPill">MOLY'DEN TÜYO</span>
         <h3 data-i18n="tipSmallTitle">Az kişi, çok ipucu!</h3>
-        <p data-i18n="tipSmallBody">Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir.</p>
+        <p data-i18n="tipSmallBody">Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir. Dikkat: yanlış kişiyi elerseniz Köstebek anında kazanır!</p>
         <button class="btn btn-primary btn-big" id="btn-tip-ok" data-i18n="tipOk">Anladım</button>
       </div>
     </div>
@@ -2671,7 +2735,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v116</p>
+        <p class="set-ver" id="app-ver">v117</p>
       </div>
     </div>
 
@@ -5817,7 +5881,7 @@ const I18N = {
     exposedAtRound: (r) => `Tur ${r}'de açığa çıktı`,
     spectateVote: "Aklandın — bu tur oy hakkın yok, sonucu izle 👀",
     revealInnocent: (n) => `${n} açıldı — MASUM! Soruşturma sürüyor 🔍`,
-    tieNoElimText: "Oylar eşit kaldı — kimse açılmadı. Köstebek bir turu daha atlattı!",
+    tieNoElimText: "Oylar eşit kaldı — kimse açılmadı. Köstebek bir turu daha atlattı (+1). Yeni ipucu turu başlıyor!",
     revealNumSealed: (n) => `${n} meğer NUMARACI'ymış! Tahminini gizlice yazdı — sonucu el sonunda göreceğiz. Soruşturma sürüyor.`,
     oralTieBtn: "Oylar eşit çıktı",
     muhtarExtra: "🗳️ Ayrıca MUHTAR'sın: oylar eşit çıkarsa kararı sen verirsin!",
@@ -5887,9 +5951,12 @@ const I18N = {
     whoWas: "Kim kimmiş?",
     bigRevealCaught: "Köstebek Yakalandı!",
     bigRevealEscaped: "Köstebek Kaçtı!",
+    escapeIntroTitle: "KÖSTEBEK KAÇTI!",
+    escapeGhostTitle: "HAYALET KAÇIŞ!",
+    escapeReason: (n) => `Sadece ${n} kişi kaldı — çoğunluk kurulamazdı.`,
     tipPill: "MOLY'DEN TÜYO",
     tipSmallTitle: "Az kişi, çok ipucu!",
-    tipSmallBody: "Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir.",
+    tipSmallBody: "Az kişiyle oynarken ilk oylamadan önce 2–3 tur ipucu verin. Böylece yeterince şüphe birikir. Dikkat: yanlış kişiyi elerseniz Köstebek anında kazanır!",
     tipOk: "Anladım",
     goVote: "Oylamaya Geç",
     continueBtn: "Devam",
@@ -6127,7 +6194,7 @@ const I18N = {
     exposedAtRound: (r) => `Exposed in round ${r}`,
     spectateVote: "You're cleared — no vote this round, watch the result 👀",
     revealInnocent: (n) => `${n} is revealed — INNOCENT! The hunt continues 🔍`,
-    tieNoElimText: "The vote stayed tied — nobody was revealed. The Mole survives another round!",
+    tieNoElimText: "The vote stayed tied — nobody was revealed. The Mole survives another round (+1). A new clue round begins!",
     revealNumSealed: (n) => `${n} was the FAKER! Their guess is sealed until the end of the hand. The hunt continues.`,
     oralTieBtn: "It's a tie",
     muhtarExtra: "🗳️ You're also the MAYOR: if the vote ends in a tie, you decide!",
@@ -6197,9 +6264,12 @@ const I18N = {
     whoWas: "Who was who?",
     bigRevealCaught: "Mole Busted!",
     bigRevealEscaped: "The Mole Got Away!",
+    escapeIntroTitle: "THE MOLE ESCAPED!",
+    escapeGhostTitle: "GHOST ESCAPE!",
+    escapeReason: (n) => `Only ${n} players remained — a majority was impossible.`,
     tipPill: "TIP FROM MOLY",
     tipSmallTitle: "Few players, more clues!",
-    tipSmallBody: "With a small group, give 2–3 rounds of clues before the first vote so enough suspicion builds up.",
+    tipSmallBody: "With a small group, give 2–3 rounds of clues before the first vote so enough suspicion builds up. Careful: clear the wrong person and the Mole instantly wins!",
     tipOk: "Got it",
     goVote: "Go to Voting",
     continueBtn: "Continue",
@@ -7706,14 +7776,16 @@ function showElResult() {
   const roleKey = { ahali: "roleAhali", kostebek: "roleKostebek", numaraci: "roleNumaraci" };
   const U = (s) => s.toLocaleUpperCase(state.lang === "tr" ? "tr-TR" : "en-US");
   const wcls = (w) => `w-word${w.length >= 9 ? " longw" : ""}`;
+  const caught = (el.topSet || []).some((k) => el.roles[k] === "kostebek");
 
   let html = `<div class="title-wrap">
       <span class="doodle" style="left:-28px; top:8px; color:var(--sun); font-size:24px; transform:rotate(-18deg)">★</span>
       <span class="doodle" style="left:-38px; top:-8px; color:var(--pink); font-size:18px; transform:rotate(-28deg)">〰︎</span>
       <span class="dash" style="right:-24px; top:6px; transform:rotate(-62deg)"></span>
       <span class="dash" style="right:-32px; top:22px; width:10px; transform:rotate(-24deg)"></span>
-      <h2 class="page-title pt-sm title-bounce">${(el.topSet || []).some((k) => el.roles[k] === "kostebek") ? `${t("bigRevealCaught")}<img class="title-ico" src="${asset("assets/ico-kostebek-yakalandi.png")}" alt="">` : `${t("bigRevealEscaped")}<img class="title-ico" src="${asset("assets/ico-kostebek-kacisi.png")}" alt="">`}</h2>
+      <h2 class="page-title pt-sm title-bounce">${caught ? `${t("bigRevealCaught")}<img class="title-ico" src="${asset("assets/ico-kostebek-yakalandi.png")}" alt="">` : `${t("bigRevealEscaped")}<img class="title-ico" src="${asset("assets/ico-kostebek-kacisi.png")}" alt="">`}</h2>
     </div>
+    ${caught ? "" : `<p class="esc-reason">${escapeHtml(t("escapeReason", state.players.length - (el.out || []).length))}</p>`}
     <div class="words-row">
       <div class="word-card"><span class="w-label">${U(t("roleAhali"))}</span><span class="${wcls(el.civilWord)} sun">${escapeHtml(U(el.civilWord))}</span></div>
       <div class="word-card"><span class="w-label">${U(t("roleKostebek"))}</span><span class="${wcls(el.spyWord)} pink">${escapeHtml(U(el.spyWord))}</span></div>
@@ -7772,6 +7844,29 @@ function showElResult() {
   showScreen("screen-elresult");
   fitScreen("screen-elresult");
   SFX.reveal();
+  if (!caught) playEscapeIntro(el);
+}
+
+// El köstebeğin kaçışıyla bittiyse sonuç sayfası açılırken kısa zafer perdesi.
+// Yerel + online istemci showElResult'tan, sahne kendi elresult case'inden çağırır.
+function playEscapeIntro(el) {
+  const box = $("escape-intro");
+  if (!box) return;
+  const ghost = !el.spyEverVoted;
+  const moles = el.roles.map((r, i) => (r === "kostebek" ? i : -1)).filter((i) => i >= 0);
+  // avatar seçilmemişse (yerel oyunda sık) boş çember yerine köstebek rol görseli
+  $("ei-avatars").innerHTML = moles.slice(0, 3).map((i) =>
+    (state.players[i] && state.players[i].avatar)
+      ? avHtml(i)
+      : `<span class="avc"><img src="${asset("assets/role-kostebek.png")}" alt=""></span>`).join("") +
+    (ghost ? `<img class="ei-ghost" src="${asset("assets/ico-hayalet.png")}" alt="">` : "");
+  $("ei-title").textContent = t(ghost ? "escapeGhostTitle" : "escapeIntroTitle");
+  $("ei-reason").textContent = t("escapeReason", state.players.length - (el.out || []).length);
+  box.classList.remove("hidden", "closing");
+  const close = () => { box.classList.add("closing"); setTimeout(() => box.classList.add("hidden"), 380); };
+  clearTimeout(state._eiTimer);
+  state._eiTimer = setTimeout(close, 2600);
+  box.onclick = () => { clearTimeout(state._eiTimer); close(); };
 }
 
 // ================= Final =================
@@ -9808,6 +9903,7 @@ function stageApplyPhase(p) {
       stg.players = p.players;
       const el = p.el;
       const caught = (el.topSet || []).some((k) => el.roles[k] === "kostebek");
+      if (!caught) playEscapeIntro(el); // kaçış perdesi TV'de de oynar
       const roleKey = { ahali: "roleAhali", kostebek: "roleKostebek", numaraci: "roleNumaraci" };
       const rows = stg.roster.map((r, i) => {
         const role = el.roles[i];
