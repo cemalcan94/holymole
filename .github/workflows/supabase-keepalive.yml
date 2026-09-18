@@ -26,10 +26,10 @@ jobs:
           echo "auth/v1/health HTTP $code"
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22   # 22+: global WebSocket — Realtime için şart (20'de ws paketi olmadan bağlanamaz)
       - name: Realtime bağlantısı (ASIL aktivite)
         run: |
-          npm i --silent --no-audit --no-fund @supabase/supabase-js
+          npm i --silent --no-audit --no-fund @supabase/supabase-js ws
           cat > keepalive.js << 'JS'
           const { createClient } = require("@supabase/supabase-js");
           const sb = createClient(process.env.SB_URL, process.env.SB_ANON);
