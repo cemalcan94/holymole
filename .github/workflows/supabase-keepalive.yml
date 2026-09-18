@@ -1,20 +1,49 @@
 # Supabase ücretsiz projeler 1 hafta hareketsizlikte otomatik DURAKLATILIR — duraklarsa
-# HolyMole'un online modu tamamen çalışmaz olur. Bu iş haftada iki kez veritabanına hafif
-# bir istek atarak projeyi "aktif" tutar. (Anon key kasıtlı olarak açık: istemci paketinde
+# HolyMole'un online modu tamamen çalışmaz olur.
+# DERS (2026-09-18): auth/v1/health ping'i Supabase'ce AKTİVİTE SAYILMIYOR — Action her gün
+# başarıyla koşarken bile "hareketsiz" uyarısı geldi. Sayılan aktivite = oyunun kendi yaptığı
+# şey: gerçek bir Realtime kanal bağlantısı + broadcast. Bu yüzden asıl adım Node ile Realtime'a
+# bağlanır; auth ping yalnız bilgi amaçlı kaldı. (Anon key kasıtlı olarak açık: istemci paketinde
 # zaten gömülü, gizli service key ASLA burada kullanılmaz.)
 name: Supabase keep-alive
 on:
   schedule:
-    - cron: "17 9 * * 1,4"   # Pazartesi + Perşembe 09:17 UTC
+    - cron: "17 9 * * *"     # her gün 09:17 UTC (GitHub cron gecikmeli çalışabilir, sorun değil)
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/supabase-keepalive.yml"   # dosya değişince kendini bir kez doğrula
 jobs:
   ping:
     runs-on: ubuntu-latest
+    env:
+      SB_URL: https://uauihsubsycizagblehm.supabase.co
+      SB_ANON: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdWloc3Vic3ljaXphZ2JsZWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTIyODgsImV4cCI6MjEwNDE4ODI4OH0.g1v2rjVaFokr5oawgYk51nR3T3WhgZXR1PC4sAk_ZQ4
     steps:
-      - name: Ping Supabase (auth health)
+      - name: Auth health (yalnız bilgi — aktivite sayılmıyor)
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://uauihsubsycizagblehm.supabase.co/auth/v1/health" \
-            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhdWloc3Vic3ljaXphZ2JsZWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTIyODgsImV4cCI6MjEwNDE4ODI4OH0.g1v2rjVaFokr5oawgYk51nR3T3WhgZXR1PC4sAk_ZQ4")
-          echo "HTTP $code"
-          test "$code" = "200"
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$SB_URL/auth/v1/health" -H "apikey: $SB_ANON")
+          echo "auth/v1/health HTTP $code"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Realtime bağlantısı (ASIL aktivite)
+        run: |
+          npm i --silent --no-audit --no-fund @supabase/supabase-js
+          cat > keepalive.js << 'JS'
+          const { createClient } = require("@supabase/supabase-js");
+          const sb = createClient(process.env.SB_URL, process.env.SB_ANON);
+          const ch = sb.channel("keepalive-" + Date.now(), { config: { broadcast: { self: true } } });
+          const to = setTimeout(() => { console.log("TIMEOUT: SUBSCRIBED gelmedi"); process.exit(1); }, 30000);
+          ch.on("broadcast", { event: "ping" }, () => {
+            console.log("realtime broadcast echo ✓ — proje aktif sayıldı");
+            clearTimeout(to);
+            ch.unsubscribe().then(() => { sb.removeAllChannels(); process.exit(0); });
+          });
+          ch.subscribe((s) => {
+            console.log("kanal:", s);
+            if (s === "SUBSCRIBED") ch.send({ type: "broadcast", event: "ping", payload: { t: Date.now() } });
+            if (s === "CHANNEL_ERROR" || s === "TIMED_OUT") { console.log("HATA:", s); process.exit(1); }
+          });
+          JS
+          node keepalive.js
