@@ -1,5 +1,7 @@
 # Supabase ücretsiz projeler 1 hafta hareketsizlikte otomatik DURAKLATILIR — duraklarsa
 # HolyMole'un online modu tamamen çalışmaz olur.
+# DERS 2 (2026-09-25): Realtime'a geçmemize rağmen proje 18-19 Eylül'de yine DURAKLATILDI →
+# aktivite büyük ihtimalle DB sorgularından ölçülüyor. Ana adım artık keepalive tablosuna REST sorgusu.
 # DERS (2026-09-18): auth/v1/health ping'i Supabase'ce AKTİVİTE SAYILMIYOR — Action her gün
 # başarıyla koşarken bile "hareketsiz" uyarısı geldi. Sayılan aktivite = oyunun kendi yaptığı
 # şey: gerçek bir Realtime kanal bağlantısı + broadcast. Bu yüzden asıl adım Node ile Realtime'a
@@ -24,6 +26,13 @@ jobs:
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" "$SB_URL/auth/v1/health" -H "apikey: $SB_ANON")
           echo "auth/v1/health HTTP $code"
+      - name: Veritabanı sorgusu (ASIL aktivite — Supabase DB sorgusunu sayar)
+        run: |
+          # public.keepalive: tek satırlık tablo, RLS açık, anon yalnız SELECT (2026-09-25'te kuruldu)
+          body=$(curl -s -w "\n%{http_code}" "$SB_URL/rest/v1/keepalive?select=id&limit=1" \
+            -H "apikey: $SB_ANON" -H "Authorization: Bearer $SB_ANON")
+          code=$(echo "$body" | tail -1); echo "keepalive tablosu HTTP $code → $(echo "$body" | head -1)"
+          test "$code" = "200"
       - uses: actions/setup-node@v4
         with:
           node-version: 22   # 22+: global WebSocket — Realtime için şart (20'de ws paketi olmadan bağlanamaz)
