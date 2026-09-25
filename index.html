@@ -2657,6 +2657,12 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
 }
 .orient-back:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--ink); }
 
+/* v125: geri butonlu üst barlarda başlık SAYFAYA ortalı (geri butonu solda kalır).
+   1fr auto 1fr: iki yan sütun eşit → orta sütun her ekran genişliğinde tam merkezde. */
+.topbar:has(.btn-back) { display: grid; grid-template-columns: 1fr auto 1fr; }
+.topbar:has(.btn-back) .btn-back { justify-self: start; }
+.topbar:has(.btn-back) h2 { grid-column: 2; text-align: center; white-space: nowrap; }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2813,7 +2819,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v124</p>
+        <p class="set-ver" id="app-ver">v125</p>
       </div>
     </div>
 
