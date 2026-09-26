@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.holymole.app",
+      "sha256_cert_fingerprints": [
+        "FC:B5:99:EF:54:36:1F:F9:B1:70:34:98:25:D1:F0:44:6D:EE:95:23:BD:96:64:E0:09:55:8B:57:C8:48:CB:06"
+      ]
+    }
+  }
+]
