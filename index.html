@@ -2690,6 +2690,9 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
 .lp-flag { font-size: 30px; line-height: 1; }
 .lp-note { font-size: 13px; font-weight: 800; opacity: .75; margin-top: 16px; max-width: 320px; }
 
+/* v127: Ayarlar'da gizlilik politikası bağlantısı (Play şartı: politika uygulama içinden erişilebilir olmalı) */
+.set-privacy { display: block; text-align: center; margin-top: 10px; color: var(--blue); font-weight: 800; font-size: 14px; text-decoration: underline; }
+
 </style>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2858,7 +2861,8 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
           </div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
-        <p class="set-ver" id="app-ver">v126</p>
+        <a class="set-privacy" href="privacy.html" target="_blank" rel="noopener" data-i18n="privacyLink">Privacy Policy</a>
+        <p class="set-ver" id="app-ver">v127</p>
       </div>
     </div>
 
@@ -5988,6 +5992,7 @@ const I18N = {
     stageRotateTitle: "Telefonu yatay çevir",
     stageRotateBody: "Sahne modu yatay ekranda çalışır.",
     stageRotateBack: "← Geri dön",
+    privacyLink: "Gizlilik Politikası",
     portraitTitle: "Telefonu dik tut",
     portraitBody: "HolyMole dikey oynanır.",
     launchBadge: "AÇILIŞA ÖZEL",
@@ -6320,6 +6325,7 @@ const I18N = {
     stageRotateTitle: "Turn your phone sideways",
     stageRotateBody: "Stage mode works in landscape.",
     stageRotateBack: "← Go back",
+    privacyLink: "Privacy Policy",
     portraitTitle: "Hold your phone upright",
     portraitBody: "HolyMole is played in portrait.",
     launchBadge: "LAUNCH SPECIAL",
