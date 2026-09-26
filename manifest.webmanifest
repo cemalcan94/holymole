@@ -1,13 +1,13 @@
 {
   "name": "HolyMole",
   "short_name": "HolyMole",
-  "description": "Parti sosyal çıkarım oyunu: herkes aynı gizli kelimeyi alır, Köstebek benzerini. İpucu ver, oyla, aklanma ve kaçış dolu çok turlu soruşturmada köstebeği yakala! TR + EN.",
+  "description": "A party game of suspicion: everyone gets the same secret word, the Mole gets a similar one. Give clues, vote, and catch the Mole before it escapes! EN + TR.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "portrait",
-  "lang": "tr",
+  "lang": "en",
   "dir": "ltr",
   "categories": [
     "games",
