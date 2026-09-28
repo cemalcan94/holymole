@@ -841,6 +841,13 @@ html.ios-pwa .content { overflow-y: auto; overflow-x: hidden; overscroll-behavio
   line-height: 1.4;
 }
 .card-extra:empty { display: none; }
+/* v132: kelime notu — bilinmeyebilecek kelimelerin altında kısa açıklama (sadece kart sahibi görür) */
+.word-note {
+  max-width: 300px; margin: 2px auto 0; padding: 0 6px;
+  font-size: 13.5px; font-weight: 700; line-height: 1.35; font-style: italic;
+  color: var(--ink); opacity: .78; text-align: center;
+}
+.word-note:empty { display: none; }
 
 /* ---------- Tur ---------- */
 .round-hint { color: var(--cream); font-size: 15px; font-weight: 700; line-height: 1.55; opacity: 0.95; }
@@ -2864,7 +2871,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-settings-close" data-i18n="closeBtn">Kapat</button>
         <a class="set-privacy" href="privacy.html" target="_blank" rel="noopener" data-i18n="privacyLink">Privacy Policy</a>
-        <p class="set-ver" id="app-ver">v131</p>
+        <p class="set-ver" id="app-ver">v132</p>
       </div>
     </div>
 
@@ -3054,6 +3061,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
             <div class="card-content">
               <span class="pill pill-lime" id="card-label">GİZLİ KELİMEN</span>
               <div class="big-word" id="card-word"></div>
+              <div class="word-note" id="card-note"></div>
               <span class="pill pill-pink pill-with-ico"><img class="pill-ico" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAA0VklEQVR42u29d5zeVZU//j73fj6fp0/vNVMy6QkpJEACiXRBQpEJiMtXBVRwBRXLoqhDFBeVXVYXxAVlWREVMhaKhCIICRAISUjvbWYyvc/TP+Xe8/vjeSYJRX8sSBZ3c1+vJzOZ18xTzrn3lPd5n3OB4+v4Or6Or+Pr+Dq+jq/j63/XIoAJaBFAswSaZUtLi8j87Pj6Gwu6RTQ3Z4QMLDYyP/urK/v7H4g3//e0mJqbl4nW/n7CKgBYpQHoN/+WaUo4juf76ldvz1/1ytpCnXbDwWBAFhcXD19zzT90L116ctTz+OjPz8cV8Kb31dLSQjt27KCMsEsYaNVvFpQhCa6nfVdf/ZWyfW1DNUWFhbP2HOjIj8ViCx0n3RRPerlaeQXKTUEIAcMXVj5/QW9RvvVqbVX+L557+r7HXVcBLS0Cy5fr/6MKYGppuSUj7NZ+Alapt9uRlilx510PFP3x2XUzu3r6G71UojEeTzTFk860tK3KNFthVxvQrOHacUDZgDBA0gRBM0DQZBJYgOAg6FMoyA08sXDx9M889J8/6W5paRHL/weUQP9jOzsj7LeYENOUeOaZZ8N33/37Gi2ovqc3NnFgMD7Dcb1JSTvVlLK5yEknwDoNTzGYJSAtEAlNJBikiZUj2LMBpQFXZF6CHUAGAcuENJmVaysSMArzItsvu+j0s3/yk+XdGYd9bJVA/5PClgL47e/+kPfAb16qGh4amxCNxmbFkskl0ejIlFQqXabhk4p9cJSA1gpgD4BWAgoEJs0QzAbgKsBNjX+iJPmRKi7wDZcWlyWbGutlfV2FUVaaM3Hr9s4Nq15eGzq4e28dhQuDIMMBm1ZtdcHWH922dOFFF12TADODiP9uFdDc3CxbW1sBQL3BXhsCrquMz17/z4193UOzunv7ZnX19E7xtHlKMuUWMjvScTy4HgDOWCESQpE0ATKkVgpwHcBLAl6aAaTMcMjOLyiJNTXUeNOnVogZ0+p50sSaaEN9caiqskIYvqAPsAsBEgCZAKcA7v/lA48d/NS1dzRqI6caBMcwDWvWpLJbNrzy6+XMzRJoVX+HCmDKPh0TAVqzddttP69Z+fTzkweGR2cRrEXJVLI+Fk/Xudoy046CUi6YGSCGgFIAoEGZDe46gOsC8BQMioby8r2ayqKhKROrRuefOF3OndUYbmqqkaUlBT5fyMwDKAiwkXkfHuApsGa4jgcwQ7MCATBNAyKQp5556uUDH77klhr4/KZ2bVSUBntW3LF8yqKLFsWycuG/HwU0N0u0tirTkPjQuVdftL997FLXdealEyO18UTK73gSigVYu5kXlaYiIrDWkj0bsF1AewApRX6/XZCXF21sKE3OnjnFOXHuRN/M6XXDDfVVBflF4RBg+QEdAXRW0B6U68HzFMAMBphIgAjZhyAGQKzByOhCa0/4cwrsi5d9p/eRP7xUS35on3Rp1uTa09aufeSl8c9zLBRgvPenaBFoXa6uueZrVU8/v/E/Xn5l+/lJx8zsbNgggiYCmJWApwE7DYYt2QhossyRirLA2OSm6d7cE6YMnjh7UvW0qRPEhNpiL5gTyQdECPAsQNdBedDpFJRKQGudPWmU2UFEJKUA85FNRUSZLcyc3c7ZfwkCTMyA71P/cBYe+e3TLomwdBXIBV9GhJc4Y0LxgVfAeOh21We+dfIfn93U2tubqATbnjBYsCIBJw1WKcHwOf5cv1NZXZie0lTnzpvd5M2ZO8U/bXJNYkJtKYTpLwVULaBNQAGeB52OwvMUtGYQZYVNBIBICAHK/Cdr/RjMmR0PZAWfPdwMBjMzc8Y0EpEgaQBaYcbUmqA/x/BspSXIj3jcqROCoBT/PURBGZv/r//6s/wf/fR3mw51x6uFwa62YyaU69Q1NAycMHOCnjOr0Z1zwhR3yqTqgsqKItMKGn5AWgCLcRPiOS6U0tk3RAyicRNCh9NUPry132KgGQw67ILGdcKsWQMM8vktwAwC8ODEkyASbFoGecroqZn80WRPf7IBQqC6PH93x96VM4nIOVZ+4D2cABJSkrr3F4/9oLN7sJoIrk45ZnFRYPuKX/+7WrJwRhVMaWbMiBJgF+x4cOKprHmiDFomRNaEyLffFBkDPr69x8X9pl2UET5nTgJr1mRKSWYoB4DpuolY39Ytu9trqsrCRaWRmW48CtdlmMFQaOLEetXT+TrgNxFPJOr+8R9vqQGwr6WlhZYvX/6+K0C8h5OjzrnkurLu7v4rGFqTJrO0JKdj77ZH1JIlJ85UXrLAjY9F7NiQSEfH2Imn2fMUEwlIKSEyD6I32JKjBc+HX4kwfhT4LcANM0Mzs1IeAwwrGCB/JA8ymDewe0f75i9/7a6dE6ZflZ47/9opJVXnRp55eu0OMxzWnucB4MDMKVVjUGkmYbDjkbVp24FiAFi+fMcxSVLfpQIWSwAY6x0933YRFEaIdMpN3Pmjb7TlFpTOTI72sdbMIIIUBgxDEgkaD0yySPFf2Vz8F85+xgcADNaa2fMyxtryW+SL5JIZKohDYfuKFS+sXbjk2p7JJ1xeecft/zWzu3e4ETnBAhZG/Q1f/YkJWAlDCgCeOWdW3QjAnhAmKzbhD4RnAcDixf30AXbCJUwAki4t0hRgVpoiJZGh88+ZV6ndIUhDgg7L+g1fjtjyjCDfYHDGjS4TQEzZpJQyPpYZzBoAyJCSpN8HSB8AI6rs5MALq7bE7n9g5cgfn3ipeGxwdBaskB+mDzBtnF1Qwi6ZeEEJdHSMFvZ19XWXlEVyAJcbJ06ohxFhrZldJ4lkcmwGAKxa9QGPghjAoa4R1jCI1Rik9A8Eg5QL7WZtMh0xJeMbPutc+fAh4HHjko1esuEKAzobtwNEhiHJtHwZ3w3SgBxNRkejL768Mfbgw8+NPPnMq2VDg6OToYUfPgGEBEoDAV5aNBWX59TS6fkN9GKsE6fFnkJqdMD/ytrtiYsuWQJ2ktRUX22Fc33peMqNsHDRdvBgZUbpq/QHPgyVwjWgkoB22JRWoWMrn2XQEQVkY0OtNWdiRToc0TBYZPMmCCEIAKQUJKUEmSYgjKyFZA2YI8pOje3c0Ta48qlX9NN/2hDYuHlX/kj/2ERI8sM0AUPDMkxekFvOl5U0iYsK66kymAd4Lti1Uew3kSPSHIURWrNuv3XRJWe5rNksLsm18/PMRDxp52hFICO0YPXq1fmnnnrqCDMTvc+40LtUQCsBQNive4bYBZshjI3ZocFhZ6CiMrecnSgTgzhr5y2/n2AY9MYgRwEwKCtkBZgugATgOOlEKtrRNWDv3Hmgb+26PWWvrtvmbtq0JzAyHJ8IL50Hw08wBRAi+ISPZ0Xy8eH8OvpI4QSam1NGZBiAY8OxkwABhgRqZBDVMojtwsO2HW0mQGmlXNP0B/Im1teOHDr4OhDKQTKt8375yz9GAIwQ3fK+h6LvSgGLFy/GqlWr0FBbub17IA2lTDjxlO9g26FURVUOtFZEBAgpIf05cTue6B8eHR1USpFmMLGWvf0Dk7p7RzcqTzl7D3Tl7tvfFWvr6Crs6BjwevqiBbHoaAEctwGwQjAMwNCAyYA/jDKfj+eES3F2UTUtzqmi6cF8GIY/C0vYUF4aUggY2exYaYWgDKAhWMjbozHat2+fC5WMCkIEgDFtap3752fXgaA12DH7++OVADqam3fQ+50UvysFLFmyRK9atQoVFcU7LWMfp900Qbmhl1953Vu4aJoCSJIglkbA/to37j54990PBx1XVyhlsGYPYFuYpvS7SfdEQOtslgQIDQgBGAKQEggKGAahzAzrqaFCmp9XhJNyymh2uJQqrAhAEtAelOvC9uKQQkBIAYOPeCrijK+BZaApnEeQGl2d/bnx6Gg8FPID0NacWU0hsMcA2FVSRnJzFxHhlQ+sDxhPUGbNmr730ZWrB6BVCWDLTZt3APDbQDRoBPLo1TWb995+208bKZAbYFaZqIUMgAVc5QIhnwEiCAEEYHKQLJRaPp4QzKWmcAGm+ApoaiAPjZF8URIIA4YBeB7guHDdNFgzhBAgQTBYHImqaDw7zkCzRARIgSp/kMAaqYQdOdA21D9zVj2gPTRNrCFhWR6IZNqV2NPWPYmIcCwgoffihOmLX/xk7Ps/uv8Qx5Ml8AWxbWdnBPDihiGDAHjL1l0pIlhCaP6HkimYklMGpRRMZvikSWHLh0JpItfnQ5Hhp0IzgAIjQD5hZk4CACgFsILn2mDXzoSqzBBEgCQQicNhrWadCVUpw0gZx4eICNCMciNz0Fil5OBwQkFYgDOGhvoixwjmjDpKFBEctLW112S02fqBhSIYgBSCVP3kC7YMGJjLQmN/23AgFYuP+P1GCWDT5EkTmNkf1+TPvX7ifJ5bUEtIpI74YgKgOWOFwABpMBieSkO7mc8upACBcETMGIdXDycVDEBln8NgAjFBMUOBISmrSNdDiQiAhAEWVmT3nvbI6WecoF3XFUUFuZH62jLs2t1NMDRI6cZDh9YHKyvnJd9vTOjdQhFYvHgxMQMTags2+iwBCMHJ2FjkYFu3S5IAZaOmvMBv+HNthoHXRwfhJZNIpuOw3VTmkU7CcVNwtQNPe1CZuBREAgYJSCEhQJndzpmANJOcYRwZhdYaggAzFIAZDLIyCWPkQArBVigIacpMbdh2USj98FtBgA061NXTDjArBUh/yGyoKxuD54EBOB6V3n7742VZxJc+iFgQSkpKGADycvM3GdLQYAW4dv6GTTsMCKHZY1RWl4Zy86wYPI0dsSEYmiCFgEmZh0ECEhKCMs5zXNAEBsR4Ls3gwxuQjwCxQkADMISBNDRaB/biim3P0vQXH0LT8/+JeetW0D/tW4MOOwHJAgAjx+dHSEiANaSknIwCGQAZkxurBuClIQCddnRw686OegDYsWPHB1MBra2tGgByi8z9YC8B9ggQcuOmgwOA5XlKwwxG8homlKdgp7AtOsgMBQnKopZ82AxRxrDD0xpK6YxQCCBBYIjDpXwCgTljETQYZk4QL6f7+cQ1D2LZqgfVb4b2D+bOrU7OOmdutLOAoj/c8ZL62Lan4ZgSkBI+00SANAAHqYRzEkAyowBlzp5Vmw8kPUAz2IMAJgFAf3//B1MB47vxe9/8+FgkqIegPUCYvGtPx0RAaNYKgI7MOaExCbaxNzUghpwUDJIZ4XMW16eMMAUIJhkwLR8MywdBAl6m8gU+DENnvmqtYQQtPDXayWe8/DvaS6mR/7j7Wwdiex701j57l3jmkbuCvbt/319RVXagKzYMDcWQBEki+4EZrqskICAEMaDR2FA9ClIJQAjHJdiKphEBq1at4g+oAogByMrK2Qlobw1IAL4QtuzosOE6/YZpAtDWKSdPM4jgdtop7BwbAliAwRDZqNEQAoZhottL8CvxXjwb68JWdxQpaDYNP6QU2dIPjaNFkCSwLzrIH3v5j1RQVtDZvul3o5+97uKJ4aAsiw/1+QHb2PT6vtzu7t6Ki8uaEFBGpsivFZgEAAnTkOPMCwYrTKipCJjB/BRDkoIPXd2j1VrzX3XAnMn26X+wJryYtF6FoD+nS4gEtCGoq2NA9/UPD5RW5NVAuzR/3pRcmMG48tL5L6e6cGpBLaAdaDBkJIAdY7347rZX8EjnPkp7noaAhnZEjT9XfLx+Lr4weR5KDT+8pA1hCLBWIEH49tbVFNfR+NqV9xqllSVVidF+BPwGwoV56Ovs6f3ox77hK/QVhW6ceBJrV5FgQsp1kGQFkA+BYPAVQC0gsGDHQUG+r6y8otLp6BxgSKJoPNaY3aDq7SIhXgFJBHW49PkucSPxnuTfnHHEFZVV2yyfP7MnVLJ409Z9cZCAl06hrq4i0lBXouB5eDE6wLAy1SspJFYOtGPBmkfwUNeO5NmXLOm9775b+v746A877/jRjburFjW137b7VXfusw/jxcFOGIaEBmAaJvpViv/Qtx21DSWjDdX5UcBOhPKKPY1Af2vrqn3TTr4ycmDvjtz755zO1f4c8iQDwsSoYyPmuYCUEIaZzJ5iKMUwg7mysb7MhmsT2IXrpKuuvfbmt42EeEWzpGVQt9++KdTX93wZEMC7Be3ekwJapk7NZMTTa7YGLNbQigAEX1u3LQhAu46CFQjmnrRg6l4oiU3xEfRyEoZhYiidwNXrn4ARMWPbXmuNPfrwvxRcddV5Zed/ZP6EL33h0kkv/+nnxa88/x/dCb8zsGzDY+hlm6XI+IVc6afLy2fx/h09lUbp6cF5iz/pnHbeZzmn8UK9bNmNteExHXryxCvFBf5KchNxSACwJHp0GranAe2kZk6vzwVMQSRYMwMw/FObKl14DghgpRAeHE2+JRLiFZC0rFVtXXPhNZ/75IVbC4yrdg+1X/HcrbdurBw/CcdMAeOQxLe/3bzPZ1l9mfAwJNZu2GcBVpykBKB8yz56uoQQ6R47Ra/0d4E8hqE1CqSE8tKwLF8/IAgcJ7ZtwIMAZPCkU6arcCgcSyIDqEExoBmmBv5z1vn06CnNdFnJrKrk6535Pat3mWfK0rL7Fl5hbj7jWpxbUA/XS0NohlYK8Ekc1AlAKxCUPaG6WGUoRJI5GwnNmN4IkNYQhnY9Dx3t7TVHR0LMLYKWCfX8ys//Q2PTunuDwe46Qx+KFFT+4fTzF37jPAB44YUl8ljyghgAlZdNi5XVn7cLwiiHZWDXngNhKJXwmUYOu2ksPnVGRV5R4fDo6FjFH3p38sWBasoVfjw4+3x8eMPTkaZZl5V+7WtX7LjystOCpYXFeUnbxnOr/py44abbzcSQrn5gwQWo9IXJTdkQgqApo4il5XVYWlTHTjINAsiUJsMyCdqFJ1xIK8NPYg1Aa2wYG2ZoUCQ/L9bUWF4KnRqnWTCgaOb0CSmAEkQUdj0XvQNDs5j510TLmLlFCLFcr1hxX/EJM/7lLr81QjrhVwC0QFpMqKFpALAEq46hD8jWhz2lIYSziaBAQnNv30jBYH+fR6aAk0ohJz+v4IzF08bIc/D0SAe6KQFlCswuLsdLH7oUF1RNLPnhP981a8asi0tKZl0SmjDr0tDVV32ztsa2qv9w0gV8ZWUTPOVCSHG4eqYVIxVLQtlpsgQRlIbr2GQn4lCOl0nqiECCYEqJRDqJF0c6AZcwc8bksUhBQa5K2yBwRv7aw4TaSr8/EkgzMylYEEbkNMMQmd6E1uXEzHLRzJ/9Kq+oM1enLEUkpTBtqaIVcmjsrKcBAAPNfIyZcZllCfG6hA1PSE6MRoO79nYNLSqfCaVTGuDgJ674cPp3rX9O9rtO8PfxTny+ZjbsWBSNZgCPTT2H11XNoPWJgdxO10Ge8GFuThEW5pWzDwbZsXhWoICQgJQS0BIAOCk8SrJGkemDcl0IfVTAIgisATItrB06iH3JfoJyeen5i/wAcl1PwZAikwZ6CsVFucGi4tJUZ/coIIG07eZ4no60ti5L0rJH1N7NV9xSPmHvWYiyIsGS4SryB2Xf3sYbGud89UnmFkG0XB3TE9DSskQDwMSJNbv8PjGevvo3bj6oAEuTEMSujQsuWJhTXV/bQUri5x3bOO3YMFjCsV24yqUT86twXcN8fG/KqfjqhLk4PbcaFoGUcOAL+GCaJht+EyJkcrd08djQAXx681PU9ORPMfXPv8DvB9sgfBZ0FpNmnTFTDA0yBR4c2M9KEyBU96UXLxwElBBC6PFToj0X0meG6qqLx+C4gEozVLLu3nv/q3LZsla1+eXrzqif8GKLjo4oDZIE7Yk8yNTA/NbKmc/eyewJov9+b8F7VsC4Iz791EUd/kB4GEwEYYlX1+1IA9qRQpKTSjGkUXfdNecPsp10N8cG8OvO7ZDSAgMQhoDLLtxUEk4iC9axA00E5TNw16Ht+NiGx+i8Fx/GCc+soAmP/FJd+OojY7+VXfsv/Ny5G+wCI/avu9eDNDMRH8ZNFWtIktg51osV/R0gl3DakvmJuobqJi8ZRZYpA4DIUwqADMyeXVcNnQARcdrWvmdW76h8/vmDeaVFq+8X3AfWAWLNGn7biPWesO9A59PXMnvilltacMzD0KPT4q985coRQcYhsAIMiXUbdiuA+kxTAgKs3aT40g3NhUUVBd2kiL7X9hoPIQXDzDQ1SggIEpAkYAgBIQjSMPGtXWtx/a7V/Ho5RuPzSpzGpdN33v7vn9m94ZW7h0cOPJP3k3/7TpmpHJ7g8wMapDmDlAqRIQCQFLht/zoknDixcuxv3fT/TEAXeJ4+TIo5QlFic/rURg+sNEmTbWXQ1o3pyUtO/MY3Syd0Vet0QBFJkr4kuelGe2fH7ddOP4WGgRa82/amv4UPYABCSnIbp36kfWBIzWJiPTjUVz/UN8SFBX4QiNxUkv05hVN+8J1rt199zW3uAaGMm/evxX9MPQNOOgkJeTSHOYv1E/bH+hDy6cSmp+7dFygsngu4DUDSAjSgvdQVn/h6eKiry7xh0VIclZdCsYbl8+HpwX34zeA+hu3RotNmdZ151oJiLzUGQ8pxFHAc3taAFlObavaD/JYwzBw7baOqsuAseF3z4Qwo5nwtrTHWlC9GBy781IKFC59jbpb/Xbv/PpyAxUJrQBCeFsJkMn2IRZ3cA23dgGGCmSCkCS8Vw1VXLy2ePX/aNvIE/ax9i17RtQOWPwhPqSwjK1tCZAK7CjdPmA9EnWDRrMvKf/5fvxvcsnFjasPa15P33PuHQzUzLx/6zYNP+e6YeYGY7y+E49owQPBcD4ZhodNL4DO71rCGRcKg4Xvu/KoDuBHlqSOEJD6KF6ZtlJcX1PpywkJ5nhaGgW07txquk74HwbCUkZiJcIFxaN8F/1Yy9fu/YV5sEL23PoJ3fAKYW0SGJvXWo9bcXMKtrUAkHNlvWSlKuw57KRZbtrUNn7hgRlEmtBZQrmIj4JWs+OU3+yZOWdZJVk7VNTuf4wmhfJqfUwY7nYRJRgaqIIJyHcyOlOHZRR8TN+56pfLTn7pFwRIanBJw3ar5BZPo4bM+iZNDJUDCgWUa8FwXpiJEHRuX7XgOHY4LxEa87956XfvU6Y3T7dggSyGJORv+H8XcY82oLC/VBfn+sd6+WFgJA67qn2qVvLh0+2sXyNoG76RER+0jE+bdfzczJNEqdUxKkpkSbEbwRIB+uFnSsiN9u1PHIYlpDZ17DnbGUrYXBtm0fsO26NVXX+gSYIIZ0pDkxGLc2FTfdP993371U1fdmp8I54Qu2fAoPz7/YpodLoOTSkAKCSJACILruTgpUoo1Cy7irXZU7o4PS522MTdQjLr8At7iDtN9nTsglcLk3CKcFCjBQCqKS7c9hTXpqEaCxFnnfmjnN2++qtJLj5mZTkrKliLGD0G2xuB68IUj/urK0v6erlHAZA2W1ddc86Up0+b/8duAD9mmE2SAOCZ+M1Ubb6Bi8t+oP4Cwdf2LDQW5nbmVEz/5OpDOKEK3HB16kRTEheXz1w2MqnmcTvGiU6cPvfj8PaaXiuey1kwkDpO1zFBJ6sYbf7jl3/7tV3MoJ88sIvD9Uz5M55fWgV0brmZkCLQMpTQEBKTfAnwGoAhruvfhC3v/jPXJKAM+BhwQHHFWbhV67Bi2JgeBFGPR4rmxZ1b+2O83PNNzHJAQOIqd+gYFKKXgi+R6133+x/H/uPt3eRQOqkhAyHPPmL/04Yt/tPLeEYiFC5tp2rRWDxnCBb+v9QBmCICw6eUzb2is/eSm4tyvbxjranphywtXnsfMJtFyzQzBLS0CaBae0uQP5u0hYQFWiHfu6VXxsVTKMK0jdfhMQZ291FDgjju+Unf1NRev5eiYPaCYlm5+VH951/MYhoYVCEEYEjr7ETUUUok4kE7jVz07cNrmJ7E+GQORILhpAccRBIlnRruxNR1j6bF7xplzNj331B1OwNKm6zhMQr7trnujHIWYNrm2B1CahMG2K9AzMDiJlkE9++xUmj691SEyNZGPAbauuoorzv0453Rs44K2tlXlbevPKX/0Z18vBdj3nkxQlpise/ffW5rr+9Ztfqs3qG3SOYXW4mnBwcU9+5asG+r5zI1E970ELMcnPlHrJyJ70uyPdgjDgdaa48l4UVtHvzN9WmWGI0XZxgwhiD2PtT1a8vOftVjTp9dv/NKX/mWiDuQW3tG5FY8OHuLra2fQpcWNqDSDgCUA0jAVsGn4EK7e/DS09DM8k/yWNzZjZuUux075Nm3vaBQyHCLSZAWo98nH/t0y/bLQjo6xNEx6s0XgtwL9DEDMnF4XB6sEQYcdl9HfNzYzI48dTt/BL5zQ2z94k8/nlOeGT2MvTfN8gaGRvBxpsk4GqXpQFVdvErtmb1v5rR/wVStWUPqvmaO/4gNaCFjOJPrKLb8RQNrnMpmGjmolxBCVVQ6fWJCzc1Xfrhm/2dd+0/cXnvOxbQBgUWq3YAdCEOxoEjt37O+aPqOmUbOGASNbWCSQFOS5Lgs1mPfFL1wx++QFk7cuvfjrh/p7R6btJ2l+cfdzuHXfGl6QV4jZkXKqDxWiyAzgB/vXwlYOG1pTUVHOgVdfuD9VW1fVABj8zNN/7rpo2bdrHfL50wm79LGVa71LLl50FHnlrZLgN7QfEKAdTJpYkWeFAmlPeREmA67imUTg3v23nVmQe8/KkrJeE+TLNI7bDkBmCGqcSyxgmik01L54+Te+svRWImzP0pj4v2mCbmFmUFx/7GAqXbYThT5TQjEgSLMpVFRqU4yJkrrtH587+5/W9O096zvXXferfL8/tMkUHhgsoKVYu36XDUg307V4NLshw4pmZnbig74FJ82Y13fo8cB3br12XU6A9iARcwYTY/REbwfdemA9rtr8JJZueAwvx6KQZg48Jxl9ovVWs7auaJoT7y5SyZ7is89Z2Hjh0sW9KuGAYVgrn3klTsKwxVG0YOYjVv/NxoiIAM9DUVFepKQsL54hdRM8T1f/0/c513V3X2+E+gwVM20dY0/FDOXZQVZpqZRreMq1lOcJpdKGY/g91NfujWQIDH/Z1/5FBWQqPC3U0NAw9srO6y8e6b3gaY9LIYJJIeBqImatJasxQ/nM7khJ46vf+tYX//2PX/3az1N5eaEkayJIg/bsO5QHCFcI8camGD78OiSERDo6BsCd9K2bP7lgsP1x9fN7v73p5FNmbMjPLxmEMuJC+iANCUNqVvEE/cMnLk7OmT+zKB0dBkiy49gMxOjEuQ1haAfgBMZGBqYBro8hjno9PkzFIDDe1CBFnlKQvoCvYULVMFwCWLFtpws6dv2pZGTEXgUZIWnEfEImDGnEpOGLsfQnpAwnDRmOSyOclrJIWbHR+pGu4e+1M4Oam1m/Kyc8HuGcddYn9hRUrTi3K/7PS/sGPrIHRq4QOVpK8kAkoLwgY8jzyivbT2k+u7VUyLztJCTg8/HWne2s7WRcGgaOcFFwVBCY2XmGIeGk0mxHh6Tp4ylXf/qj89esvr9uz+b77K3rH+i66COnvqLSaa2VTb6QHrv15k9GWKcDJASIBJGQBAj09AwOgx2AGAzeBphpEnSYL3pUDTdzDvUbjFCmeAMOzpjR5MGzNZFWqWQCpJ48cebJD92xZ/Pc1qTTFHO9isHh2DQ9EjtV9PTPGkmO1a1JxU7a2NO18NW92xb+cv2Gsz48depHe45s5veWBxDgEtEVT3z/Ht565Ye+NDk/57Xrfb59HxGhEaljjgZc6SZyMDzkOK7m7UQ4EQLU2d5l9Q2MDpRXFpZo24EEvyUAztBUMnGsYIKTSLNGmgwpCoqKAigqLUx09fYHSIaFTgypa75webq2rjLfjvVDCAlihmGYAEKpLdv2hDKohslNEycSwII1Z7imb9MO9Yaf0ThRS/lmz6gTQJpJBChlA3v39s4G+DeT5q78f089ta94xozO1Ks7cyudWLBoJBEY/dwna14HwgzEJSAV8Nx4IMPvORHLPgln8G7quAnoAHzPPLvy85dPaVh9bUnh4GINgbb2BT//1RPXvZYfefL0wUFAE7Rnx8Jbth0cKq8qBbMGcwZoy7QhHdXJdJRQSBAZRPAUsyH9aF3xZO/a1WuqRaQaefnl8sZ/vDSX3ag1TsxVWrEvGKChgeHkmtcOBEQgAB0fSpx71gILgMXMnBltQG/riI+2i5ndyjSxsaoShs8DSVOxid6heB4R8aWXknvuuTiU/YPBN/QPZniVSmtIoIXfCTz938KCiJbrlpYWwdwsmW1x5nn/+lDlpK1L9rR/+8yR4TvnNM3/7aeXLyddWVmxye+zwGQCHAxu2XogmGF2UpaozG9s3Dvq+/GOeGZmyzII8I18747fueTPtXSsFxdesKi/fmKdz05lpmAh87sEKfDbR55Px4eSeWATxZVFw6csmByGm2Ih5Zt6i/9/8ietMLmxOuUL5o4yE2mtQKSnGZLQ2grOyICJuUWsWLFCMrPgDBt+fNerd1obEO8C/9dErYoImlc0S+Y0TZv7qedKms7buP4exwSA88+cdzDgEy5rTZB+rHt9bwIwUjJbUqR3kIBrrSF8frzwwrpdm9e3VUl/BIZPx752w6VxaA9EkjM9wmAhDYbyonf/bIVBFgmdSPNnr2p2zYCv0k7GSCtFR/ufo+Dntz3uynVQXBQprJ+QZ7CdANhBMpGo/eHt/5oHQC9ffgsTERMt18uWLVMZJPXNBNZjgIa2vuk55n0WbksLxKmnntdO7HSCPYJk3rvvYAE8z5NSZgeavKkZm9+G+y4lATL69eU/CZJlhL24rT9y4Tl9U6bXVrjJKAkhSGvNrFyyQuW0+qUdo1vW78gTFsMKyvglFyxpA9Dvy82P+nNCMH0WKaXArI9S/1s3giAi7SnA8gcnN1VoOEkQMZLJZN5TT23K+1tP+XlXCsgcP8hly1oVkVRdO2/6+FDX135yaMNXZi5fDn3yyTXJgvzQHoIGDMGdPcOFff39PpHp2aLDjpeOzo/oKAug2QiGsG7t9pF1azZPIlPAF7T4lq9fHYFWfqU1WGv4whHy5RREN27cuPvrt9xfYPiLAkJagD8SOvnDNzfWTfp4euklN7X/tvWlnTAD+3yRnKwf0kcN/+C3ABMZE0liUmPjIcAiIkMTiaACpmWHUon/EQWMCz5z/KR65rEvLR5pm/RQRdl9DxaU3P25/PLfr2994PPNSmnMmjltBCIAYfppqHfMaT80fBBG8HDcdzj+pqO+zypBSiLAjH339l8NKg4EdGIEJ588eWDWCZML3ZQNQcRWyO+NjqR2nn/h17vnzLm8ds0Lr4S9tAd3NAFnaETYo0O1bQfaax5//OUZzcu+UVte/eHo0yvXrLLCpXHTFyStMz3Jb97P49NVAC3nzG7yA4YLYUCBYDveVABo/Rsypt9xPWDFimZJRAqA+vF9K4svPnX5d4vzWz/rD49AR7XGiHRCxX3++XN6L9eaW31BetUfCFxu2ynNKh7YtGV/6fwF0w83yo93wR+Oyflw8zZbgRB1trX3P/nky7UymAMV63G/8vmL0oAjPKXZHwpRZ0ffaPXEj/vgpWsqJtQMz5xWtX/6tEk5paWV1fHYWGzTlh2HNmzaVdB5sLsA/mCwbyQ559zzvzT0lX+6rvv27/9jDqmhMvYcpgw9+o3jKTJxu5g+ZYJNhhcFq0LHcXDoUHctEcB/Q8b0O8sDWloELVuuHnmEI5PqvnxDecEXP5tb2lmNMcXemKkF+YQgR0AaCIXLNgFAKtH/kiU9ldJKgCStW78t8ZlPXxgkIj/emoEeDuO0ZoKw1F33PDLkJeN15PehYerUwXPOnJen0zEhBDEx2LG9omuuutC74vKz2xedPNky/bIGMC3ABKCCgF3rxuOxp597vesrX79T797dXxcom1j4Lz/4RW50bGT3PT/9Ur4ds30i0wsCBh3OkgkE1mlUlOeG/UFKpp1kAQuD0i41Zrujjt1AoXGu40vPtMxLDizdzE4182iQVX/EUwNhdnvDiodNZjePe/df2f3ycwdqAaCra32woPy0AwidyDDm6hNOvOwA89ioSnWxEz+k3UQnu4lOduKHOPN9FzvxTq2dXnaSfd3ldWd3ydBJDDSpO350XxtzTKVGD7Ab72A3fojZ7mHmMZd5kNnp43S0jRMj+zk2tFfHh/ZyYngPu/H9zNzDzGOd13z65jWQ85L+knMZqHfuv+/+1cwjnh1t1+Ovf9R70sru4cRw22BV/ZJRWLMVRU7j8gnnPZHtHTw2PiAjfML+LY+WTm9a8WQgtHKmGh5ylW1mU0vPMyIp4XJVMtZ/yU2rdz4wZ+EZ9e0AqK7u5GRpcW47sQIsH7q6+4qG+kcdYRjgo0AhOjw8gqG0AplBPPWntYd6DvblsvQhlJ8bvfyjp/rZSwkhj3QAu66CHR8z7Fgc6VQKvkAIwbxChAsKKVRQgGB+HgxfAPHhBNhxKn92760NV155Rkd6sFPLQND88jfubEiMOYNmIOMPsvMsWDOz1qzICkNRcE9n59iw8OcIVh431Ff6lWKBY9Wg8cILSyQROBx+4Zzc0r4ib9R0SRgmoLSwUiQiQWP37jMPrH7lto/kVP7nD5Z9hHozH2WxdBwXubmRzdLwQxiCB3pHqL2taxhvUkB2IFB29oQggBL33P9kiAwK6cQoPnzuonh5VWmem06BhCBQpsGDshR3IST8OSENCnSsXr197y9/+dRzDz7w5J+eeHzdayOjel+4oMYGGMruK/nZXV/Iq6kp6GUyMNzvlf76t6v6yPBrz3OhlYYQIMsg8kWCBiGc+vat9+XDVTVgV/l8TIbwVhGRxuLF4hiZn4yCdm24fKbTn8s8BOYhH7Md4mRPzaGR/dffeOGFnAcAzz8PY9xcLV682ACAU0+/6pP+gg8xRU72QA367p/8vJN5VKeibYeP+/jDjh3S7PXzyEBbW6Tw5G4RWcjAJOfRRx7vYR7j9NhBduJv/Jt07JBmNaL/9Kc/bbSC0w8ANSkgNwEUu8AMO1J6Zu91n791m53ob9PJNmbu0f98252HQNMUBRbxuRf840ZmJ8U8wsxxmzk5yN5AR2/3vg1fuPHWbbCmp0VotoZvhpdTdGLqsitvbDo8qPBYOGEi6Az+c+uWgQOX3JGXt/6L6ZRwezrqV+xc/6mvXvjpK/qAO5HlRHrjW3l8lEFRkbnRMjyVdoQAg17bsAPXQbpEwhpHfsbbTpk1IIN4fvVLw7GhwSkyUor8srLo4kUngL0USAgmvHEwHGXPMJFU55x5ysBpp06rDAT8w9t29uqnnn090Lanu/Sndz1U8sTjT27btPa/duf5CyYtXDAzDhlOs2EFN+84GNq5bdcz6zdurli/YZ+9dcfBwP62nmDHwb5SeF4lhULQnutYJln19RXfX/HgHXsyI/KXH7PBrkehoSZ6Oh6a/sKfHpwxrjd+frHxFxoSxkNNf0XdOQcQOo0hZ+v5Cz+eYHcsnXF44873ELvxQ2xH25k5nfrMdTevh5zGELP5vIs+38k8lrJj7ezEO950aroO/z3zMDMnYsx92e/dtOvEu7757R8N+SLzGKjjJWcu28bMsfXrXk8isMhDzhKWuYsUZNMQUJ0GGhhyFiNwEovIQhaheS78c9nIWcRNM859ipktAPJvPW34HaOhzC4RXb7tqFGcIFrl/YX3w1n/Yufk5OzuGUzXwefD7v2d3tBwIp2Xb/iUnWIhJGVL4iylAHQ8uea1/bnwFQDJEX3GaVMVoHz6KIbE0WSS8SFQTjwJUCKsPI8BgpRJn+X3V3x3+XUYGx0evOsnK4peeG5L3c7te7tGY0kHqdF66SsMKM+FCOQVgHI1WGsNQ4CNbCMgjPyCQKqiqurHT/z2h995vyYpineOhGbg6Iy5eSeUjMVCEHFxYXivIJchPDXWPxB+7vm1rjR90MolpcbnggqSwVyKjyWjB9vaA8IQgOXzZs+abIE1HebQHl3Q5COj50R2ZoTfHyDTsohZsZ1KaO0O4uavfCxlRQqHiCLBBx96vP/+/3okHyQDrFwN5QjWaUhSwjKkCAXMsYqy3Pby4tAzUybV3fSJ/3feCdvXPfT1mpqa1Ps1ssD478LReMfTjDNsudNOnv/7nbv3XT84mCbyBcX1N95uzphS1j5l5rQiQPgBSwEcA3h07/7urmR8bBpZYUiJaNPEmvSRzPTNmdth+ihYaZiWAVihIQOGNDiaZ8fipB2NwsJI6aSmWrVlUzt+/NNHTkgmxyz4pRbsivLS3Bfz84PbXBe7QsHQtikTK3c++OA/RQ1Znug+CGzd0Iqs2dHv17yI93syoGBmOWP2R/64fffA2TADLjujpiRv8NKLz+5tamroHhgambBt297ogYMd4f7B4RxQoMJLJ1FdU6S3vvaAzgkbhvK8bJfw28DWzGyaJsXjqZFzLrp50DJ96V/ff5O/oiLc6NkOMYzEzFM+p3ft6o2Qzw+w47EbN2qqC/a17109VQhy32aAowAWi5aWJfr9vtTBeF/F39ICInI/c/13P9c/smZjf/9oBNJwNYyihx96oQj6+WmARzAlYJog4QexAGAiHMkTlikFK++wrX/7TciAAJhM52BHT7i3vWPi4nMG9m7f+IthaQULe7u64wf2twfJDIDBWsiQUVoU6pk9u/ESInKBuWamlFjCwAqd3ZMaWKWXL1/1QZ0b+o6rN7qlpUXce+e39p80r+ms4gK8bgplMhugcAgyL0gikoFvSAgwfNDCAqQPrmIozzmKPv4XPgAJclI25+TnlDz8wHfJFyp09+3uaHjhhc1JaebpW37wcNRJcohIK7+hefrk0t9ec9UVH3q09d6tmWutNrjAKi9zZwDxsb7Q5xhdYZK5GuTgwYP+Sz9+05f7+qIfTSSdulhsFIbQwu83E5FweHcgXIj2rpEltuPAb7hj+zffnyqvyC9zUzYLIShbqnzjdN1MssKmZVE0ao/Uzfw0j/YNFlx/w0f/nJsXqvnuP/+ikaTlSuGYkydW/3TXlkc/56kj7wn/Z1bLkezR57Nwww3fKy2pW1B64uLmstvuvjtfSoHHH39mYnHVmS6CJzJQ7/zhDys7meOcGmvTR/KGrjcAZ5ksuoOV3an37Fif8OUucBE6lY3c0xToBJeC8xyYk7msdkHXj+/9XRUAuXhxiwH8n7107S9eoCa6ujg4YeJZe8g/Q5Mxgxef+ak25sSYkzjEdqzjiBKSXW9QRGLkgGZO8k/u+mkcmOAZOSczwqcoylnMCM3n4qpT4iedumzO3xpG+F9wzSCOemTwo0nTz7rBiMxjkbNIAVNT99zzwDpmTqlUN6fG2jgdbdN2vIPtWAeno+3ajnUwc5IH+ju3lVUuGRGBuYzACZ4MzeVwyZL05DnNrTfc8L3pRJn7Do6L/q/7I2ppaQkXVpzShuBcLSMnahhz+u+885d7mdMDzAlmHmP2epn1IGf+r2JbNm/eXlx9znb4FikKnez4cufxxGnn3ry0+dpJUtKxCTj+d9ykl7nB6KSFyy7YsrvzsWRKKGEGpR7r96bOqOi89tOXjp60YKYMBcR0x0lHd+zuGnno96vl44+/nAsZziHDcCUps7Eut/XgzieX2bYLALKlpYWXL/+/5HDfsxKAhhkXXpNTfiYjeDKLyEkujBkMNDow5kStwtMZwdkuUGuDprPIOUUjskgbeWdz9ZSlj69cuTLng3Rh59/hXZLNkqhVnXXuVR/duP3gT0fGVLHS4/CDBmfupCJBnshc7iYQDIXsyoqSf9v1+sPfGKcXjs8DOq6A92COvvzl2+v+tPr1y/oGoxckEuk5yo35ldawLANg7ViWvzMSCTzf1Fj5o2dX/ue2bHERfw/C/zu4zvbIrXamKXHBBdfX7z2wb1LPyAgmNdSisDDnwKMrftouBaUzbKNjewve/5H8rUWMh6h/Zcnj8f2xgjSyN2c3NzfLbHZ9/Iry4+v4Or6Or+Pr+Dq+jq+/u/X/AYzwcy9nvyA9AAAAAElFTkSuQmCC" alt=""><span id="card-sub"></span></span>
               <div class="card-extra" id="card-extra"></div>
             </div>
@@ -3211,6 +3219,7 @@ html.stage-wide .screen { height: var(--app-h, 100%) !important; }
         <div class="peek-word hidden" id="peek-word-box">
           <span class="pill pill-lime" id="peek-label">GİZLİ KELİMEN</span>
           <div class="big-word peek-big" id="peek-word"></div>
+          <div class="word-note" id="peek-note"></div>
         </div>
         <button class="btn btn-soft-ink btn-big" id="btn-peek-close" data-i18n="peekClose">Kapat</button>
       </div>
@@ -5894,6 +5903,214 @@ const WORD_PACKS = [
   },
 ];
 
+// Kelime notları: kartta kelimenin altında küçük açıklama (sadece kartın sahibi görür).
+// KURAL: not ASLA çiftin diğer kelimesini anmaz/ima etmez — köstebeğe sivil kelimeyi sızdırır.
+const WORD_NOTES = {
+  tr: {
+    // 90'lar & 2000'ler
+    "Kaset": "Makaralı ses bandı; kalemle geri sarılırdı.",
+    "CD": "Parlak müzik diski; albümler bununla satılırdı.",
+    "Walkman": "Sony'nin kulaklıkla dinlenen cep teybi.",
+    "Discman": "Sony'nin taşınabilir disk çaları; sallayınca şarkı atlardı.",
+    "MP3 çalar": "Şarkı dosyası yüklenen küçük müzik aleti.",
+    "iPod": "Apple'ın tekerlekli müzik çaları (2001).",
+    "Disket": "Kare, plastik bilgisayar depolama diski; 1.44 MB.",
+    "CD-ROM": "Bilgisayarda program ve oyun yüklenen disk.",
+    "MSN": "2000'lerin anlık mesajlaşma programı; 'titreşim' gönderirdik.",
+    "mIRC": "2000'lerin başında popüler sohbet odası programı.",
+    "Hotmail": "Microsoft'un e-posta servisi; herkesin ilk maili.",
+    "Yahoo": "2000'lerin arama motoru ve e-posta sitesi.",
+    "Nokia 3310": "Kırılmaz efsane tuşlu Nokia; Yılan oyunu bununla meşhur.",
+    "Motorola Razr": "2004'ün ince, metalik, kapaklı moda telefonu.",
+    "Yılan oyunu": "Tuşlu telefonlarda uzayan yılanla yem yeme oyunu.",
+    "Tetris": "Düşen blokları dizip satır silme oyunu.",
+    "Atari": "Evde TV'ye bağlanan oyun konsolu; 90'larda her konsola denirdi.",
+    "Sega": "Sonic'in evi olan 90'lar oyun konsolu markası.",
+    "PlayStation": "Sony'nin 1994'te çıkan oyun konsolu.",
+    "Game Boy": "Nintendo'nun el tipi, pilli oyun cihazı.",
+    "Tamagotchi": "Yumurta şeklinde cep oyuncağı; içindeki sanal hayvanı besleyip büyütürdün.",
+    "Furby": "Konuşan, göz kırpan tüylü robot oyuncak (1998).",
+    "Taso": "Cips paketlerinden çıkan yuvarlak plastik oyun kartları.",
+    "Çıkartma albümü": "Futbolcu veya çizgi film çıkartmalarıyla doldurulan albüm.",
+    "Yo-yo": "İpe bağlı, aşağı atıp geri çektiğin makara oyuncak.",
+    "Beyblade": "Arenada çarpıştırılan fırlatmalı topaç (2000'ler).",
+    "Çevirmeli internet": "Telefon hattıyla bağlanan, cızırtılı sesli yavaş internet.",
+    "ADSL": "2000'lerde gelen, telefonu meşgul etmeyen hızlı ev interneti.",
+    "İnternet kafe": "Saatlik ücretle bilgisayar ve internet kullanılan dükkan.",
+    "Atari salonu": "Jetonla oynanan oyun makinelerinin olduğu salon.",
+    "Video kaset": "Filmleri video oynatıcıda izlediğimiz büyük kaset.",
+    "VCD": "2000'lerde filmlerin satıldığı ucuz video diski.",
+    "Jetonlu telefon": "Sokaktaki, jeton atıp konuşulan eski ankesörlü telefon.",
+    "Kartlı telefon": "Kontörlü telefon kartı takılarak konuşulan sokak telefonu.",
+    "Çağrı cihazı": "Ekranında sadece numara/kısa mesaj gösteren kemere takılan alet.",
+    "Telesekreter": "Evdeki telefona gelen sesli mesajları kaydeden makine.",
+    "Kontör": "Hattına para yükleyince aldığın konuşma birimi.",
+    "SMS paketi": "Operatörden ayda şu kadar mesaj diye alınan tarife.",
+    "Polifonik zil sesi": "Çok sesli, melodili telefon zil sesi; indirilirdi.",
+    "MMS": "Telefondan fotoğraflı mesaj gönderme servisi.",
+    "Popstar": "2000'lerin şarkıcı yarışması TV programı.",
+    "Biri Bizi Gözetliyor": "Evde kameralarla izlenen yarışmacıların programı (2001).",
+    "Tarkan": "'Şımarık' ile dünyaya açılan pop yıldızı.",
+    "Mustafa Sandal": "'Araba', 'Aya Benzer' şarkılarıyla 90'lar popçusu.",
+    "Kurtlar Vadisi": "Polat Alemdar'lı mafya/aksiyon dizisi (2003).",
+    "Asmalı Konak": "Kapadokya'da geçen, Seymen ve Bahar'lı aşk dizisi (2002).",
+    "Bizimkiler": "Apartman sakinlerini anlatan 90'ların uzun soluklu dizisi.",
+    "Süper Baba": "Şevket Altuğ'lu, tek başına çocuk büyüten baba dizisi.",
+    "Kaptan Tsubasa": "Futbolcu çocukların anime çizgi dizisi.",
+    "Pokémon": "Cebe sığan canavarları yakalayıp eğitme çizgi filmi/oyunu.",
+    "Winamp": "Bilgisayarda MP3 çalan, temalı müzik programı.",
+    "Windows Media Player": "Windows'la gelen müzik ve video oynatıcı.",
+    "Counter-Strike": "Terörist ve anti-terörist takımlı nişancı oyunu.",
+    "Age of Empires": "Köy kurup ordu çıkardığın strateji oyunu.",
+    "Mario": "Nintendo'nun bıyıklı tesisatçı oyun kahramanı.",
+    "Sonic": "Sega'nın hızlı koşan mavi kirpisi.",
+    "Oralet": "Suya karıştırılan toz meyve çayı; kantinlerin klasiği.",
+    "Tang": "Suya karıştırılan portakal aromalı toz içecek.",
+    "Tüplü televizyon": "Arkası kocaman, ağır, eski tip televizyon.",
+    "Plazma TV": "2000'lerde çıkan ince, düz ekran televizyon.",
+    "Mektup arkadaşı": "Hiç görmediğin biriyle postayla yazışma arkadaşlığı.",
+    "Chat arkadaşı": "İnternetteki sohbet odalarında tanıştığın arkadaş.",
+    "Ansiklopedi": "Ciltler halinde bilgi kitabı seti.",
+    "Encarta": "Microsoft'un CD'den açılan dijital bilgi kaynağı.",
+    // Dizi & Film
+    "Kara komedi": "Ölüm gibi karanlık konulardan mizah çıkaran tür.",
+    "Fragman": "Filmin tanıtım amaçlı kısa kesiti.",
+    "Jenerik": "Filmin başında/sonunda akan isim listesi.",
+    "Oscar": "Amerikan sinemasının en prestijli ödül töreni.",
+    "Altın Küre": "Film ve dizilere verilen Hollywood ödülü.",
+    "Cannes": "Fransa'daki ünlü film festivali; kırmızı halısıyla meşhur.",
+    "Star Wars": "Işın kılıçlı, Jedi'lı uzay destanı.",
+    "Star Trek": "Atılgan uzay gemisinin keşif serüveni.",
+    "Harry Potter": "Büyücülük okulu Hogwarts'ta geçen seri.",
+    "Yüzüklerin Efendisi": "Orta Dünya'da tek yüzüğü yok etme yolculuğu.",
+    "Kemal Sunal": "'Şaban' karakteriyle Yeşilçam'ın komedi efsanesi.",
+    "Şener Şen": "'Eşkıya', 'Züğürt Ağa' ile ünlü usta oyuncu.",
+    "G.O.R.A.": "Cem Yılmaz'ın uzaylılara kaçırılan halı satıcılı filmi.",
+    "Recep İvedik": "Şahan Gökbakar'ın kaba ama sevimli komedi karakteri.",
+    "Sitcom": "Sabit mekanlı, kahkaha efektli durum komedisi dizisi.",
+    "Skeç": "Kısa, tek konulu komedi gösterisi.",
+    "Figüran": "Arka planda görünen, rolsüz oyuncu.",
+    "Dublör": "Tehlikeli sahnelerde oyuncunun yerine geçen kişi.",
+    "Zapping": "Kumandayla kanaldan kanala hızla geçmek.",
+    "Dizi maratonu": "Bir diziyi durmadan bölüm bölüm izlemek.",
+    "Pilot bölüm": "Bir dizinin denenen ilk bölümü.",
+    "Reality şov": "Gerçek insanların hayatının çekildiği program.",
+    // Yemek (bölgesel)
+    "Ezogelin": "Mercimek, bulgur ve naneli kırmızı çorba.",
+    "İmam bayıldı": "Zeytinyağlı, soğan-domatesle doldurulmuş patlıcan.",
+    "Karnıyarık": "Kıymalı dolgusu olan fırında patlıcan yemeği.",
+    "Revani": "İrmikli, şerbetli, yumuşak kek tatlısı.",
+    "Şekerpare": "Şerbetli, yuvarlak kurabiye tatlısı.",
+    "Tantuni": "Mersin'in dürüm içinde doğranmış et yemeği.",
+    "Boza": "Darıdan yapılan koyu, ekşimsi kış içeceği.",
+    "Salep": "Tarçınlı sıcak, sütlü kış içeceği.",
+    "Kefir": "Mayalı, hafif ekşi içilebilir süt ürünü.",
+    "Profiterol": "Kremalı hamur toplarının üstüne çikolata sosu dökülen tatlı.",
+    "Ekler": "Uzun, kremalı, üstü çikolatalı hamur tatlısı.",
+    "Kumpir": "İçi bol malzemeyle doldurulan dev fırın patates.",
+    "Şalgam suyu": "Adana'nın ekşi, kırmızı, acılı içeceği.",
+  },
+  en: {
+    // Retro 90s-00s
+    "Cassette": "Magnetic tape in a plastic shell; rewind it with a pencil.",
+    "CD": "Shiny music disc; albums were sold on these.",
+    "Walkman": "Sony's pocket tape player with headphones.",
+    "Discman": "Sony's portable disc player; songs skipped if you shook it.",
+    "MP3 player": "Small gadget you loaded music files onto.",
+    "iPod": "Apple's music player with the click wheel (2001).",
+    "Floppy disk": "Square plastic computer disk; 1.44 MB.",
+    "CD-ROM": "Disc used to install PC games and programs.",
+    "MSN Messenger": "Microsoft's 2000s chat app; you could send a 'nudge'.",
+    "AIM": "AOL Instant Messenger; away messages and buddy lists.",
+    "Hotmail": "Microsoft's email service; everyone's first inbox.",
+    "Yahoo Mail": "Email from the 2000s web portal giant.",
+    "Nokia 3310": "Indestructible button phone famous for its snake game.",
+    "Motorola Razr": "Ultra-thin metal flip phone from 2004.",
+    "Snake": "Phone game: eat dots, grow longer, don't bite yourself.",
+    "Tetris": "Stack falling blocks to clear lines.",
+    "Nintendo 64": "Nintendo's 1996 console with the three-handled controller.",
+    "PlayStation": "Sony's home console, launched in 1994.",
+    "Game Boy": "Nintendo's battery-powered handheld console.",
+    "Game Gear": "Sega's color handheld console.",
+    "Tamagotchi": "Egg-shaped keychain toy; you fed and raised a virtual pet.",
+    "Furby": "Furry talking robot toy with blinking eyes (1998).",
+    "Pogs": "Round cardboard discs you flipped with a heavy slammer.",
+    "Pokémon cards": "Collectible trading cards of pocket monsters.",
+    "Yo-yo": "Spool on a string you throw down and pull back.",
+    "Beyblade": "Launchable battle top from the 2000s.",
+    "Dial-up": "Slow internet over the phone line, with screeching noises.",
+    "Broadband": "Always-on fast home internet of the 2000s.",
+    "Internet café": "Shop renting computers and internet by the hour.",
+    "Arcade": "Hall of coin-operated game machines.",
+    "VHS": "Big video tape you watched in a VCR; 'be kind, rewind'.",
+    "DVD": "Disc for movies with menus and extras.",
+    "Payphone": "Coin-operated public phone on the street.",
+    "Pager": "Belt gadget that showed a number to call back.",
+    "Answering machine": "Home device that recorded voice messages.",
+    "Fax machine": "Sent paper documents over a phone line.",
+    "Polyphonic ringtone": "Multi-tone melody ringtone you downloaded.",
+    "Picture message": "Early phone photo message (MMS).",
+    "Myspace": "Social network with Top 8 friends and profile songs.",
+    "Friendster": "Early social network, before Facebook.",
+    "Friends": "Sitcom about six friends in New York and Central Perk.",
+    "Seinfeld": "'Show about nothing' sitcom set in New York.",
+    "Spice Girls": "British girl group: Scary, Sporty, Baby, Ginger, Posh.",
+    "Backstreet Boys": "American boy band of 'I Want It That Way'.",
+    "Britney Spears": "Pop star of '...Baby One More Time'.",
+    "Christina Aguilera": "Pop singer of 'Genie in a Bottle'.",
+    "Mario": "Nintendo's mustached plumber hero.",
+    "Sonic": "Sega's super-fast blue hedgehog.",
+    "Pokémon": "Catch-and-train pocket monsters cartoon and game.",
+    "Digimon": "'Digital monsters' cartoon about kids and partner creatures.",
+    "Winamp": "Skinnable MP3 player for the PC.",
+    "Windows Media Player": "Music and video player built into Windows.",
+    "Counter-Strike": "Team shooter: terrorists vs. counter-terrorists.",
+    "Age of Empires": "Strategy game: build a village, raise an army.",
+    "Mixtape": "Tape of songs you recorded for someone.",
+    "Burned CD": "Homemade disc of songs from your computer.",
+    "Encyclopedia": "Multi-volume set of reference books.",
+    "Encarta": "Microsoft's digital reference on disc.",
+    "Flip phone": "Phone that folds shut like a clamshell.",
+    "Slide phone": "Phone whose screen slides up to reveal keys.",
+    "Beanie Babies": "Small bean-filled plush toys people collected.",
+    "Troll dolls": "Tiny dolls with wild, upright neon hair.",
+    "Tube TV": "Deep, heavy old-style television.",
+    "Plasma TV": "Thin flat-screen TV from the 2000s.",
+    // Movies & TV
+    "Oscar": "Hollywood's most prestigious award show.",
+    "Golden Globe": "Hollywood award for film and TV.",
+    "Cannes": "French film festival famous for its red carpet.",
+    "Sundance": "Utah festival for independent films.",
+    "Star Wars": "Space saga with lightsabers and Jedi.",
+    "Star Trek": "Starship Enterprise's exploration voyages.",
+    "Harry Potter": "Series set at Hogwarts school of wizardry.",
+    "Lord of the Rings": "Quest across Middle-earth to destroy the One Ring.",
+    "Marvel": "Studio of Iron Man, Spider-Man and the Avengers.",
+    "DC": "Home of Batman, Superman and Wonder Woman.",
+    "Sitcom": "Situation comedy with a laugh track.",
+    "Sketch show": "Show of short, separate comedy scenes.",
+    "Extra": "Background actor with no lines.",
+    "Stuntman": "Performer who does dangerous scenes for actors.",
+    "Binge-watching": "Watching episode after episode nonstop.",
+    "Channel surfing": "Flipping through TV channels with the remote.",
+    "Pilot episode": "The first test episode of a series.",
+    "Sequel": "A follow-up that continues the story.",
+    "Remake": "A new version of an older film.",
+    // Food
+    "Poke bowl": "Hawaiian bowl of raw fish over rice.",
+    "Danish": "Flaky pastry with fruit or cream in the middle.",
+    "Corn dog": "Sausage on a stick in fried cornmeal batter.",
+    "Coleslaw": "Shredded cabbage side dish in creamy dressing.",
+    "Calamari": "Fried squid rings.",
+  },
+};
+function wordNote(w, lang) {
+  if (!w) return "";
+  const pref = lang === "en" ? ["en", "tr"] : ["tr", "en"];
+  for (const l of pref) { const n = WORD_NOTES[l] && WORD_NOTES[l][w]; if (n) return n; }
+  return "";
+}
+
 // ================= Çeviri =================
 const I18N = {
   tr: {
@@ -7064,6 +7281,7 @@ $("btn-peek").addEventListener("click", () => {
       const w = role === "numaraci" ? t("numaraciWord") : (role === "kostebek" ? state.el.spyWord : state.el.civilWord);
       $("peek-word").textContent = w;
       $("peek-word").classList.toggle("longw", w.length >= 9);
+      $("peek-note").textContent = role === "numaraci" ? "" : wordNote(w, state.lang);
       grid.classList.add("hidden");
       $("peek-word-box").classList.remove("hidden");
     });
@@ -7397,12 +7615,14 @@ function showRevealCard() {
   if (role === "numaraci") {
     $("card-label").textContent = t("cardLabelRole");
     $("card-word").textContent = t("numaraciWord");
+    $("card-note").textContent = "";
     $("card-sub").textContent = t("numaraciSub");
   } else {
     $("card-label").textContent = t("cardLabelWord");
     const w = role === "kostebek" ? state.el.spyWord : state.el.civilWord;
     $("card-word").textContent = w;
     $("card-word").classList.toggle("longw", w.length >= 9);
+    $("card-note").textContent = wordNote(w, state.lang);
     $("card-sub").textContent = t("dontShow");
     if (pIdx === state.el.papagan) extra = t("papaganExtra");
     if (pIdx === state.el.twinA) extra = t("ikizExtra", state.players[state.el.twinB].name);
@@ -9310,6 +9530,7 @@ function onlineDig(btn) {
     $("card-label").textContent = t(game.my.label);
     $("card-word").textContent = kelime;
     $("card-word").classList.toggle("longw", kelime.length >= 9);
+    $("card-note").textContent = game.my.wordKey ? "" : wordNote(kelime, state.lang);
     $("card-sub").textContent = game.my.role === "numaraci" ? t("numaraciSub") : t("dontShow");
     $("card-extra").textContent = game.my.extraKey ? t(game.my.extraKey, game.my.extraArg) : (game.my.extra || "");
     $("next-btn-text").textContent = t("imReady");
@@ -9345,6 +9566,7 @@ function onlineSelfPeek() {
   $("peek-label").textContent = t(game.my.label);
   $("peek-word").textContent = kelime;
   $("peek-word").classList.toggle("longw", kelime.length >= 9);
+  $("peek-note").textContent = game.my.wordKey ? "" : wordNote(kelime, state.lang);
   $("peek-word-box").classList.remove("hidden");
   $("peek-modal").classList.remove("hidden");
 }
